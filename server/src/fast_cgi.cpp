@@ -31,6 +31,7 @@
 extern char ** environ;
 #endif
 #include <time.h>
+#include <algorithm>
 
 namespace FastCGI
 {
@@ -91,6 +92,12 @@ namespace FastCGI
 
 	Request::~Request()
 	{
+		readAll();
+	}
+
+	void Request::readAll()
+	{
+		m_read_something = true;
 		// ignore() doesn't set the eof bit in some versions of glibc++
 		// so use gcount() instead of eof()...
 		do m_cin.ignore(1024); while (m_cin.gcount() == 1024);
@@ -116,9 +123,10 @@ namespace FastCGI
 	Response::Response(Request& req, Application& app)
 		: m_req(req)
 		, m_app(app)
-        , m_cout(app.m_request.out)
+		, m_headers_sent(false)
+        , m_streambuf(app.m_request.out)
         , m_cerr(app.m_request.err)
-		, cout(&m_cout)
+		, m_cout(&m_streambuf)
 		, cerr(&m_cerr)
 	{
 	}
@@ -131,8 +139,41 @@ namespace FastCGI
 	{
 		if (m_req.m_read_something)
 			return;
-		m_req.m_read_something = true;
-		do m_req.m_cin.ignore(1024); while (m_req.m_cin.gcount() == 1024);
+		m_req.readAll();
+	}
+
+	void Response::printHeaders()
+	{
+		if (m_headers_sent)
+			return;
+
+		m_headers_sent = true;
+		if (m_headers.find("content-type") == m_headers.end())
+			m_headers["content-type"] = "Content-Type: text/html; charset=utf-8";
+
+		Headers::const_iterator _cur = m_headers.begin(), _end = m_headers.end();
+		for (; _cur != _end; ++_cur)
+		{
+			*this << _cur->second << "\r\n";
+		}
+		*this << "\r\n";
+	}
+
+	void Response::header(const std::string& name, const std::string& value)
+	{
+		if (m_headers_sent)
+		{
+#if DEBUG_CGI
+			*this << "<br/><b>Warning</b>: Cannot set header after sending data to the browser (" << name << ": " << value << ")<br/><br/>";
+#endif
+			return;
+		}
+		std::string v(name);
+		v += ": ";
+		v += value;
+		std::string n(name);
+		std::transform(n.begin(), n.end(), n.begin(), ::tolower);
+		m_headers[n] = v;
 	}
 
 	std::string Response::server_uri(const std::string& resource, bool with_query)
@@ -169,9 +210,8 @@ namespace FastCGI
 
 	void Response::redirect_url(const std::string& url)
 	{
-		cout
-			<< "Location: " << url << "\r\n"
-			<< "\r\n"
+		header("Location", url);
+		*this
 			<< "<h1>Redirection</h1>\n"
 			<< "<p>The app needs to be <a href='" << url << "'>here</a>.</p>"; 
 		die();
@@ -179,14 +219,11 @@ namespace FastCGI
 
 	void Response::on404()
 	{
-		cout
-			<< "Status: 404 Not Found\r\n"
-			<< "Content-type: text/html; encoding=utf-8\r\n"
-			<< "\r\n"
-
+		header("Status", "404 Not Found");
+		*this
 			<< "<tt>404: Oops! (URL: " << m_req.getParam("REQUEST_URI") << ")</tt>";
 #if DEBUG_CGI
-		cout << "<br/>\n<a href='/debug/'>Debug</a>.";
+		*this << "<br/>\n<a href='/debug/'>Debug</a>.";
 #endif
 		die();
 	}

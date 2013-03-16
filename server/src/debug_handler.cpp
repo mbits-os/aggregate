@@ -146,9 +146,7 @@ namespace app
 
 		void visit(FastCGI::Request& request, FastCGI::Response& response)
 		{
-			response << "Content-Type: text/html\r\n"
-				"\r\n"
-				"<style type='text/css'>\n"
+			response << "<style type='text/css'>\n"
 				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
 				"div#content { width: 650px; margin: 0px auto }\n"
 				"th, td { text-align: left; vertical-align: top; padding: 0.2em 0.5em }\n"

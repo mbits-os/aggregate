@@ -27,6 +27,8 @@
 
 #include "fcgio.h"
 #include <list>
+#include <map>
+#include <string>
 
 #if !defined(DEBUG_HANDLERS)
 #ifdef NDEBUG
@@ -85,12 +87,17 @@ namespace FastCGI
 
 	class Response
 	{
+		typedef std::map<std::string, std::string> Headers;
+
 		Request& m_req;
 		Application& m_app;
-        fcgi_streambuf m_cout;
+		bool m_headers_sent;
+        fcgi_streambuf m_streambuf;
         fcgi_streambuf m_cerr;
-		std::ostream cout;
+		Headers m_headers;
+		std::ostream m_cout;
 		void ensureInputWasRead();
+		void printHeaders();
 	public:
 		std::ostream cerr;
 
@@ -98,6 +105,8 @@ namespace FastCGI
 		~Response();
 		const Application& app() const { return m_app; }
 		const Request& req() const { return m_req; }
+
+		void header(const std::string& name, const std::string& value);
 
 		void die() { throw FinishResponse(); }
 
@@ -114,7 +123,8 @@ namespace FastCGI
 		Response& operator << (const T& obj)
 		{
 			ensureInputWasRead();
-			cout << obj;
+			printHeaders();
+			m_cout << obj;
 			return *this;
 		}
 	};
@@ -128,6 +138,8 @@ namespace FastCGI
 
 		std::istream m_cin;
 		mutable bool m_read_something;
+
+		void readAll();
 	public:
 		Request(Application& app);
 		~Request();
