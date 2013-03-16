@@ -22,27 +22,11 @@
  * SOFTWARE.
  */
 
+#include "pch.h"
 #include "fast_cgi.h"
-#include <stdlib.h>
-#ifdef _WIN32
-#include <process.h>
-#else
-#include <unistd.h>
-extern char ** environ;
-#endif
-#include <time.h>
-#include <algorithm>
 
 namespace FastCGI
 {
-	namespace
-	{
-		enum
-		{
-			STDIN_MAX = 0x100000 ///< Maximum number of bytes allowed to be read from stdin (1 MiB)
-		};
-	}
-
 	Application::Application()
 	{
 		m_pid = _getpid();

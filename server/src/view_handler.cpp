@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include "pch.h"
 #include "handlers.h"
 
 namespace app

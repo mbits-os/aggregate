@@ -23,34 +23,3 @@
  */
 
 #include "pch.h"
-#include "handlers.h"
-
-REGISTER_REDIRECT("/", "/view/");
-
-int main (void)
-{
-	FastCGI::Application app;
-
-	int ret = app.init();
-	if (ret != 0)
-		return ret;
-
-	while (app.accept())
-	{
-		FastCGI::Request req(app);
-
-		try {
-
-			app::HandlerPtr handler = app::Handlers::handler(req);
-			if (handler.get() != NULL)
-				handler->visit(req, req.resp());
-			else
-				req.resp().on404();
-
-		} catch(FastCGI::FinishResponse) {
-			// die() lands here
-		}
-	}
-
-    return 0;
-}

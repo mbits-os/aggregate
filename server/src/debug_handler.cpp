@@ -22,25 +22,16 @@
  * SOFTWARE.
  */
 
+#include "pch.h"
 #include "handlers.h"
 
 #if DEBUG_CGI
 
-#include <stdlib.h>
 #ifdef _WIN32
-#include <process.h>
-#else
-#include <unistd.h>
-extern char ** environ;
-#endif
-#include <time.h>
-
-static int count = 0;
-
-#ifdef WIN32
 #define SEP ';'
 #else
 #define SEP ':'
+extern char ** environ;
 #endif
 
 namespace app

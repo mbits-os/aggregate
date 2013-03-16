@@ -25,27 +25,6 @@
 #ifndef __SERVER_FAST_CFGI_H__
 #define __SERVER_FAST_CFGI_H__
 
-#include "fcgio.h"
-#include <list>
-#include <map>
-#include <string>
-
-#if !defined(DEBUG_HANDLERS)
-#ifdef NDEBUG
-#define DEBUG_CGI 0
-#else
-#define DEBUG_CGI 1
-#endif
-#endif
-
-namespace std
-{
-	inline std::ostream& operator << (std::ostream& o, const std::string& str)
-	{
-		return o << str.c_str();
-	}
-}
-
 namespace FastCGI
 {
 	class Request;

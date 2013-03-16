@@ -1,5 +1,7 @@
+server/inc/pch.h
 server/inc/fast_cgi.h
 server/inc/handlers.h
+server/src/pch.cpp=pch:1
 server/src/main.cpp
 server/src/fast_cgi.cpp
 server/src/handlers.cpp

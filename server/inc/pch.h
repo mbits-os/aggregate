@@ -22,35 +22,38 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include "handlers.h"
+#ifndef __SERVER_PCH_H__
+#define __SERVER_PCH_H__
 
-REGISTER_REDIRECT("/", "/view/");
+#include "fcgio.h"
+#include <memory>
+#include <list>
+#include <map>
+#include <string>
+#include <algorithm>
 
-int main (void)
+#include <stdlib.h>
+#include <time.h>
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
+#if !defined(DEBUG_HANDLERS)
+#ifdef NDEBUG
+#define DEBUG_CGI 0
+#else
+#define DEBUG_CGI 1
+#endif
+#endif
+
+namespace std
 {
-	FastCGI::Application app;
-
-	int ret = app.init();
-	if (ret != 0)
-		return ret;
-
-	while (app.accept())
+	inline std::ostream& operator << (std::ostream& o, const std::string& str)
 	{
-		FastCGI::Request req(app);
-
-		try {
-
-			app::HandlerPtr handler = app::Handlers::handler(req);
-			if (handler.get() != NULL)
-				handler->visit(req, req.resp());
-			else
-				req.resp().on404();
-
-		} catch(FastCGI::FinishResponse) {
-			// die() lands here
-		}
+		return o << str.c_str();
 	}
-
-    return 0;
 }
+
+#endif //__SERVER_PCH_H__

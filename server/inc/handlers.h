@@ -25,10 +25,6 @@
 #ifndef __SERVER_HANDLER_H__
 #define __SERVER_HANDLER_H__
 
-#include <memory>
-#include <map>
-#include <string>
-
 #include "fast_cgi.h"
 
 namespace app
