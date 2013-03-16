@@ -47,18 +47,15 @@ int main (void)
 		FastCGI::Request req(app);
 
 		try {
+
 			app::HandlerPtr handler = app::Handlers::handler(req);
-
-			// Although FastCGI supports writing before reading,
-			// many http clients (browsers) don't support it (so
-			// the connection deadlocks until a timeout expires!).
-
 			if (handler.get() != NULL)
 				handler->visit(req, req.resp());
 			else
 				req.resp().on404();
 
 		} catch(FastCGI::FinishResponse) {
+			// die() lands here
 		}
 	}
 
