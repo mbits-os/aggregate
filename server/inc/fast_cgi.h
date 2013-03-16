@@ -28,10 +28,12 @@
 #include "fcgio.h"
 #include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
 
-namespace FastCGI {
+namespace FastCGI
+{
 	class Request;
 
-	class Application {
+	class Application
+	{
 		friend class Request;
 
 		long m_pid;
@@ -47,7 +49,8 @@ namespace FastCGI {
 		bool accept();
 	};
 
-	class Request {
+	class Request
+	{
 		FCGX_Request& m_request;
         fcgi_streambuf m_cin_fcgi_streambuf;
         fcgi_streambuf m_cout_fcgi_streambuf;

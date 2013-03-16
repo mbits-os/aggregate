@@ -31,12 +31,16 @@
 extern char ** environ;
 #endif
 
-namespace FastCGI {
-	namespace {
-		enum {
+namespace FastCGI
+{
+	namespace
+	{
+		enum
+		{
 			STDIN_MAX = 0x100000 ///< Maximum number of bytes allowed to be read from stdin (1 MiB)
 		};
 	}
+
 	Application::Application()
 	{
 		m_pid = _getpid();
