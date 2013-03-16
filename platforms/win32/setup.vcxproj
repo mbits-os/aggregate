@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D7E65FE3-ADE5-46AE-B9EE-0AA0996C8A2F}</ProjectGuid>
+    <RootNamespace>setup</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemGroup>
+    <None Include="..\3rdparty.files" />
+    <None Include="..\server.files" />
+    <CustomBuild Include="projects.cmd">
+      <FileType>Document</FileType>
+      <Command>@python create_projects.py ../../ server Application 93A32A2E-A7A6-4ABF-9505-BB6A76A2F358
+</Command>
+      <Message>Building projects</Message>
+      <AdditionalInputs>%(Directory)\..\server.files;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>%(Directory)\server.vcxproj;%(Directory)\server.vcxproj.filters</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Directory)\3rdparty.vcxproj;%(Directory)\3rdparty.vcxproj.filters;%(Directory)\server.vcxproj;%(Directory)\server.vcxproj.filters</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Directory)\..\3rdparty.files;%(Directory)\..\server.files;%(AdditionalInputs)</AdditionalInputs>
+    </CustomBuild>
+    <None Include="create_projects.py" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
