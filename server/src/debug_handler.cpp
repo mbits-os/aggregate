@@ -148,19 +148,26 @@ namespace app
 				"</style>\n"
 				"<title>Debug page</title>\n<div id='content'>\n"
 				"<h1>Debug page</h1>\n"
-				"<h4>PID: " << request.app().pid() << "</h4>\n"
-				"<h4>Request Number: " << request.app().requs().size() << "</h4>\n";
+				"<h2>Table of Contents</h2>\n"
+				"<ol>\n"
+				"<li><a href='#request'>Request Environment</a></li>\n"
+				"<li><a href='#process'>Process/Initial Environment</a></li>\n"
+				"<li><a href='#handlers'>Page Handlers</a></li>\n"
+				"<li><a href='#requests'>Page Requests</a></li>\n"
+				"</ol>\n"
+				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
+				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
 
-			response << "<h4 class='head'>Request Environment</h4>\n";
+			response << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
 			penv(response, request.envp());
 
-			response << "<h4 class='head'>Process/Initial Environment</h4>\n";
+			response << "<h2 class='head'><a name='process'></a>Process/Initial Environment</h2>\n";
 			penv(response, environ);
 
-			response << "<h4 class='head'>Page Handlers</h4>\n";
+			response << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
 			handlers(response, app::Handlers::begin(), app::Handlers::end());
 
-			response << "<h4 class='head'>Page Requests</h4>\n";
+			response << "<h2 class='head'><a name='requests'></a>Page Requests</h2>\n";
 			requests(response, request.app().requs());
 		}
 

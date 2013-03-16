@@ -4,3 +4,5 @@ server/src/main.cpp
 server/src/fast_cgi.cpp
 server/src/handlers.cpp
 server/src/debug_handler.cpp
+server/src/view_handler.cpp
+server/src/data_handler.cpp
