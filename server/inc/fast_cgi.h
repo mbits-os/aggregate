@@ -26,48 +26,143 @@
 #define __SERVER_FAST_CFGI_H__
 
 #include "fcgio.h"
-#include "fcgi_config.h"  // HAVE_IOSTREAM_WITHASSIGN_STREAMBUF
+#include <list>
+
+#if !defined(DEBUG_HANDLERS)
+#ifdef NDEBUG
+#define DEBUG_CGI 0
+#else
+#define DEBUG_CGI 1
+#endif
+#endif
+
+namespace std
+{
+	inline std::ostream& operator << (std::ostream& o, const std::string& str)
+	{
+		return o << str.c_str();
+	}
+}
 
 namespace FastCGI
 {
 	class Request;
+	class Response;
 
 	class Application
 	{
 		friend class Request;
+		friend class Response;
 
 		long m_pid;
 		FCGX_Request m_request;
-		std::streambuf * m_cin_streambuf;
-		std::streambuf * m_cout_streambuf;
-		std::streambuf * m_cerr_streambuf;
 	public:
 		Application();
 		~Application();
 		int init();
 		int pid() const { return m_pid; }
 		bool accept();
+
+#if DEBUG_CGI
+		struct ReqInfo
+		{
+			std::string resource;
+			std::string server;
+			std::string remote_addr;
+			std::string remote_port;
+			time_t now;
+		};
+		typedef std::list<ReqInfo> ReqList;
+		const ReqList& requs() const { return m_requs; }
+	private:
+		ReqList m_requs;
+#endif
+	};
+
+	typedef const char* param_t;
+
+	class FinishResponse {};
+
+	class Response
+	{
+		Request& m_req;
+		Application& m_app;
+        fcgi_streambuf m_cout;
+        fcgi_streambuf m_cerr;
+		std::ostream cout;
+		void ensureInputWasRead();
+	public:
+		std::ostream cerr;
+
+		Response(Request& req, Application& app);
+		~Response();
+		const Application& app() const { return m_app; }
+		const Request& req() const { return m_req; }
+
+		void die() { throw FinishResponse(); }
+
+		std::string server_uri(const std::string& resource, bool with_query = true);
+		void redirect_url(const std::string& url);
+		void redirect(const std::string& resource, bool with_query = true)
+		{
+			redirect_url(server_uri(resource, with_query));
+		}
+
+		void on404();
+
+		template <typename T>
+		Response& operator << (const T& obj)
+		{
+			ensureInputWasRead();
+			cout << obj;
+			return *this;
+		}
 	};
 
 	class Request
 	{
-		FCGX_Request& m_request;
-        fcgi_streambuf m_cin_fcgi_streambuf;
-        fcgi_streambuf m_cout_fcgi_streambuf;
-        fcgi_streambuf m_cerr_fcgi_streambuf;
+		friend class Response;
+		Response m_resp;
+		Application& m_app;
+        fcgi_streambuf m_streambuf;
 
-		char * m_content;
-        std::streamsize m_content_size;
+		std::istream m_cin;
+		mutable bool m_read_something;
 	public:
 		Request(Application& app);
 		~Request();
-   		const char **envp() const { return (const char **)m_request.envp; }
-		std::streamsize readContents(bool save);
-		std::streamsize size() const { return m_content_size; }
-		const char* contents() const { return m_content; }
+   		const char * const* envp() const { return m_app.m_request.envp; }
+		const Application& app() const { return m_app; }
+		long long calcStreamSize();
+		param_t getParam(const char* name) const { return FCGX_GetParam(name, m_app.m_request.envp); }
+		const Response& resp() const { return m_resp; }
+		Response& resp() { return m_resp; }
 
-		static const std::streamsize stdin_max;
+		template <typename T>
+		const Request& operator >> (T& obj) const
+		{
+			m_read_something = true;
+			m_cin >> obj;
+			return *this;
+		}
+
+		std::streamsize read(void* ptr, std::streamsize length)
+		{
+			m_read_something = true;
+			m_cin.read((char*)ptr, length);
+			return m_cin.gcount();
+		}
+
+		template<std::streamsize length>
+		std::streamsize read(char* (&ptr)[length])
+		{
+			m_read_something = true;
+			m_cin.read(ptr, length);
+			return m_cin.gcount();
+		}
 	};
 }
+
+namespace fcgi = FastCGI;
 
 #endif //__SERVER_FAST_CFGI_H__

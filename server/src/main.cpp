@@ -38,27 +38,14 @@
 extern char ** environ;
 #endif
 #include "fast_cgi.h"
+#include "handlers.h"
 
-using namespace std;
-
-// Maximum number of bytes allowed to be read from stdin
-static const unsigned long STDIN_MAX = 1000000;
-
-static void penv(const char * const * envp)
-{
-    cout << "<PRE>\n";
-    for ( ; *envp; ++envp)
-    {
-        cout << *envp << "\n";
-    }
-    cout << "</PRE>\n";
-}
+REGISTER_REDIRECT("/view", "/view/");
+REGISTER_REDIRECT("/", "/view/");
 
 int main (void)
 {
 	FastCGI::Application app;
-
-	int count = 0;
 
 	int ret = app.init();
 	if (ret != 0)
@@ -68,29 +55,21 @@ int main (void)
     {
 		FastCGI::Request req(app);
 
-        // Although FastCGI supports writing before reading,
-        // many http clients (browsers) don't support it (so
-        // the connection deadlocks until a timeout expires!).
-		req.readContents(true);
+		try {
+			app::HandlerPtr handler = app::Handlers::handler(req);
 
-        cout << "Content-type: text/html\r\n"
-                "\r\n"
-                "<TITLE>echo-cpp</TITLE>\n"
-                "<H1>echo-cpp</H1>\n"
-                "<H4>PID: " << app.pid() << "</H4>\n"
-                "<H4>Request Number: " << ++count << "</H4>\n";
+			// Although FastCGI supports writing before reading,
+			// many http clients (browsers) don't support it (so
+			// the connection deadlocks until a timeout expires!).
 
-        cout << "<H4>Request Environment</H4>\n";
-        penv(req.envp());
+			if (handler.get() != NULL)
+				handler->visit(req, req.resp());
+			else
+				req.resp().on404();
 
-        cout << "<H4>Process/Initial Environment</H4>\n";
-        penv(environ);
-
-		cout << "<H4>Standard Input - " << req.size();
-        if (req.size() == req.stdin_max) cout << " (STDIN_MAX)";
-        cout << " bytes</H4>\n";
-        if (req.size() && req.contents()) cout.write(req.contents(), req.size());
-    }
+		} catch(FastCGI::FinishResponse) {
+		}
+	}
 
     return 0;
 }
