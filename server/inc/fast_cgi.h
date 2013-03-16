@@ -92,8 +92,8 @@ namespace FastCGI
 		Request& m_req;
 		Application& m_app;
 		bool m_headers_sent;
-        fcgi_streambuf m_streambuf;
-        fcgi_streambuf m_cerr;
+		fcgi_streambuf m_streambuf;
+		fcgi_streambuf m_cerr;
 		Headers m_headers;
 		std::ostream m_cout;
 		void ensureInputWasRead();
@@ -134,7 +134,7 @@ namespace FastCGI
 		friend class Response;
 		Response m_resp;
 		Application& m_app;
-        fcgi_streambuf m_streambuf;
+		fcgi_streambuf m_streambuf;
 
 		std::istream m_cin;
 		mutable bool m_read_something;

@@ -32,7 +32,6 @@ extern char ** environ;
 #include "fast_cgi.h"
 #include "handlers.h"
 
-REGISTER_REDIRECT("/view", "/view/");
 REGISTER_REDIRECT("/", "/view/");
 
 int main (void)
@@ -44,7 +43,7 @@ int main (void)
 		return ret;
 
 	while (app.accept())
-    {
+	{
 		FastCGI::Request req(app);
 
 		try {
