@@ -30,24 +30,30 @@
 
 namespace db
 {
-	ConnectionPtr Connection::open(const char* path)
+	bool Driver::readProps(const std::string& path, Driver::Props& props)
 	{
 		std::ifstream ini(path);
 		if (!ini.is_open())
-		{
-			std::cerr << "Cannot open " << path << std::endl;
-			return nullptr;
-		}
+			return false;
 
 		std::string line;
-		Driver::Props props;
-
 		while (!ini.eof())
 		{
 			ini >> line;
 			std::string::size_type enter = line.find('=');
 			if (enter != std::string::npos)
 				props[line.substr(0, enter)] = line.substr(enter + 1);
+		}
+		return true;
+	}
+
+	ConnectionPtr Connection::open(const char* path)
+	{
+		Driver::Props props;
+		if (!Driver::readProps(path, props))
+		{
+			std::cerr << "Cannot open " << path << std::endl;
+			return nullptr;
 		}
 
 		std::string driver_id;
@@ -64,7 +70,7 @@ namespace db
 			return nullptr;
 		}
 
-		return driver->open(props);
+		return driver->open(path, props);
 	}
 
 	//there is a problem with VC and global objects in LIBs...

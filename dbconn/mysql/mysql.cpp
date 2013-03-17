@@ -40,17 +40,19 @@ namespace db
 		{
 			MYSQL m_mysql;
 			bool m_connected;
+			std::string m_path;
 		public:
-			MySQLConnection();
+			MySQLConnection(const std::string& path);
 			~MySQLConnection();
 			bool connect(const std::string& user, const std::string& password, const std::string& server);
 			bool isStillAlive();
+			bool reconnect();
 			Statement* prepare(const char* sql) { return nullptr; }
 		};
 
 		class MySQLDriver: public Driver
 		{
-			ConnectionPtr open(const Props& props);
+			ConnectionPtr open(const std::string& ini_path, const Props& props);
 		};
 	}
 }
@@ -67,13 +69,25 @@ namespace db { namespace mysql {
 		mysql_library_end();
 	}
 
-	ConnectionPtr MySQLDriver::open(const Props& props)
+	struct DriverData
 	{
-		std::string user, password, server;
-		if (!getProp(props, "user", user) ||
-			!getProp(props, "password", password) ||
-			!getProp(props, "server", server) ||
-			user.empty() || password.empty() || server.empty())
+		std::string user;
+		std::string password;
+		std::string server;
+		bool read(const Driver::Props& props)
+		{
+			return 
+				Driver::getProp(props, "user", user) &&
+				Driver::getProp(props, "password", password) &&
+				Driver::getProp(props, "server", server) &&
+				!user.empty() && !password.empty() && !server.empty();
+		}
+	};
+
+	ConnectionPtr MySQLDriver::open(const std::string& ini_path, const Props& props)
+	{
+		DriverData data;
+		if (!data.read(props))
 		{
 			std::cerr << "MySQL: invalid configuration";
 			return nullptr;
@@ -81,21 +95,22 @@ namespace db { namespace mysql {
 
 		//std::cerr << "user: " << user << "\npassword: " << password << "\naddress: " << server << std::endl;
 
-		std::tr1::shared_ptr<MySQLConnection> conn(new (std::nothrow) MySQLConnection);
+		std::tr1::shared_ptr<MySQLConnection> conn(new (std::nothrow) MySQLConnection(ini_path));
 		if (conn.get() == nullptr)
 			return nullptr;
 
-		if (!conn->connect(user, password, server))
+		if (!conn->connect(data.user, data.password, data.server))
 		{
-			std::cerr << "MySQL: cannot connect to " << user << "@" << server << std::endl;
+			std::cerr << "MySQL: cannot connect to " << data.user << "@" << data.server << std::endl;
 			return nullptr;
 		}
 
 		return std::tr1::static_pointer_cast<Connection>(conn);
 	}
 
-	MySQLConnection::MySQLConnection()
+	MySQLConnection::MySQLConnection(const std::string& path)
 		: m_connected(false)
+		, m_path(path)
 	{
 		mysql_init(&m_mysql);
 	}
@@ -127,6 +142,19 @@ namespace db { namespace mysql {
 		m_connected = mysql_real_connect(&m_mysql, srvr.c_str(), user.c_str(), password.c_str(), NULL, port, NULL, 0) != NULL;
 
 		return m_connected;
+	}
+
+	bool MySQLConnection::reconnect()
+	{
+		Driver::Props props;
+		if (!Driver::readProps(m_path, props))
+			return false;
+
+		DriverData data;
+		if (!data.read(props))
+			return false;
+
+		return connect(data.user, data.password, data.server);
 	}
 
 	bool MySQLConnection::isStillAlive()

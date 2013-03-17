@@ -38,6 +38,7 @@ namespace db
 		virtual ~Connection() {}
 		virtual bool isStillAlive() = 0;
 		virtual Statement* prepare(const char* sql) = 0;
+		virtual bool reconnect() = 0;
 		static ConnectionPtr open(const char* path);
 	};
 }
