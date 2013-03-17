@@ -30,7 +30,7 @@
 
 namespace db
 {
-	Connection* Connection::open(const char* path)
+	ConnectionPtr Connection::open(const char* path)
 	{
 		std::ifstream ini(path);
 		if (!ini.is_open())

@@ -50,7 +50,7 @@ namespace db
 
 		class MySQLDriver: public Driver
 		{
-			Connection* open(const Props& props);
+			ConnectionPtr open(const Props& props);
 		};
 	}
 }
@@ -67,7 +67,7 @@ namespace db { namespace mysql {
 		mysql_library_end();
 	}
 
-	Connection* MySQLDriver::open(const Props& props)
+	ConnectionPtr MySQLDriver::open(const Props& props)
 	{
 		std::string user, password, server;
 		if (!getProp(props, "user", user) ||
@@ -81,7 +81,7 @@ namespace db { namespace mysql {
 
 		//std::cerr << "user: " << user << "\npassword: " << password << "\naddress: " << server << std::endl;
 
-		std::auto_ptr<MySQLConnection> conn(new (std::nothrow) MySQLConnection);
+		std::tr1::shared_ptr<MySQLConnection> conn(new (std::nothrow) MySQLConnection);
 		if (conn.get() == nullptr)
 			return nullptr;
 
@@ -91,7 +91,7 @@ namespace db { namespace mysql {
 			return nullptr;
 		}
 
-		return conn.release();
+		return std::tr1::static_pointer_cast<Connection>(conn);
 	}
 
 	MySQLConnection::MySQLConnection()

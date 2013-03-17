@@ -32,6 +32,7 @@
 namespace db
 {
 	struct Connection;
+	typedef std::tr1::shared_ptr<Connection> ConnectionPtr;
 
 	struct Driver
 	{
@@ -45,7 +46,7 @@ namespace db
 		}
 
 		virtual ~Driver() {}
-		virtual Connection* open(const Props& props) = 0;
+		virtual ConnectionPtr open(const Props& props) = 0;
 	};
 
 	typedef std::tr1::shared_ptr<Driver> DriverPtr;

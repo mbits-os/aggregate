@@ -29,22 +29,22 @@
 
 #include <dbconn.h>
 
-int status(int, char*[], db::Connection*);
-int install(int, char*[], db::Connection*);
-int backup(int, char*[], db::Connection*);
-int restore(int, char*[], db::Connection*);
-int refresh(int, char*[], db::Connection*);
+int status(int, char*[], const db::ConnectionPtr&);
+int install(int, char*[], const db::ConnectionPtr&);
+int backup(int, char*[], const db::ConnectionPtr&);
+int restore(int, char*[], const db::ConnectionPtr&);
+int refresh(int, char*[], const db::ConnectionPtr&);
 
 struct Command {
 	const char* name;
-	int (*command)(int, char* [], db::Connection*);
+	int (*command)(int, char* [], const db::ConnectionPtr&);
 	bool needsConnection;
-	Command(const char* name, int (*command)(int, char* [], db::Connection*), bool needsConnection = true)
+	Command(const char* name, int (*command)(int, char* [], const db::ConnectionPtr&), bool needsConnection = true)
 		: name(name)
 		, command(command)
 		, needsConnection(needsConnection)
 	{}
-	int run(int argc, char* argv[], db::Connection* conn)
+	int run(int argc, char* argv[], const db::ConnectionPtr& conn)
 	{
 		return command(argc, argv, conn);
 	}
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 		return 1;
 
 	Command* command = NULL;
-	std::auto_ptr<db::Connection> conn;
+	db::ConnectionPtr conn;
 
 	if (argc > 1)
 	{
@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 
 	if (command->needsConnection)
 	{
-		conn.reset(db::Connection::open("conn.ini"));
+		conn = db::Connection::open("conn.ini");
 		if (conn.get() == NULL)
 		{
 			fprintf(stderr, "dbtool: error connecting to the database\n");
@@ -102,10 +102,10 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	return command->run(argc - 1, argv + 1, conn.get());
+	return command->run(argc - 1, argv + 1, conn);
 }
 
-int status(int, char*[], db::Connection* db)
+int status(int, char*[], const db::ConnectionPtr& db)
 {
 	if (db != NULL && db->isStillAlive())
 	{
@@ -115,25 +115,25 @@ int status(int, char*[], db::Connection* db)
 	return 1;
 }
 
-int install(int, char*[], db::Connection*)
+int install(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
 	return 0;
 }
 
-int backup(int, char*[], db::Connection*)
+int backup(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
 	return 0;
 }
 
-int restore(int, char*[], db::Connection*)
+int restore(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
 	return 0;
 }
 
-int refresh(int, char*[], db::Connection*)
+int refresh(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
 	return 0;

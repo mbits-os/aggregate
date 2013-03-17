@@ -25,16 +25,20 @@
 #ifndef __DBCONN_CONNECTION_H__
 #define __DBCONN_CONNECTION_H__
 
+#include <memory>
+
 namespace db
 {
 	struct Statement;
+	struct Connection;
+	typedef std::tr1::shared_ptr<Connection> ConnectionPtr;
 
 	struct Connection
 	{
 		virtual ~Connection() {}
 		virtual bool isStillAlive() = 0;
 		virtual Statement* prepare(const char* sql) = 0;
-		static Connection* open(const char* path);
+		static ConnectionPtr open(const char* path);
 	};
 }
 
