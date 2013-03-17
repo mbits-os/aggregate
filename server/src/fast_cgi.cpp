@@ -152,6 +152,33 @@ namespace FastCGI
 		m_req.readAll();
 	}
 
+	std::string quot_escape(const std::string& s)
+	{
+		std::string out;
+		out.reserve(s.length() * 3 / 2);
+
+		std::string::const_iterator
+			_cur = s.begin(), _end = s.end();
+		for (; _cur != _end; ++_cur)
+		{
+			switch (*_cur)
+			{
+			case '\\': out += "\\\\"; break;
+			case '\a': out += "\\a"; break;
+			case '\b': out += "\\b"; break;
+			case '\r': out += "\\r"; break;
+			case '\n': out += "\\n"; break;
+			case '\t': out += "\\t"; break;
+			case '"':  out += "\\\""; break;
+			case '\'': out += "\\'"; break;
+			default:
+				out.push_back(*_cur);
+			}
+		}
+
+		return out;
+	}
+
 	void Response::printHeaders()
 	{
 		if (m_headers_sent)
@@ -160,6 +187,31 @@ namespace FastCGI
 		m_headers_sent = true;
 		if (m_headers.find("content-type") == m_headers.end())
 			m_headers["content-type"] = "Content-Type: text/html; charset=utf-8";
+
+		std::string cookies;
+
+		std::string domAndPath = "; Domain=";
+		domAndPath += m_req.getParam("SERVER_NAME");
+		domAndPath += "; Path=/";
+
+		bool first = true;
+		Cookies::const_iterator _cookie = m_cookies.begin(), _cend = m_cookies.end();
+		for (; _cookie != _cend; ++_cookie)
+		{
+			if (first) first = false;
+			else cookies += ", ";
+			cookies += _cookie->second.m_name + "=\"" + quot_escape(_cookie->second.m_value) + "\"" + domAndPath;
+			if (_cookie->second.m_expire != 0)
+			{
+				char buffer[256];
+				tm time = *gmtime(&_cookie->second.m_expire);
+				strftime(buffer, sizeof(buffer), "%a, %d-%b-%Y %H:%M:%S GMT", &time );
+				cookies += "; Expires=";
+				cookies += buffer;
+			}
+		}
+		if (!cookies.empty())
+			m_headers["set-cookie"] = "Set-Cookie: " + cookies;
 
 		Headers::const_iterator _cur = m_headers.begin(), _end = m_headers.end();
 		for (; _cur != _end; ++_cur)
@@ -184,6 +236,20 @@ namespace FastCGI
 		std::string n(name);
 		std::transform(n.begin(), n.end(), n.begin(), ::tolower);
 		m_headers[n] = v;
+	}
+
+	void Response::setcookie(const std::string& name, const std::string& value, time_t expire)
+	{
+		if (m_headers_sent)
+		{
+#if DEBUG_CGI
+			*this << "<br/><b>Warning</b>: Cannot set a cookie after sending data to the browser (" << name << ": " << value << ")<br/><br/>";
+#endif
+			return;
+		}
+		std::string n(name);
+		std::transform(n.begin(), n.end(), n.begin(), ::tolower);
+		m_cookies[n] = Cookie(name, value, expire);
 	}
 
 	std::string Response::server_uri(const std::string& resource, bool with_query)

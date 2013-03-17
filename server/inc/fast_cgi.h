@@ -72,12 +72,28 @@ namespace FastCGI
 	{
 		typedef std::map<std::string, std::string> Headers;
 
+		struct Cookie
+		{
+			std::string m_name;
+			std::string m_value;
+			time_t m_expire;
+
+			Cookie(): m_expire(0) {}
+			Cookie(const std::string& name, const std::string& value, time_t expire)
+				: m_name(name)
+				, m_value(value)
+				, m_expire(expire)
+			{}
+		};
+		typedef std::map<std::string, Cookie> Cookies;
+
 		Request& m_req;
 		Application& m_app;
 		bool m_headers_sent;
 		fcgi_streambuf m_streambuf;
 		fcgi_streambuf m_cerr;
 		Headers m_headers;
+		Cookies m_cookies;
 		std::ostream m_cout;
 		void ensureInputWasRead();
 		void printHeaders();
@@ -90,6 +106,7 @@ namespace FastCGI
 		Request& req() { return m_req; }
 
 		void header(const std::string& name, const std::string& value);
+		void setcookie(const std::string& name, const std::string& value, time_t expire = 0);
 
 		void die() { throw FinishResponse(); }
 
