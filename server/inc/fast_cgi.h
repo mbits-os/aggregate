@@ -25,6 +25,8 @@
 #ifndef __SERVER_FAST_CFGI_H__
 #define __SERVER_FAST_CFGI_H__
 
+#include <dbconn.h>
+
 namespace FastCGI
 {
 	class Request;
@@ -37,12 +39,14 @@ namespace FastCGI
 
 		long m_pid;
 		FCGX_Request m_request;
+		db::ConnectionPtr m_dbConn;
 	public:
 		Application();
 		~Application();
 		int init();
 		int pid() const { return m_pid; }
 		bool accept();
+		db::ConnectionPtr dbConn(Response& response);
 
 #if DEBUG_CGI
 		struct ReqInfo
@@ -82,8 +86,8 @@ namespace FastCGI
 
 		Response(Request& req, Application& app);
 		~Response();
-		const Application& app() const { return m_app; }
-		const Request& req() const { return m_req; }
+		Application& app() { return m_app; }
+		Request& req() { return m_req; }
 
 		void header(const std::string& name, const std::string& value);
 
@@ -97,6 +101,7 @@ namespace FastCGI
 		}
 
 		void on404();
+		void on500();
 
 		template <typename T>
 		Response& operator << (const T& obj)
@@ -123,10 +128,9 @@ namespace FastCGI
 		Request(Application& app);
 		~Request();
    		const char * const* envp() const { return m_app.m_request.envp; }
-		const Application& app() const { return m_app; }
+		Application& app() { return m_app; }
 		long long calcStreamSize();
 		param_t getParam(const char* name) const { return FCGX_GetParam(name, m_app.m_request.envp); }
-		const Response& resp() const { return m_resp; }
 		Response& resp() { return m_resp; }
 
 		template <typename T>

@@ -25,6 +25,18 @@
 #include "pch.h"
 #include "fast_cgi.h"
 
+#ifdef _WIN32
+#define INI "..\\conn.ini"
+#endif
+
+#ifdef POSIX
+#define INI "../conn.ini"
+#endif
+
+#ifndef INI
+#error There is no path to conn.ini defined...
+#endif
+
 namespace FastCGI
 {
 	Application::Application()
@@ -63,6 +75,20 @@ namespace FastCGI
 		}
 #endif
 		return ret;
+	}
+
+	db::ConnectionPtr Application::dbConn(Response& response)
+	{
+		//restart if needed
+		if (!m_dbConn.get())
+			m_dbConn = db::Connection::open(INI);
+		else if (!m_dbConn->isStillAlive())
+			m_dbConn->reconnect();
+
+		if (!m_dbConn.get() || !m_dbConn->isStillAlive())
+			response.on500();
+
+		return m_dbConn;
 	}
 
 	Request::Request(Application& app)
@@ -206,6 +232,17 @@ namespace FastCGI
 		header("Status", "404 Not Found");
 		*this
 			<< "<tt>404: Oops! (URL: " << m_req.getParam("REQUEST_URI") << ")</tt>";
+#if DEBUG_CGI
+		*this << "<br/>\n<a href='/debug/'>Debug</a>.";
+#endif
+		die();
+	}
+
+	void Response::on500()
+	{
+		header("Status", "500 Internal Error");
+		*this
+			<< "<tt>500: Oops! (URL: " << m_req.getParam("REQUEST_URI") << ")</tt>";
 #if DEBUG_CGI
 		*this << "<br/>\n<a href='/debug/'>Debug</a>.";
 #endif
