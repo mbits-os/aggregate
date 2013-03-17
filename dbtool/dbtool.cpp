@@ -29,6 +29,8 @@
 
 #include <dbconn.h>
 
+#include "schema.h"
+
 int status(int, char*[], const db::ConnectionPtr&);
 int install(int, char*[], const db::ConnectionPtr&);
 int backup(int, char*[], const db::ConnectionPtr&);
@@ -109,15 +111,21 @@ int status(int, char*[], const db::ConnectionPtr& db)
 {
 	if (db != NULL && db->isStillAlive())
 	{
-		printf("dbtool: connection established\n");
+		printf("status: connection established\n");
 		return 0;
 	}
 	return 1;
 }
 
-int install(int, char*[], const db::ConnectionPtr&)
+int install(int, char*[], const db::ConnectionPtr& dbConn)
 {
-	printf("dbtool: %s: not implemented\n", __FUNCTION__);
+	if (!db::model::Schema(dbConn).install())
+	{
+		printf("install: error installing the schema\n");
+		printf("DB message: %s\n", dbConn->errorMessage());
+		return 1;
+	}
+	printf("install: schema installed\n");
 	return 0;
 }
 

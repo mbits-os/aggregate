@@ -1,1 +1,3 @@
 dbtool/dbtool.cpp
+dbtool/schema.h
+dbtool/schema.cpp
