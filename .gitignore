@@ -43,6 +43,10 @@ ipch
 output
 bin
 apache/httpd/index.app
+apache/dbtool.exe
+apache/dbtool
+# removing a file with a password from a public repo
+apache/conn.ini
 
 /3rd/curl/config.log
 /3rd/curl/config.status

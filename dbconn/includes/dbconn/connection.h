@@ -22,40 +22,20 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include "handlers.h"
-#include <dbconn.h>
+#ifndef __DBCONN_CONNECTION_H__
+#define __DBCONN_CONNECTION_H__
 
-REGISTER_REDIRECT("/", "/view/");
-
-int main (void)
+namespace db
 {
-	db::environment env;
-	if (env.failed)
-		return 1;
+	struct Statement;
 
-	FastCGI::Application app;
-
-	int ret = app.init();
-	if (ret != 0)
-		return ret;
-
-	while (app.accept())
+	struct Connection
 	{
-		FastCGI::Request req(app);
-
-		try {
-
-			app::HandlerPtr handler = app::Handlers::handler(req);
-			if (handler.get() != NULL)
-				handler->visit(req, req.resp());
-			else
-				req.resp().on404();
-
-		} catch(FastCGI::FinishResponse) {
-			// die() lands here
-		}
-	}
-
-    return 0;
+		virtual ~Connection() {}
+		virtual bool isStillAlive() = 0;
+		virtual Statement* prepare(const char* sql) = 0;
+		static Connection* open(const char* path);
+	};
 }
+
+#endif //__DBCONN_CONNECTION_H__

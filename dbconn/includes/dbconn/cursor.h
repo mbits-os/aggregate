@@ -22,40 +22,11 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include "handlers.h"
-#include <dbconn.h>
+#ifndef __DBCONN_CURSOR_H__
+#define __DBCONN_CURSOR_H__
 
-REGISTER_REDIRECT("/", "/view/");
-
-int main (void)
+namespace db
 {
-	db::environment env;
-	if (env.failed)
-		return 1;
-
-	FastCGI::Application app;
-
-	int ret = app.init();
-	if (ret != 0)
-		return ret;
-
-	while (app.accept())
-	{
-		FastCGI::Request req(app);
-
-		try {
-
-			app::HandlerPtr handler = app::Handlers::handler(req);
-			if (handler.get() != NULL)
-				handler->visit(req, req.resp());
-			else
-				req.resp().on404();
-
-		} catch(FastCGI::FinishResponse) {
-			// die() lands here
-		}
-	}
-
-    return 0;
 }
+
+#endif //__DBCONN_CURSOR_H__

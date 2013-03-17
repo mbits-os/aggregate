@@ -4,6 +4,8 @@
     <None Include="..\3rdparty.files" />
     <None Include="..\server.files" />
     <None Include="create_projects.py" />
+    <None Include="..\dbconn.files" />
+    <None Include="..\dbtool.files" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="projects.cmd" />
