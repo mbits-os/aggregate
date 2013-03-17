@@ -44,10 +44,12 @@ namespace db
 		public:
 			MySQLConnection(const std::string& path);
 			~MySQLConnection();
-			bool connect(const std::string& user, const std::string& password, const std::string& server);
+			bool connect(const std::string& user, const std::string& password, const std::string& server, const std::string& database);
 			bool isStillAlive();
 			bool reconnect();
 			Statement* prepare(const char* sql) { return nullptr; }
+			bool exec(const char* sql);
+			const char* errorMessage();
 		};
 
 		class MySQLDriver: public Driver
@@ -74,13 +76,15 @@ namespace db { namespace mysql {
 		std::string user;
 		std::string password;
 		std::string server;
+		std::string database;
 		bool read(const Driver::Props& props)
 		{
 			return 
 				Driver::getProp(props, "user", user) &&
 				Driver::getProp(props, "password", password) &&
 				Driver::getProp(props, "server", server) &&
-				!user.empty() && !password.empty() && !server.empty();
+				Driver::getProp(props, "database", database) &&
+				!user.empty() && !password.empty() && !server.empty() && !database.empty();
 		}
 	};
 
@@ -99,7 +103,7 @@ namespace db { namespace mysql {
 		if (conn.get() == nullptr)
 			return nullptr;
 
-		if (!conn->connect(data.user, data.password, data.server))
+		if (!conn->connect(data.user, data.password, data.server, data.database))
 		{
 			std::cerr << "MySQL: cannot connect to " << data.user << "@" << data.server << std::endl;
 			return nullptr;
@@ -121,7 +125,7 @@ namespace db { namespace mysql {
 			mysql_close(&m_mysql);
 	}
 
-	bool MySQLConnection::connect(const std::string& user, const std::string& password, const std::string& server)
+	bool MySQLConnection::connect(const std::string& user, const std::string& password, const std::string& server, const std::string& database)
 	{
 		std::string srvr = server;
 		unsigned int port = 0;
@@ -139,7 +143,7 @@ namespace db { namespace mysql {
 		my_bool reconnect = 0;
 		mysql_options(&m_mysql, MYSQL_OPT_RECONNECT, &reconnect);
 
-		m_connected = mysql_real_connect(&m_mysql, srvr.c_str(), user.c_str(), password.c_str(), NULL, port, NULL, 0) != NULL;
+		m_connected = mysql_real_connect(&m_mysql, srvr.c_str(), user.c_str(), password.c_str(), database.c_str(), port, NULL, 0) != NULL;
 
 		return m_connected;
 	}
@@ -154,11 +158,21 @@ namespace db { namespace mysql {
 		if (!data.read(props))
 			return false;
 
-		return connect(data.user, data.password, data.server);
+		return connect(data.user, data.password, data.server, data.database);
 	}
 
 	bool MySQLConnection::isStillAlive()
 	{
 		return mysql_ping(&m_mysql) == 0;
+	}
+
+	bool MySQLConnection::exec(const char* sql)
+	{
+		return mysql_query(&m_mysql, sql) == 0;
+	}
+
+	const char* MySQLConnection::errorMessage()
+	{
+		return mysql_error(&m_mysql);
 	}
 }}
