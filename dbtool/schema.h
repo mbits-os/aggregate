@@ -37,8 +37,11 @@ namespace db
 		namespace field_type {
 			enum FIELD_TYPE {
 				KEY,
+				TEXT_KEY,
 				INTEGER,
-				TEXT
+				TEXT,
+				BOOLEAN,
+				TIME
 			};
 		}
 
@@ -102,6 +105,11 @@ namespace db
 			Table& _id()
 			{
 				m_fields.push_back(Field("_id", field_type::KEY, att::NOTNULL | att::AUTOINCREMENT | att::KEY));
+				return *this;
+			}
+			Table& text_id(const std::string& name)
+			{
+				m_fields.push_back(Field(name, field_type::TEXT_KEY, att::NOTNULL | att::KEY));
 				return *this;
 			}
 			Table& refer(const std::string& remote)

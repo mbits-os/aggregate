@@ -33,18 +33,31 @@ namespace db
 			SchemaDefinition sd;
 			SDBuilder()
 			{
-				sd.table("users")
+				sd.table("user")
 					._id()
 					.field("name")
-					.field("email");
+					.field("email")
+					.field("passphrase")
+					.field("is_admin", "0", field_type::BOOLEAN)
+					;
 
-				sd.table("folders")
+				//hash is built from email and new salt
+				//hash goes into cookie, seed is saved for later
+				sd.table("session")
+					.text_id("hash")
+					.field("seed")
+					.refer("user")
+					.field("set_on", std::string(), field_type::TIME)
+					;
+
+				sd.table("folder")
 					._id()
-					.refer("users")
+					.refer("user")
 					.field("name")
-					.field("parent", "0", field_type::KEY);
+					.field("parent", "0", field_type::KEY)
+					;
 
-				sd.table("feeds")
+				sd.table("feed")
 					._id()
 					.field("title")
 					.field("site")
@@ -54,26 +67,30 @@ namespace db
 
 				sd.table("entry")
 					._id()
-					.refer("feeds")
+					.refer("feed")
 					.field("guid")
 					.field("title", "")
 					.nullable("url")
 					.nullable("date")
 					.nullable("author")
-					.field("contents");
+					.field("contents")
+					;
 
-				sd.table("subscriptions")
-					.refer("users")
-					.refer("feeds")
-					.refer("folders");
+				sd.table("subscription")
+					.refer("user")
+					.refer("feed")
+					.refer("folder")
+					;
 
 				sd.table("unread")
-					.refer("users")
-					.refer("entry");
+					.refer("user")
+					.refer("entry")
+					;
 
 				sd.table("starred")
-					.refer("users")
-					.refer("entry");
+					.refer("user")
+					.refer("entry")
+					;
 			}
 		};
 
@@ -115,8 +132,11 @@ namespace db
 			switch (m_fld_type)
 			{
 			case field_type::INTEGER: sql += "INTEGER"; break;
-			case field_type::KEY: sql += "BIGINT UNSIGNED"; break;
+			case field_type::KEY: sql += "BIGINT"; break;
 			case field_type::TEXT: sql += "TEXT CHARACTER SET utf8"; break;
+			case field_type::TEXT_KEY: sql += "VARCHAR(100) CHARACTER SET utf8"; break;
+			case field_type::BOOLEAN: sql += "BOOLEAN"; break;
+			case field_type::TIME: sql += "TIMESTAMP"; break;
 			}
 
 			if (m_attributes & att::NOTNULL)
@@ -188,12 +208,12 @@ namespace db
 
 		std::string Table::create() const
 		{
-			std::string sql = "CREATE TABLE " + m_name + " (\n";
+			std::string sql = "CREATE TABLE " + m_name + " (\n  ";
 			bool first = true;
 			for (auto _cur = m_fields.begin(); _cur != m_fields.end(); ++_cur)
 			{
 				if (first) first = false;
-				else sql += ",\n";
+				else sql += ",\n  ";
 				sql += _cur->repr();
 			}
 			std::list<std::string> cos;
@@ -202,7 +222,7 @@ namespace db
 			for (auto _cur = cos.begin(); _cur != cos.end(); ++_cur)
 			{
 				if (first) first = false;
-				else sql += ",\n";
+				else sql += ",\n  ";
 				sql += *_cur;
 			}
 			return sql += "\n)";
