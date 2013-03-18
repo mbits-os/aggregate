@@ -45,6 +45,7 @@ bin
 apache/httpd/index.app
 apache/dbtool.exe
 apache/dbtool
+apache/libmysql.dll
 # removing a file with a password from a public repo
 apache/conn.ini
 
