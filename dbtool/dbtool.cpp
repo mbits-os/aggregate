@@ -28,7 +28,7 @@
 #include <memory>
 
 #include <dbconn.h>
-
+#include <utils.h>
 #include "schema.h"
 
 struct Command {

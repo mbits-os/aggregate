@@ -23,7 +23,8 @@
  */
 
 #include "pch.h"
-#include "handlers.h"
+#include <handlers.h>
+#include <utils.h>
 
 namespace app
 {
@@ -60,8 +61,6 @@ namespace app
 			{ "xkcd.com", "http://xkcd.com/", "http://xkcd.com/atom.xml", 0 }
 		};
 		const char* user_id = "07279206485321865861";
-
-		template<class T, size_t N> size_t array_size(T (&)[N]){ return N; }
 	}
 
 	class SubscriptionPageHandler: public Handler

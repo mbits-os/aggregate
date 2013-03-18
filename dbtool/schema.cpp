@@ -23,6 +23,7 @@
  */
 
 #include "schema.h"
+#include "crypt.hpp"
 #include "model.h"
 
 namespace db
@@ -130,10 +131,10 @@ namespace db
 		bool Schema::addUser(const char* mail, const char* name)
 		{
 			char pass[13];
-			data::newSalt(pass);
-			data::PasswordHash::hash_t hash;
-			data::PasswordHash::crypt(pass, hash);
-			bool verified = data::PasswordHash::verify(pass, hash);
+			crypt::newSalt(pass);
+			crypt::Password hash;
+			crypt::password(pass, hash);
+			bool verified = crypt::verify(pass, hash);
 			printf("mail: %s\nname: %s\npass: %s\nhash: %s\n", mail, name, pass, hash);
 			return true;
 		}
