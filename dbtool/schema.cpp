@@ -134,8 +134,17 @@ namespace db
 			crypt::newSalt(pass);
 			crypt::Password hash;
 			crypt::password(pass, hash);
-			bool verified = crypt::verify(pass, hash);
-			printf("mail: %s\nname: %s\npass: %s\nhash: %s\n", mail, name, pass, hash);
+
+			std::auto_ptr<db::Statement> insert(m_conn->prepare("INSERT INTO user (name, email, passphrase) VALUES (?, ?, ?)"));
+			if (!insert.get())
+				return false;
+
+			if (!insert->bind(0, name)) return false;
+			if (!insert->bind(1, mail)) return false;
+			if (!insert->bind(2, hash)) return false;
+			if (!insert->execute()) return false;
+
+			printf("pass: %s\n", pass);
 			return true;
 		}
 
