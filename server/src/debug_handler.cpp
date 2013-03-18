@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "handlers.h"
+#include "model.h"
 
 #if DEBUG_CGI
 
@@ -129,31 +130,38 @@ namespace app
 
 		void visit(FastCGI::Request& request, FastCGI::Response& response)
 		{
+			const char* QUERY_STRING = request.getParam("QUERY_STRING");
+			bool all = (QUERY_STRING != NULL) && (strcmp(QUERY_STRING, "all") == 0);
+
 			response << "<style type='text/css'>\n"
 				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
 				"div#content { width: 650px; margin: 0px auto }\n"
 				"th, td { text-align: left; vertical-align: top; padding: 0.2em 0.5em }\n"
 				".even td { background: #ddd }\n"
 				"th { font-weight: normal; color: white; background: #444; }\n"
-				"table { width: auto; max-width: 100% }\n"
+				"table { width: auto; max-width: 650px }\n"
 				"</style>\n"
 				"<title>Debug page</title>\n<div id='content'>\n"
 				"<h1>Debug page</h1>\n"
 				"<h2>Table of Contents</h2>\n"
-				"<ol>\n"
+				"<ol>\n";
+			if (all) response <<
 				"<li><a href='#request'>Request Environment</a></li>\n"
-				"<li><a href='#process'>Process/Initial Environment</a></li>\n"
+				//"<li><a href='#process'>Process/Initial Environment</a></li>\n"
+				;
+			response <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
 				"<li><a href='#requests'>Page Requests</a></li>\n"
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
 
-			response << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
-			penv(response, request.envp());
-
-			response << "<h2 class='head'><a name='process'></a>Process/Initial Environment</h2>\n";
-			penv(response, environ);
+			if (all) {
+				response << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
+				penv(response, request.envp());
+				//response << "<h2 class='head'><a name='process'></a>Process/Initial Environment</h2>\n";
+				//penv(response, environ);
+			}
 
 			response << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
 			handlers(response, app::Handlers::begin(), app::Handlers::end());
