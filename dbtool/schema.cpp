@@ -23,6 +23,7 @@
  */
 
 #include "schema.h"
+#include "model.h"
 
 namespace db
 {
@@ -123,6 +124,22 @@ namespace db
 					return false;
 			}
 
+			return true;
+		}
+
+		bool Schema::addUser(const char* mail, const char* name)
+		{
+			char pass[13];
+			data::newSalt(pass);
+			data::PasswordHash::hash_t hash;
+			data::PasswordHash::crypt(pass, hash);
+			bool verified = data::PasswordHash::verify(pass, hash);
+			printf("mail: %s\nname: %s\npass: %s\nhash: %s\n", mail, name, pass, hash);
+			return true;
+		}
+
+		bool Schema::removeUser(const char* mail)
+		{
 			return true;
 		}
 

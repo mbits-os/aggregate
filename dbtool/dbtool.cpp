@@ -31,12 +31,6 @@
 
 #include "schema.h"
 
-int status(int, char*[], const db::ConnectionPtr&);
-int install(int, char*[], const db::ConnectionPtr&);
-int backup(int, char*[], const db::ConnectionPtr&);
-int restore(int, char*[], const db::ConnectionPtr&);
-int refresh(int, char*[], const db::ConnectionPtr&);
-
 struct Command {
 	const char* name;
 	int (*command)(int, char* [], const db::ConnectionPtr&);
@@ -50,15 +44,47 @@ struct Command {
 	{
 		return command(argc, argv, conn);
 	}
-} commands[] = {
+};
+
+template <size_t N>
+Command* get_cmmd(Command (&commands)[N], int argc, char* argv[])
+{
+	if (argc < 2)
+		return NULL;
+
+	for (size_t i = 0; i < array_size(commands); ++i)
+	{
+		if (strcmp(argv[1], commands[i].name) == 0)
+			return commands + i;
+	}
+
+	if (argc > 1)
+		fprintf(stderr, "%s: unknown command: %s\n", argv[0], argv[1]);
+	else
+		fprintf(stderr, "%s: command missing\n", argv[0]);
+
+	fprintf(stderr, "\nKnown commands are:\n");
+	for (size_t i = 0; i < array_size(commands); ++i)
+		fprintf(stderr, "\t%s\n", commands[i].name);
+
+	return NULL;
+}
+
+int status(int, char*[], const db::ConnectionPtr&);
+int install(int, char*[], const db::ConnectionPtr&);
+int backup(int, char*[], const db::ConnectionPtr&);
+int restore(int, char*[], const db::ConnectionPtr&);
+int refresh(int, char*[], const db::ConnectionPtr&);
+int user(int, char*[], const db::ConnectionPtr&);
+
+Command commands[] = {
 	Command("status", status),
 	Command("install", install),
 	Command("backup", backup),
 	Command("restore", restore),
-	Command("refresh", refresh)
+	Command("refresh", refresh),
+	Command("user", user)
 };
-
-template<class T, size_t N> size_t array_size(T (&)[N]){ return N; }
 
 int main(int argc, char* argv[])
 {
@@ -66,45 +92,25 @@ int main(int argc, char* argv[])
 	if (env.failed)
 		return 1;
 
-	Command* command = NULL;
+	Command* command = get_cmmd(commands, argc, argv);
 	db::ConnectionPtr conn;
 
-	if (argc > 1)
-	{
-		for (size_t i = 0; i < array_size(commands); ++i)
-		{
-			if (strcmp(argv[1], commands[i].name) == 0)
-			{
-				command = commands + i;
-				break;
-			}
-		}
-	}
-
 	if (command == NULL)
-	{
-		if (argc > 1)
-			fprintf(stderr, "dbtool: unknown command: %s\n", argv[1]);
-		else
-			fprintf(stderr, "dbtool: command missing\n", argv[1]);
-		fprintf(stderr, "\nKnown commands are:\n");
-		for (size_t i = 0; i < array_size(commands); ++i)
-			fprintf(stderr, "\t%s\n", commands[i].name);
-
 		return 1;
-	}
 
 	if (command->needsConnection)
 	{
 		conn = db::Connection::open("conn.ini");
 		if (conn.get() == NULL)
 		{
-			fprintf(stderr, "dbtool: error connecting to the database\n");
+			fprintf(stderr, "%s: error connecting to the database\n", argv[0]);
 			return 1;
 		}
 	}
 
-	return command->run(argc - 1, argv + 1, conn);
+	int ret = command->run(argc - 1, argv + 1, conn);
+	if (ret != 0 && conn.get() != NULL && conn->errorMessage() && *conn->errorMessage())
+		fprintf(stderr, "DB message: %s\n", conn->errorMessage());
 }
 
 int status(int, char*[], const db::ConnectionPtr& db)
@@ -121,8 +127,7 @@ int install(int, char*[], const db::ConnectionPtr& dbConn)
 {
 	if (!db::model::Schema(dbConn).install())
 	{
-		printf("install: error installing the schema\n");
-		printf("DB message: %s\n", dbConn->errorMessage());
+		fprintf(stderr, "install: error installing the schema\n");
 		return 1;
 	}
 	printf("install: schema installed\n");
@@ -144,5 +149,59 @@ int restore(int, char*[], const db::ConnectionPtr&)
 int refresh(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
+	return 0;
+}
+
+int user_add(int, char*[], const db::ConnectionPtr&);
+int user_remove(int, char*[], const db::ConnectionPtr&);
+
+Command user_cmmd[] = {
+	Command("add", user_add),
+	Command("remove", user_remove)
+};
+
+int user(int argc, char* argv[], const db::ConnectionPtr& conn)
+{
+	Command* command = get_cmmd(user_cmmd, argc, argv);
+
+	if (command == NULL)
+		return 1;
+
+	return command->run(argc - 1, argv + 1, conn);
+}
+
+int user_add(int argc, char* argv[], const db::ConnectionPtr& dbConn)
+{
+	if (argc < 3)
+	{
+		fprintf(stderr, "user: not enough params\n");
+		fprintf(stderr, "user add <mail> <name>\n");
+		return 1;
+	}
+
+	if (!db::model::Schema(dbConn).addUser(argv[1], argv[2]))
+	{
+		fprintf(stderr, "user: error adding new user\n");
+		return 1;
+	}
+	printf("user: user added\n");
+	return 0;
+}
+
+int user_remove(int argc, char* argv[], const db::ConnectionPtr& dbConn)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "user: not enough params\n");
+		fprintf(stderr, "user remove <mail>\n");
+		return 1;
+	}
+
+	if (!db::model::Schema(dbConn).removeUser(argv[1]))
+	{
+		fprintf(stderr, "user: error removing new user\n");
+		return 1;
+	}
+	printf("user: user removed\n");
 	return 0;
 }

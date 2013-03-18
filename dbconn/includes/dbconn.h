@@ -39,4 +39,6 @@ namespace db
 	};
 };
 
+template<class T, size_t N> size_t array_size(T (&)[N]){ return N; }
+
 #endif //__DBCONN_H__
