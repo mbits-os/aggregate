@@ -221,7 +221,7 @@ def create_project(root, base, bintype, guid):
     files = FileList()
     predef = Macros()
     predef.add_macro("WIN32", "", Location("<command-line>", 0))
-    predef.add_macro("EXTERNAL_OPENSSL", "", Location("<command-line>", 0))
+    #predef.add_macro("EXTERNAL_OPENSSL", "", Location("<command-line>", 0))
     files.read(predef, "%splatforms/%s.files" % (root, base))
     tmp = []
     for k in files.datafiles:

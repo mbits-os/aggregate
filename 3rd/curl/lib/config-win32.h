@@ -595,8 +595,8 @@
 #define HAVE_ZLIB 1
 #define HAVE_LIBZ 1
 #define ZLIB_WINAPI 1
-//#define USE_SSLEAY 1
-//#define USE_OPENSSL 1
+#define USE_SSLEAY 1
+#define USE_OPENSSL 1
 
 #define HAVE_OPENSSL_ENGINE_H 1
 #define HAVE_OPENSSL_PKCS12_H 1

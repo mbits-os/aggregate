@@ -7,9 +7,6 @@
 
 #include "zutil.h"
 
-void* c_vgl_malloc(size_t size);
-void  c_vgl_free(void* p);
-
 #ifndef NO_DUMMY_DECL
 struct internal_state      {int dummy;}; /* for buggy compilers */
 #endif
@@ -306,7 +303,7 @@ voidpf zcalloc (opaque, items, size)
     unsigned size;
 {
     if (opaque) items += size - size; /* make compiler happy */
-    return sizeof(uInt) > 2 ? (voidpf)c_vgl_malloc(items * size) :
+    return sizeof(uInt) > 2 ? (voidpf)malloc(items * size) :
                               (voidpf)calloc(items, size);
 }
 
@@ -314,7 +311,7 @@ void  zcfree (opaque, ptr)
     voidpf opaque;
     voidpf ptr;
 {
-    c_vgl_free(ptr);
+    free(ptr);
     if (opaque) return; /* make compiler happy */
 }
 
