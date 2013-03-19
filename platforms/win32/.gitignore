@@ -1,5 +1,4 @@
 !*.props
 *.vcxproj*
-*.sln
 !setup.vcxproj
 !setup.vcxproj.filters

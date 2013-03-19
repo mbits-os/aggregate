@@ -20,7 +20,6 @@ server=<em>server|server:port</em>
 database=<em>db at server</em></code></pre></dd>
 
 <dt>Command Prompt</dt>
-<dd><pre><code>platforms\win32&gt; copy Aggregate.sln.in Aggregate.sln
-platforms\win32&gt; projects.cmd
+<dd><pre><code>platforms\win32&gt; projects.cmd
 platforms\win32&gt; start Aggregate.sln</code></pre></dd>
 </dl>
