@@ -32,7 +32,7 @@ int
 .DS_Store
 .deps
 
-/3rd/openssl/inc32
+# /3rd/openssl/inc32
 /3rd/openssl/out32
 /3rd/openssl/tmp32
 *.pbxuser
