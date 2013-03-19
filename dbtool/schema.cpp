@@ -139,11 +139,11 @@ namespace db
 			crypt::Password hash;
 			crypt::password(pass, hash);
 
-			std::auto_ptr<db::Statement> select(m_conn->prepare("SELECT count(*) FROM user WHERE email=?"));
+			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=?");
 			if (!select.get())
 				return false;
 
-			std::auto_ptr<db::Statement> insert(m_conn->prepare("INSERT INTO user (name, email, passphrase) VALUES (?, ?, ?)"));
+			db::StatementPtr insert = m_conn->prepare("INSERT INTO user (name, email, passphrase) VALUES (?, ?, ?)");
 			if (!insert.get())
 				return false;
 

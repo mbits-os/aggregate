@@ -1,8 +1,5 @@
 libenv/includes/dbconn.h
-libenv/includes/dbconn/connection.h
-libenv/includes/dbconn/cursor.h
-libenv/includes/dbconn/driver.h
-libenv/includes/dbconn/statement.h
+libenv/includes/dbconn_driver.h
 libenv/includes/model.h
 libenv/includes/utils.h
 libenv/includes/crypt.hpp
