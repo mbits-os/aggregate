@@ -6,5 +6,6 @@ libenv/includes/crypt.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
+libenv/database/mysql/mysql.hpp
 libenv/model/model.cpp
 libenv/crypt/crypt.cpp
