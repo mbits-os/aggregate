@@ -109,6 +109,10 @@ namespace db
 			std::list<std::string> program;
 			std::list<std::string>::const_iterator _cur, _end;
 
+			db::Transaction transaction(m_conn);
+			if (!transaction.begin())
+				return false;
+
 			program = sd.drop();
 			for (_cur = program.begin(), _end = program.end(); _cur != _end; ++_cur)
 			{
@@ -125,7 +129,7 @@ namespace db
 					return false;
 			}
 
-			return true;
+			return transaction.commit();
 		}
 
 		bool Schema::addUser(const char* mail, const char* name)
@@ -135,17 +139,28 @@ namespace db
 			crypt::Password hash;
 			crypt::password(pass, hash);
 
+			std::auto_ptr<db::Statement> select(m_conn->prepare("SELECT count(*) FROM user WHERE email=?"));
+			if (!select.get())
+				return false;
+
 			std::auto_ptr<db::Statement> insert(m_conn->prepare("INSERT INTO user (name, email, passphrase) VALUES (?, ?, ?)"));
 			if (!insert.get())
 				return false;
 
+			if (!select->bind(0, mail)) return false;
 			if (!insert->bind(0, name)) return false;
 			if (!insert->bind(1, mail)) return false;
 			if (!insert->bind(2, hash)) return false;
+
+			db::Transaction transaction(m_conn);
+			if (!transaction.begin())
+				return false;
+
+			if (!select->execute()) return false;
 			if (!insert->execute()) return false;
 
 			printf("pass: %s\n", pass);
-			return true;
+			return transaction.commit();
 		}
 
 		bool Schema::removeUser(const char* mail)
