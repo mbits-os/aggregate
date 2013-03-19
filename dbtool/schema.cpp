@@ -156,7 +156,15 @@ namespace db
 			if (!transaction.begin())
 				return false;
 
-			if (!select->execute()) return false;
+			CursorPtr c = select->query();
+			if (!c.get()) return false;
+			if (!c->next()) return false;
+			long count = c->getLong(0);
+			if (count != 0)
+			{
+				fprintf(stderr, "error: user %s already exists\n", mail);
+				return false;
+			}
 			if (!insert->execute()) return false;
 
 			printf("pass: %s\n", pass);
