@@ -109,8 +109,12 @@ int main(int argc, char* argv[])
 	}
 
 	int ret = command->run(argc - 1, argv + 1, conn);
-	if (ret != 0 && conn.get() != NULL && conn->errorMessage() && *conn->errorMessage())
-		fprintf(stderr, "DB message: %s\n", conn->errorMessage());
+	if (ret != 0 && conn.get() != NULL)
+	{
+		const char* error = conn->errorMessage();
+		if (error && *error)
+			fprintf(stderr, "DB message: %s\n", conn->errorMessage());
+	}
 }
 
 int status(int, char*[], const db::ConnectionPtr& db)
@@ -154,10 +158,12 @@ int refresh(int, char*[], const db::ConnectionPtr&)
 
 int user_add(int, char*[], const db::ConnectionPtr&);
 int user_remove(int, char*[], const db::ConnectionPtr&);
+int user_passwd(int, char*[], const db::ConnectionPtr&);
 
 Command user_cmmd[] = {
 	Command("add", user_add),
-	Command("remove", user_remove)
+	Command("remove", user_remove),
+	Command("passwd", user_passwd)
 };
 
 int user(int argc, char* argv[], const db::ConnectionPtr& conn)
@@ -203,5 +209,73 @@ int user_remove(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 		return 1;
 	}
 	fprintf(stderr, "user: user removed\n");
+	return 0;
+}
+
+#include <iostream>
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
+
+void stdinEcho(bool enable)
+{
+#ifdef WIN32
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
+    DWORD mode;
+    GetConsoleMode(hStdin, &mode);
+
+    if( !enable )
+        mode &= ~ENABLE_ECHO_INPUT;
+    else
+        mode |= ENABLE_ECHO_INPUT;
+
+    SetConsoleMode(hStdin, mode );
+
+#else
+    struct termios tty;
+    tcgetattr(STDIN_FILENO, &tty);
+    if( !enable )
+        tty.c_lflag &= ~ECHO;
+    else
+        tty.c_lflag |= ECHO;
+
+    (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+#endif
+}
+
+int user_passwd(int argc, char* argv[], const db::ConnectionPtr& dbConn)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "user: not enough params\n");
+		fprintf(stderr, "user passwd <mail>\n");
+		return 1;
+	}
+
+	std::string passwd, verify;
+
+	stdinEcho(false);
+	printf("New password: ");
+	std::cin >> passwd;
+	printf("\nRepeat new password: ");
+	std::cin >> verify;
+	printf("\n");
+	stdinEcho(true);
+
+	if (passwd != verify)
+	{
+		fprintf(stderr, "user: passwords do not match\n");
+		return 1;
+	}
+
+	if (!db::model::Schema(dbConn).changePasswd(argv[1], passwd.c_str()))
+	{
+		fprintf(stderr, "user: error changing password\n");
+		return 1;
+	}
+	fprintf(stderr, "user: password changed\n");
 	return 0;
 }

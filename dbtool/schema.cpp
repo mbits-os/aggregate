@@ -136,7 +136,7 @@ namespace db
 		{
 			char pass[13];
 			crypt::newSalt(pass);
-			crypt::Password hash;
+			crypt::password_t hash;
 			crypt::password(pass, hash);
 
 			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=?");
@@ -191,6 +191,21 @@ namespace db
 		bool Schema::removeUser(const char* mail)
 		{
 			return true;
+		}
+
+		bool Schema::changePasswd(const char* mail, const char* passwd)
+		{
+			crypt::password_t hash;
+			crypt::password(passwd, hash);
+
+			db::StatementPtr update = m_conn->prepare("UPDATE user SET passphrase=? WHERE email=?");
+			if (!update.get())
+				return false;
+
+			if (!update->bind(0, hash)) return false;
+			if (!update->bind(1, mail)) return false;
+
+			return update->execute();
 		}
 
 		std::string Field::repr() const

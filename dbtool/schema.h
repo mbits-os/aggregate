@@ -183,6 +183,7 @@ namespace db
 			bool install();
 			bool addUser(const char* mail, const char* name);
 			bool removeUser(const char* mail);
+			bool changePasswd(const char* mail, const char* passwd);
 		};
 	}
 };
