@@ -184,7 +184,7 @@ int user_add(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 		fprintf(stderr, "user: error adding new user\n");
 		return 1;
 	}
-	printf("user: user added\n");
+	fprintf(stderr, "user: user added\n");
 	return 0;
 }
 
@@ -202,6 +202,6 @@ int user_remove(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 		fprintf(stderr, "user: error removing new user\n");
 		return 1;
 	}
-	printf("user: user removed\n");
+	fprintf(stderr, "user: user removed\n");
 	return 0;
 }

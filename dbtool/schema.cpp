@@ -162,7 +162,24 @@ namespace db
 			long count = c->getLong(0);
 			if (count != 0)
 			{
-				fprintf(stderr, "error: user %s already exists\n", mail);
+				fprintf(stderr, "error: user already exists:\n", mail);
+				select = m_conn->prepare("SELECT * FROM user WHERE email=?");
+				if (select.get())
+				{
+					select->bind(0, mail);
+					c = select->query();
+					if (c.get() && c->next())
+					{
+						long long id = c->getLongLong(0);
+						const char* name = c->getText(1);
+						const char* mail = c->getText(2);
+						bool is_admin = c->getInt(4) != 0;
+						fprintf(stderr, "    #%llu: %s <%s> %s\n",
+							id, name, mail, is_admin ? "(admin)" : ""
+							);
+					}
+				}
+
 				return false;
 			}
 			if (!insert->execute()) return false;
