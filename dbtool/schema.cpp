@@ -190,7 +190,33 @@ namespace db
 
 		bool Schema::removeUser(const char* mail)
 		{
-			return true;
+			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=?");
+			if (!select.get())
+				return false;
+
+			db::StatementPtr del = m_conn->prepare("DELETE FROM user WHERE email=?");
+			if (!del.get())
+				return false;
+
+			if (!select->bind(0, mail)) return false;
+			if (!del->bind(0, mail)) return false;
+
+			db::Transaction transaction(m_conn);
+			if (!transaction.begin())
+				return false;
+
+			CursorPtr c = select->query();
+			if (!c.get()) return false;
+			if (!c->next()) return false;
+			long count = c->getLong(0);
+			if (count == 0)
+			{
+				fprintf(stderr, "error: no such user\n", mail);
+				return false;
+			}
+			if (!del->execute()) return false;
+
+			return transaction.commit();
 		}
 
 		bool Schema::changePasswd(const char* mail, const char* passwd)

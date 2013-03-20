@@ -26,10 +26,19 @@
 #include <string.h>
 
 #include <memory>
+#include <iostream>
+#include <algorithm>
 
 #include <dbconn.h>
 #include <utils.h>
 #include "schema.h"
+
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#endif
 
 struct Command {
 	const char* name;
@@ -49,14 +58,12 @@ struct Command {
 template <size_t N>
 Command* get_cmmd(Command (&commands)[N], int argc, char* argv[])
 {
-	if (argc < 2)
-		return NULL;
-
-	for (size_t i = 0; i < array_size(commands); ++i)
-	{
-		if (strcmp(argv[1], commands[i].name) == 0)
-			return commands + i;
-	}
+	if (argc > 1)
+		for (size_t i = 0; i < array_size(commands); ++i)
+		{
+			if (strcmp(argv[1], commands[i].name) == 0)
+				return commands + i;
+		}
 
 	if (argc > 1)
 		fprintf(stderr, "%s: unknown command: %s\n", argv[0], argv[1]);
@@ -92,6 +99,7 @@ int main(int argc, char* argv[])
 	if (env.failed)
 		return 1;
 
+	argv[0] = "dbtool";
 	Command* command = get_cmmd(commands, argc, argv);
 	db::ConnectionPtr conn;
 
@@ -203,22 +211,23 @@ int user_remove(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 		return 1;
 	}
 
+	char answer[10];
+	printf("Remove user %s? [Y/n]: ", argv[1]); fflush(stdout);
+	std::cin.getline(answer, sizeof(answer));
+
+	std::transform(answer, answer + 10, answer, ::tolower);
+
+	if (*answer && (strcmp(answer, "y") != 0) && (strcmp(answer, "yes") != 0))
+		return 0;
+
 	if (!db::model::Schema(dbConn).removeUser(argv[1]))
 	{
-		fprintf(stderr, "user: error removing new user\n");
+		fprintf(stderr, "user: error removing the user\n");
 		return 1;
 	}
 	fprintf(stderr, "user: user removed\n");
 	return 0;
 }
-
-#include <iostream>
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <termios.h>
-#include <unistd.h>
-#endif
 
 void stdinEcho(bool enable)
 {
@@ -258,9 +267,9 @@ int user_passwd(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 	std::string passwd, verify;
 
 	stdinEcho(false);
-	printf("New password: ");
+	printf("New password: "); fflush(stdout);
 	std::cin >> passwd;
-	printf("\nRepeat new password: ");
+	printf("\nRepeat new password: "); fflush(stdout);
 	std::cin >> verify;
 	printf("\n");
 	stdinEcho(true);
