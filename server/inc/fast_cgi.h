@@ -95,7 +95,9 @@ namespace FastCGI
 		Headers m_headers;
 		Cookies m_cookies;
 		std::ostream m_cout;
+
 		void ensureInputWasRead();
+		void buildCookieHeader();
 		void printHeaders();
 	public:
 		std::ostream cerr;
@@ -133,13 +135,18 @@ namespace FastCGI
 	class Request
 	{
 		friend class Response;
+
+		typedef std::map<std::string, std::string> Cookies;
+
 		Response m_resp;
 		Application& m_app;
 		fcgi_streambuf m_streambuf;
+		Cookies m_cookies;
 
 		std::istream m_cin;
 		mutable bool m_read_something;
 
+		void unpackCookies();
 		void readAll();
 	public:
 		Request(Application& app);
@@ -148,6 +155,13 @@ namespace FastCGI
 		Application& app() { return m_app; }
 		long long calcStreamSize();
 		param_t getParam(const char* name) const { return FCGX_GetParam(name, m_app.m_request.envp); }
+		param_t getCookie(const char* name) const {
+			Cookies::const_iterator _it = m_cookies.find(name);
+			if (_it == m_cookies.end())
+				return nullptr;
+			return _it->second.c_str();
+		}
+
 		Response& resp() { return m_resp; }
 
 		template <typename T>
@@ -172,6 +186,12 @@ namespace FastCGI
 			m_cin.read(ptr, length);
 			return m_cin.gcount();
 		}
+
+#if DEBUG_CGI
+		const std::map<std::string, std::string>& cookieDebugData() const {
+			return m_cookies;
+		}
+#endif
 	};
 }
 

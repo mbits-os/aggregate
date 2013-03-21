@@ -109,6 +109,45 @@ namespace FastCGI
 
 	void Request::unpackCookies()
 	{
+		param_t HTTP_COOKIE = getParam("HTTP_COOKIE");
+		if (!HTTP_COOKIE || !*HTTP_COOKIE)
+			return;
+
+		param_t end = HTTP_COOKIE + strlen(HTTP_COOKIE);
+		param_t c = HTTP_COOKIE;
+		while (c < end)
+		{
+			while (isspace((unsigned char)*c) && c < end) ++c;
+			param_t name_start = c;
+			while (!isspace((unsigned char)*c) && *c != '=' && c < end) ++c;
+			std::string name(name_start, c);
+			while (isspace((unsigned char)*c) && c < end) ++c;
+			if (c >= end || *c != '=') break;
+			++c;
+			while (isspace((unsigned char)*c) && c < end) ++c;
+			if (*c == '"')
+			{
+				const char* quot_end = nullptr;
+				std::string value = url::quot_parse(c + 1, end - c - 1, &quot_end);
+				if (quot_end && *quot_end)
+					c = quot_end + 1;
+				else
+					break;
+				if (name[0] != '$')
+					m_cookies[name] = value;
+			}
+			else
+			{
+				param_t value_start = c;
+				while (!isspace((unsigned char)*c) &&
+					*c != ';' && *c != ',' && c < end) ++c;
+				if (name[0] != '$')
+					m_cookies[name] = std::string(value_start, c);
+			}
+			while (isspace((unsigned char)*c) && c < end) ++c;
+			if (c >= end || (*c != ';' && *c != ',')) break;
+			++c;
+		};
 	}
 
 	void Request::readAll()
@@ -158,33 +197,6 @@ namespace FastCGI
 		m_req.readAll();
 	}
 
-	std::string quot_escape(const std::string& s)
-	{
-		std::string out;
-		out.reserve(s.length() * 3 / 2);
-
-		std::string::const_iterator
-			_cur = s.begin(), _end = s.end();
-		for (; _cur != _end; ++_cur)
-		{
-			switch (*_cur)
-			{
-			case '\\': out += "\\\\"; break;
-			case '\a': out += "\\a"; break;
-			case '\b': out += "\\b"; break;
-			case '\r': out += "\\r"; break;
-			case '\n': out += "\\n"; break;
-			case '\t': out += "\\t"; break;
-			case '"':  out += "\\\""; break;
-			case '\'': out += "\\'"; break;
-			default:
-				out.push_back(*_cur);
-			}
-		}
-
-		return out;
-	}
-
 	void Response::buildCookieHeader()
 	{
 		std::string cookies;
@@ -203,7 +215,7 @@ namespace FastCGI
 			if (url::isToken(_cookie->second.m_value))
 				cookies += _cookie->second.m_value;
 			else
-				cookies += "\"" + quot_escape(_cookie->second.m_value) + "\"";
+				cookies += "\"" + url::quot_escape(_cookie->second.m_value) + "\"";
 			cookies += domAndPath;
 
 			if (_cookie->second.m_expire != 0)

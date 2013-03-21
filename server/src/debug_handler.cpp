@@ -24,7 +24,6 @@
 
 #include "pch.h"
 #include "handlers.h"
-#include "model.h"
 
 #if DEBUG_CGI
 
@@ -113,6 +112,9 @@ namespace app
 			size_t counter = 0;
 			for ( ; _cur != _end; ++_cur)
 			{
+				if (_cur->resource == "/debug/?all")
+					continue;
+
 				tm gmt;
 				_gmtime64_s( &gmt, &_cur->now );
 				char timebuf[50];
@@ -124,6 +126,25 @@ namespace app
 				response
 					<< "><td><nobr><a href='http://" << _cur->server << _cur->resource << "'>" << _cur->resource << "</a></nobr></td>"
 					<< "<td><nobr>" << _cur->remote_addr << ":" << _cur->remote_port << "</nobr></td><td>" << timebuf << "</td></tr>\n";
+			}
+			response << "</tbody></table>\n";
+		}
+
+		static void cookies(FastCGI::Response& response, const std::map<std::string, std::string>& list)
+		{
+			response << "<table class='cookies'>\n";
+			response << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
+
+			auto _cur = list.begin(), _end = list.end();
+			size_t counter = 0;
+			for ( ; _cur != _end; ++_cur)
+			{
+				response << "<tr";
+				if (counter++ % 2)
+					response << " class='even'";
+				response
+					<< "><td><nobr>" << _cur->first << "</nobr></td>"
+					<< "<td>" << _cur->second << "</td></tr>\n";
 			}
 			response << "</tbody></table>\n";
 		}
@@ -152,9 +173,12 @@ namespace app
 			response <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
 				"<li><a href='#requests'>Page Requests</a></li>\n"
+				"<li><a href='#cookies'>Page Cookies</a></li>\n"
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
+			response <<
+				"<p><strong>Session:</strong> " << hash << "</p>\n";
 
 			if (all) {
 				response << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
@@ -168,6 +192,9 @@ namespace app
 
 			response << "<h2 class='head'><a name='requests'></a>Page Requests</h2>\n";
 			requests(response, request.app().requs());
+
+			response << "<h2 class='head'><a name='cookies'></a>Page Cookies</h2>\n";
+			cookies(response, request.cookieDebugData());
 		}
 
 	};
