@@ -73,43 +73,43 @@ namespace app
 			return "JSON::Feeds";
 		}
 
-		static void folder(FastCGI::Response& response, const FolderInfo& nfo, bool add_comma) {
+		static void folder(FastCGI::Request& request, const FolderInfo& nfo, bool add_comma) {
 			if (add_comma)
-				response << ",";
-			response << 
+				request << ",";
+			request << 
 				"{\"title\":\"" << nfo.m_title << "\", "
 				"\"url\": \"user/" << user_id << "/" << nfo.m_id << "\", "
 				"\"unread\": " << nfo.m_unread << ", ";
 			if (nfo.m_parent && *nfo.m_parent)
-				response << "\"parent\": \"" << nfo.m_parent << "\"}";
+				request << "\"parent\": \"" << nfo.m_parent << "\"}";
 			else
-				response << "\"parent\": null}";
+				request << "\"parent\": null}";
 		}
 
-		static void feed(FastCGI::Response& response, const FeedInfo& nfo, bool add_comma) {
+		static void feed(FastCGI::Request& request, const FeedInfo& nfo, bool add_comma) {
 			if (add_comma)
-				response << ",";
-			response << 
+				request << ",";
+			request << 
 				"{\"title\":\"" << nfo.m_title << "\", "
 				"\"url\": \"" << nfo.m_url << "\", "
 				"\"feed_url\": \"" << nfo.m_feed << "\", "
 				"\"unread\": " << nfo.m_unread << ", ";
 			if (nfo.m_folder && *nfo.m_folder)
-				response << "\"folder\": \"" << nfo.m_folder << "\"}";
+				request << "\"folder\": \"" << nfo.m_folder << "\"}";
 			else
-				response << "\"folder\": null}";
+				request << "\"folder\": null}";
 		}
 
-		void visit(FastCGI::Request& request, FastCGI::Response& response)
+		void visit(FastCGI::Request& request)
 		{
-			response.header("Content-Type", "application/json; charset=utf-8");
-			response << "{\"folders\":[";
+			request.setHeader("Content-Type", "application/json; charset=utf-8");
+			request << "{\"folders\":[";
 			for (size_t i = 0; i < array_size(folders); ++i)
-				folder(response, folders[i], i != 0);
-			response << "], \"feeds\":[";
+				folder(request, folders[i], i != 0);
+			request << "], \"feeds\":[";
 			for (size_t i = 0; i < array_size(feeds); ++i)
-				feed(response, feeds[i], i != 0);
-			response << "]}";
+				feed(request, feeds[i], i != 0);
+			request << "]}";
 		}
 
 	};

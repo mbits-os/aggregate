@@ -25,6 +25,7 @@
 #include "pch.h"
 #include "handlers.h"
 #include <dbconn.h>
+#include <model.h>
 
 REGISTER_REDIRECT("/", "/view/");
 
@@ -45,12 +46,13 @@ int main (void)
 		FastCGI::Request req(app);
 
 		try {
+			data::Session* session = data::Session::getSession();
 
 			app::HandlerPtr handler = app::Handlers::handler(req);
 			if (handler.get() != NULL)
-				handler->visit(req, req.resp());
+				handler->visit(req);
 			else
-				req.resp().on404();
+				req.on404();
 
 		} catch(FastCGI::FinishResponse) {
 			// die() lands here

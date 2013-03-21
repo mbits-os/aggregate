@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "handlers.h"
+#include "crypt.hpp"
 
 #if DEBUG_CGI
 
@@ -46,25 +47,25 @@ namespace app
 			return "DEBUG_CGI";
 		}
 
-		static void penv(FastCGI::Response& response, const char * const * envp)
+		static void penv(FastCGI::Request& request, const char * const * envp)
 		{
-			response << "<table class='env'>\n";
-			response << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
+			request << "<table class='env'>\n";
+			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
 			size_t counter = 0;
 			for ( ; *envp; ++envp)
 			{
 				const char* eq = strchr(*envp, '=');
-				response << "<tr";
+				request << "<tr";
 				if (counter++ % 2)
-					response << " class='even'";
-				response << "><td>";
-				if (eq == *envp) response << "&nbsp;";
-				else if (eq == NULL) response << *envp;
-				else response << std::string(*envp, eq);
-				response << "</td><td>";
-				if (eq == NULL) response << "&nbsp;";
+					request << " class='even'";
+				request << "><td>";
+				if (eq == *envp) request << "&nbsp;";
+				else if (eq == NULL) request << *envp;
+				else request << std::string(*envp, eq);
+				request << "</td><td>";
+				if (eq == NULL) request << "&nbsp;";
 				else if (strncmp("PATH=", *envp, 5))
-					response << eq + 1;
+					request << eq + 1;
 				else 
 				{
 					const char* prev = eq + 1;
@@ -72,41 +73,41 @@ namespace app
 					while (*c != 0)
 					{
 						while (*c != 0 && *c != SEP) ++c;
-						response << std::string(prev, c);
-						if (*c != 0) response << "<br/>\n";
+						request << std::string(prev, c);
+						if (*c != 0) request << "<br/>\n";
 						if (*c != 0) ++c;
 						prev = c;
 					}
 				}
-				response << "</td></tr>\n";
+				request << "</td></tr>\n";
 			}
-			response << "</table>\n";
+			request << "</table>\n";
 		}
 
-		static void handlers(FastCGI::Response& response,
+		static void handlers(FastCGI::Request& request,
 			HandlerMap::const_iterator begin,
 			HandlerMap::const_iterator end)
 		{
-			response << "<table class='handlers'>\n";
-			response << "<thead><tr><th>URL</th><th>Action</th><th>File</th></tr><thead><tbody>\n";
+			request << "<table class='handlers'>\n";
+			request << "<thead><tr><th>URL</th><th>Action</th><th>File</th></tr><thead><tbody>\n";
 			size_t counter = 0;
 			for ( ; begin != end; ++begin)
 			{
-				response << "<tr";
+				request << "<tr";
 				if (counter++ % 2)
-					response << " class='even'";
-				response
+					request << " class='even'";
+				request
 					<< "><td><nobr><a href='" << begin->first << "'>" << begin->first << "</a></nobr></td>"
 					<< "<td><nobr>" << begin->second.ptr->name() << "</nobr></td><td>" << begin->second.file << ":"
 					<< begin->second.line << "</td></tr>\n";
 			}
-			response << "</tbody></table>\n";
+			request << "</tbody></table>\n";
 		}
 
-		static void requests(FastCGI::Response& response, const FastCGI::Application::ReqList& list)
+		static void requests(FastCGI::Request& request, const FastCGI::Application::ReqList& list)
 		{
-			response << "<table class='requests'>\n";
-			response << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th></tr><thead><tbody>\n";
+			request << "<table class='requests'>\n";
+			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th></tr><thead><tbody>\n";
 
 			auto _cur = list.begin(), _end = list.end();
 			size_t counter = 0;
@@ -120,41 +121,46 @@ namespace app
 				char timebuf[50];
 				asctime_s(timebuf, &gmt);
 
-				response << "<tr";
+				request << "<tr";
 				if (counter++ % 2)
-					response << " class='even'";
-				response
+					request << " class='even'";
+				request
 					<< "><td><nobr><a href='http://" << _cur->server << _cur->resource << "'>" << _cur->resource << "</a></nobr></td>"
 					<< "<td><nobr>" << _cur->remote_addr << ":" << _cur->remote_port << "</nobr></td><td>" << timebuf << "</td></tr>\n";
 			}
-			response << "</tbody></table>\n";
+			request << "</tbody></table>\n";
 		}
 
-		static void cookies(FastCGI::Response& response, const std::map<std::string, std::string>& list)
+		static void cookies(FastCGI::Request& request, const std::map<std::string, std::string>& list)
 		{
-			response << "<table class='cookies'>\n";
-			response << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
+			request << "<table class='cookies'>\n";
+			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
 
 			auto _cur = list.begin(), _end = list.end();
 			size_t counter = 0;
 			for ( ; _cur != _end; ++_cur)
 			{
-				response << "<tr";
+				request << "<tr";
 				if (counter++ % 2)
-					response << " class='even'";
-				response
+					request << " class='even'";
+				request
 					<< "><td><nobr>" << _cur->first << "</nobr></td>"
 					<< "<td>" << _cur->second << "</td></tr>\n";
 			}
-			response << "</tbody></table>\n";
+			request << "</tbody></table>\n";
 		}
 
-		void visit(FastCGI::Request& request, FastCGI::Response& response)
+		void visit(FastCGI::Request& request)
 		{
+			time_t t = 0;
+			crypt::session_t hash;
+			crypt::session("reader.login", hash);
+			request.setCookie("reader.login", hash, time(&t) + 86400*60);
+
 			const char* QUERY_STRING = request.getParam("QUERY_STRING");
 			bool all = (QUERY_STRING != NULL) && (strcmp(QUERY_STRING, "all") == 0);
 
-			response << "<style type='text/css'>\n"
+			request << "<style type='text/css'>\n"
 				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
 				"div#content { width: 650px; margin: 0px auto }\n"
 				"th, td { text-align: left; vertical-align: top; padding: 0.2em 0.5em }\n"
@@ -166,35 +172,35 @@ namespace app
 				"<h1>Debug page</h1>\n"
 				"<h2>Table of Contents</h2>\n"
 				"<ol>\n";
-			if (all) response <<
+			if (all) request <<
 				"<li><a href='#request'>Request Environment</a></li>\n"
 				//"<li><a href='#process'>Process/Initial Environment</a></li>\n"
 				;
-			response <<
+			request <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
 				"<li><a href='#requests'>Page Requests</a></li>\n"
 				"<li><a href='#cookies'>Page Cookies</a></li>\n"
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
-			response <<
+			request <<
 				"<p><strong>Session:</strong> " << hash << "</p>\n";
 
 			if (all) {
-				response << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
-				penv(response, request.envp());
-				//response << "<h2 class='head'><a name='process'></a>Process/Initial Environment</h2>\n";
-				//penv(response, environ);
+				request << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
+				penv(request, request.envp());
+				//request << "<h2 class='head'><a name='process'></a>Process/Initial Environment</h2>\n";
+				//penv(request, environ);
 			}
 
-			response << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
-			handlers(response, app::Handlers::begin(), app::Handlers::end());
+			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
+			handlers(request, app::Handlers::begin(), app::Handlers::end());
 
-			response << "<h2 class='head'><a name='requests'></a>Page Requests</h2>\n";
-			requests(response, request.app().requs());
+			request << "<h2 class='head'><a name='requests'></a>Page Requests</h2>\n";
+			requests(request, request.app().requs());
 
-			response << "<h2 class='head'><a name='cookies'></a>Page Cookies</h2>\n";
-			cookies(response, request.cookieDebugData());
+			request << "<h2 class='head'><a name='cookies'></a>Page Cookies</h2>\n";
+			cookies(request, request.cookieDebugData());
 		}
 
 	};

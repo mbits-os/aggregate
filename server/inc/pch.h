@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#if !defined(DEBUG_HANDLERS)
+#if !defined(DEBUG_CGI)
 #ifdef NDEBUG
 #define DEBUG_CGI 0
 #else

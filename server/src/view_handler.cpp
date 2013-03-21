@@ -36,13 +36,22 @@ namespace app
 			return "Web UI";
 		}
 
-		void visit(FastCGI::Request& request, FastCGI::Response& response)
+		void visit(FastCGI::Request& request)
 		{
-			response << 
+			request << 
 				"<html>\n"
 				"<title>Aggregator</title>\n"
 				"<h1>Aggregator</h1>\n"
-				"łotewah";
+				;
+			fcgi::param_t QUERY_STRING = request.getParam("QUERY_STRING");
+			if (!QUERY_STRING || !*QUERY_STRING)
+			{
+				request << 
+					"łotewah";
+				request.die();
+			}
+			request << "<h1>Reading...</h1>";
+			request << "<p>Done</p>";
 		}
 
 	};
