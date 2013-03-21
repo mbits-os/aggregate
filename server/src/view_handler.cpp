@@ -38,6 +38,8 @@ namespace app
 
 		void visit(FastCGI::Request& request)
 		{
+			FastCGI::SessionPtr session = request.getSession();
+
 			request << 
 				"<html>\n"
 				"<title>Aggregator</title>\n"

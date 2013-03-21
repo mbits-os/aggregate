@@ -180,6 +180,7 @@ namespace app
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
 				"<li><a href='#requests'>Page Requests</a></li>\n"
 				"<li><a href='#cookies'>Page Cookies</a></li>\n"
+				"<li><a href='#session'>Session</a></li>\n"
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
@@ -201,6 +202,17 @@ namespace app
 
 			request << "<h2 class='head'><a name='cookies'></a>Page Cookies</h2>\n";
 			cookies(request, request.cookieDebugData());
+
+			request << "<h2 class='head'><a name='session'></a>Session</h2>\n";
+			FastCGI::SessionPtr session = request.getSession(false);
+			if (session.get())
+			{
+				//...
+			}
+			else
+			{
+				request << "<p>There is no session in progress currently.</p>\n";
+			}
 		}
 
 	};
