@@ -9,3 +9,4 @@ libenv/database/mysql/mysql.cpp
 libenv/database/mysql/mysql.hpp
 libenv/model/model.cpp
 libenv/crypt/crypt.cpp
+libenv/utils/url_utils.cpp

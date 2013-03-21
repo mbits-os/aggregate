@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "fast_cgi.h"
+#include <utils.h>
 
 #ifdef _WIN32
 #define INI "..\\conn.ini"
@@ -98,11 +99,16 @@ namespace FastCGI
 		, m_cin(&m_streambuf)
 		, m_read_something(false)
 	{
+		unpackCookies();
 	}
 
 	Request::~Request()
 	{
 		readAll();
+	}
+
+	void Request::unpackCookies()
+	{
 	}
 
 	void Request::readAll()
@@ -179,20 +185,13 @@ namespace FastCGI
 		return out;
 	}
 
-	void Response::printHeaders()
+	void Response::buildCookieHeader()
 	{
-		if (m_headers_sent)
-			return;
-
-		m_headers_sent = true;
-		if (m_headers.find("content-type") == m_headers.end())
-			m_headers["content-type"] = "Content-Type: text/html; charset=utf-8";
-
 		std::string cookies;
 
-		std::string domAndPath = "; Domain=";
+		std::string domAndPath = "; Version=1; Domain=";
 		domAndPath += m_req.getParam("SERVER_NAME");
-		domAndPath += "; Path=/";
+		domAndPath += "; Path=/; HttpOnly";
 
 		bool first = true;
 		Cookies::const_iterator _cookie = m_cookies.begin(), _cend = m_cookies.end();
@@ -200,7 +199,13 @@ namespace FastCGI
 		{
 			if (first) first = false;
 			else cookies += ", ";
-			cookies += _cookie->second.m_name + "=\"" + quot_escape(_cookie->second.m_value) + "\"" + domAndPath;
+			cookies += url::encode(_cookie->second.m_name) + "=";
+			if (url::isToken(_cookie->second.m_value))
+				cookies += _cookie->second.m_value;
+			else
+				cookies += "\"" + quot_escape(_cookie->second.m_value) + "\"";
+			cookies += domAndPath;
+
 			if (_cookie->second.m_expire != 0)
 			{
 				char buffer[256];
@@ -212,6 +217,18 @@ namespace FastCGI
 		}
 		if (!cookies.empty())
 			m_headers["set-cookie"] = "Set-Cookie: " + cookies;
+	}
+
+	void Response::printHeaders()
+	{
+		if (m_headers_sent)
+			return;
+
+		m_headers_sent = true;
+		if (m_headers.find("content-type") == m_headers.end())
+			m_headers["content-type"] = "Content-Type: text/html; charset=utf-8";
+
+		buildCookieHeader();
 
 		Headers::const_iterator _cur = m_headers.begin(), _end = m_headers.end();
 		for (; _cur != _end; ++_cur)
@@ -235,6 +252,9 @@ namespace FastCGI
 		v += value;
 		std::string n(name);
 		std::transform(n.begin(), n.end(), n.begin(), ::tolower);
+		if (n == "set-cookie" || n == "set-cookie2")
+			return; //not that API, use setcookie
+
 		m_headers[n] = v;
 	}
 
