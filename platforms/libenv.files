@@ -1,3 +1,8 @@
+libenv/pch.h
+libenv/pch.cpp=pch:1
+
+libenv/includes/fast_cgi.h
+libenv/includes/handlers.h
 libenv/includes/dbconn.h
 libenv/includes/dbconn_driver.h
 libenv/includes/model.h
@@ -10,3 +15,5 @@ libenv/database/mysql/mysql.hpp
 libenv/model/model.cpp
 libenv/crypt/crypt.cpp
 libenv/utils/url_utils.cpp
+libenv/fast_cgi/fast_cgi.cpp
+libenv/fast_cgi/handlers.cpp

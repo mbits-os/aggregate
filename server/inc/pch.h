@@ -34,11 +34,6 @@
 
 #include <stdlib.h>
 #include <time.h>
-#ifdef _WIN32
-#include <process.h>
-#else
-#include <unistd.h>
-#endif
 
 #if !defined(DEBUG_HANDLERS)
 #ifdef NDEBUG
