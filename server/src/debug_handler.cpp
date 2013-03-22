@@ -116,10 +116,9 @@ namespace app
 				if (_cur->resource == "/debug/?all")
 					continue;
 
-				tm gmt;
-				_gmtime64_s( &gmt, &_cur->now );
-				char timebuf[50];
-				asctime_s(timebuf, &gmt);
+				tyme::tm_t gmt = tyme::gmtime(_cur->now);
+				char timebuf[100];
+				tyme::strftime(timebuf, "%a, %d-%b-%Y %H:%M:%S GMT", gmt );
 
 				request << "<tr";
 				if (counter++ % 2)
@@ -152,10 +151,9 @@ namespace app
 
 		void visit(FastCGI::Request& request)
 		{
-			time_t t = 0;
 			crypt::session_t hash;
 			crypt::session("reader.login", hash);
-			request.setCookie("reader.login", hash, time(&t) + 86400*60);
+			request.setCookie("reader.login", hash, tyme::now() + 86400*60);
 
 			const char* QUERY_STRING = request.getParam("QUERY_STRING");
 			bool all = (QUERY_STRING != NULL) && (strcmp(QUERY_STRING, "all") == 0);

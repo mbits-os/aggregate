@@ -33,7 +33,6 @@
 #include <algorithm>
 
 #include <stdlib.h>
-#include <time.h>
 
 #if !defined(DEBUG_CGI)
 #ifdef NDEBUG

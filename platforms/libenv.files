@@ -15,5 +15,6 @@ libenv/database/mysql/mysql.hpp
 libenv/model/model.cpp
 libenv/crypt/crypt.cpp
 libenv/utils/url_utils.cpp
+libenv/utils/time_utils.cpp
 libenv/fast_cgi/fast_cgi.cpp
 libenv/fast_cgi/handlers.cpp
