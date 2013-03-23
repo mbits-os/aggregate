@@ -1,0 +1,265 @@
+# Copyright (C) 2013 Aggregate
+# This file is distributed under the same license as the Aggregate package.
+# Marcin Zdun <mzdun@midnightbits.com>, 2013.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Aggregate 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-10-22 20:47+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\n"
+"Language-Team: Translators <translate@midnightbits.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgctxt "LNG_CHNGPASS_CURRENT"
+msgid "Current password:"
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_ERROR_CURRENT"
+msgid "Current password is invalid."
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_ERROR_MISMATCHED"
+msgid "New password and retyped password do not match."
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_ERROR_NOT_CHANGED"
+msgid "New password and the current password must be different."
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_ERROR_ONE_MISSING"
+msgid "Not all fields has been filled in."
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_NEW"
+msgid "New password:"
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_RETYPE"
+msgid "Retype new password:"
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_TITLE"
+msgid "Password Change"
+msgstr ""
+
+msgctxt "LNG_CHNGPASS_TITLE_FOR"
+msgid "Changing password for %1"
+msgstr ""
+
+msgctxt "LNG_CMD_CLOSE"
+msgid "Close"
+msgstr ""
+
+msgctxt "LNG_CMD_RESET"
+msgid "Reset"
+msgstr ""
+
+msgctxt "LNG_CMD_SEND"
+msgid "Send"
+msgstr ""
+
+msgctxt "LNG_CMD_UPDATE"
+msgid "Update"
+msgstr ""
+
+msgctxt "LNG_GLOBAL_DESCRIPTION"
+msgid "stay up to date"
+msgstr ""
+
+msgctxt "LNG_GLOBAL_PRODUCT"
+msgid "Aggregator"
+msgstr ""
+
+msgctxt "LNG_GLOBAL_SITENAME"
+msgid "Aggregator"
+msgstr ""
+
+msgctxt "LNG_LOGIN_ABSTRACT"
+msgid "Welcome to the Aggregator, your somsink, somsink."
+msgstr ""
+
+msgctxt "LNG_LOGIN_ERROR_MISMATCHED"
+msgid "Username and password do not match each other."
+msgstr ""
+
+msgctxt "LNG_LOGIN_ERROR_ONE_MISSING"
+msgid "Both username and password are required."
+msgstr ""
+
+msgctxt "LNG_LOGIN_FORGOT"
+msgid "I forgot my password"
+msgstr ""
+
+msgctxt "LNG_LOGIN_PASSWORD"
+msgid "Password:"
+msgstr ""
+
+msgctxt "LNG_LOGIN_STAY"
+msgid "Stay signed in"
+msgstr ""
+
+msgctxt "LNG_LOGIN_TITLE"
+msgid "Login"
+msgstr ""
+
+msgctxt "LNG_LOGIN_UI_STALE"
+msgid "Due to security reasons, you must sign in again"
+msgstr ""
+
+msgctxt "LNG_LOGIN_USERNAME"
+msgid "Username:"
+msgstr ""
+
+msgctxt "LNG_LOGIN_USERNAME_HINT"
+msgid "Use login or e-mail"
+msgstr ""
+
+msgctxt "LNG_NAV_HELP"
+msgid "Help"
+msgstr ""
+
+msgctxt "LNG_NAV_LIBRARY"
+msgid "Library"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_FRIEND_SHELF"
+msgid "Friend"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_IMPORTED_SHELF"
+msgid "Imported Library"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_ITEM"
+msgid "Item"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_MENU"
+msgid "New"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_MENU_TIP"
+msgid "Add New"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_NORMAL_SHELF"
+msgid "Normal Shelf"
+msgstr ""
+
+msgctxt "LNG_NAV_NEW_SMART_SHELF"
+msgid "Smart Shelf"
+msgstr ""
+
+msgctxt "LNG_NAV_PUBLIC"
+msgid "Public lists"
+msgstr ""
+
+msgctxt "LNG_NAV_REFRESH"
+msgid "Refresh"
+msgstr ""
+
+msgctxt "LNG_NAV_SEARCH"
+msgid "Search"
+msgstr ""
+
+msgctxt "LNG_NAV_SETTINGS"
+msgid "Settings"
+msgstr ""
+
+msgctxt "LNG_NAV_SIGNIN"
+msgid "Sign In"
+msgstr ""
+
+msgctxt "LNG_NAV_SIGNOUT"
+msgid "Sign Out"
+msgstr ""
+
+msgctxt "LNG_NAV_SKIP"
+msgid "Skip to content"
+msgstr ""
+
+msgctxt "LNG_RESET_TITLE"
+msgid "Reset my password"
+msgstr ""
+
+msgctxt "LNG_RESET_USERNAME_HINT"
+msgid "Enter your user name or your e-mail"
+msgstr ""
+
+msgctxt "LNG_USER_HELLO"
+msgid "Hello, %1!"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_CHANGE_PASSWORD"
+msgid "Change password"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_EMAIL"
+msgid "E-Mail:"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_CUSTOM_NEEDED"
+msgid "Custom display name must be filled out."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED"
+msgid "E-mail address used by different account."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_FILLED"
+msgid "E-mail address must be filled out."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_FAMILY_NAME_REQUIRED"
+msgid "User family name must be filled out."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_INVALID_PASSWORD"
+msgid "Current password is invalid."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_NAME_REQUIRED"
+msgid "User name must be filled out."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_NO_OPTION"
+msgid "Somehow, you selected no option at all."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_OPTION_OUTSIDE"
+msgid "Somehow, you selected non-existent option."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_SOME_ISSUES"
+msgid "There were some issues:"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_ERROR_TITLE_REQUIRED"
+msgid "If you want to publish some shelves, you must title the collection."
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_NAME"
+msgid "Name:"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_PASSWORD_MAIL_HINT"
+msgid "You must supply password if you want to change e-mail"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_SEC_NAME"
+msgid "Name"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_SEC_SIGNIN"
+msgid "Signing in"
+msgstr ""
+
+msgctxt "LNG_USER_SETTINGS_TITLE"
+msgid "Settings"
+msgstr ""

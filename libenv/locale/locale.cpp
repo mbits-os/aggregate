@@ -22,34 +22,13 @@
  * SOFTWARE.
  */
 
-#ifndef __SERVER_PCH_H__
-#define __SERVER_PCH_H__
+#include "pch.h"
+#include <locale.hpp>
 
-#include "fcgio.h"
-#include <memory>
-#include <list>
-#include <map>
-#include <string>
-#include <algorithm>
-
-#include <stdlib.h>
-
-#include "site_strings.h"
-
-#if !defined(DEBUG_CGI)
-#ifdef NDEBUG
-#define DEBUG_CGI 0
-#else
-#define DEBUG_CGI 1
-#endif
-#endif
-
-namespace std
+namespace lng
 {
-	inline std::ostream& operator << (std::ostream& o, const std::string& str)
+	bool Locale::init(const char*)
 	{
-		return o << str.c_str();
+		return true;
 	}
 }
-
-#endif //__SERVER_PCH_H__

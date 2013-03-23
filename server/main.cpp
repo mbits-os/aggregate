@@ -26,6 +26,15 @@
 #include "handlers.h"
 #include <dbconn.h>
 #include <model.h>
+#include <locale.hpp>
+
+#ifdef _WIN32
+#define LOCALE_PATH "..\\locale\\"
+#endif
+
+#ifdef POSIX
+#define LOCALE_PATH "../locale/"
+#endif
 
 REGISTER_REDIRECT("/", "/view/");
 
@@ -34,6 +43,8 @@ int main (void)
 	db::environment env;
 	if (env.failed)
 		return 1;
+
+	lng::Locale::init(LOCALE_PATH);
 
 	FastCGI::Application app;
 

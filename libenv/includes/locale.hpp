@@ -22,34 +22,48 @@
  * SOFTWARE.
  */
 
-#ifndef __SERVER_PCH_H__
-#define __SERVER_PCH_H__
+#ifndef __LOCALE_H__
+#define __LOCALE_H__
 
-#include "fcgio.h"
-#include <memory>
-#include <list>
-#include <map>
-#include <string>
-#include <algorithm>
-
-#include <stdlib.h>
-
-#include "site_strings.h"
-
-#if !defined(DEBUG_CGI)
-#ifdef NDEBUG
-#define DEBUG_CGI 0
-#else
-#define DEBUG_CGI 1
-#endif
-#endif
-
-namespace std
+namespace lng
 {
-	inline std::ostream& operator << (std::ostream& o, const std::string& str)
+	struct LangFile;
+	class Locale;
+
+	enum ERR
 	{
-		return o << str.c_str();
-	}
+		ERR_OK,
+		ERR_NO_FILE,
+		ERR_OOM,
+		ERR_WRONG_HEADER,
+		ERR_OFFSETS_TRUNCATED,
+		ERR_UNEXPECTED_OFFSET,
+		ERR_STRING_TRUNCATED,
+		ERR_STRING_UNTERMINATED,
+		ERR_OTHER
+	};
+	struct LangFile
+	{
+		typedef unsigned int offset_t;
+		LangFile();
+		~LangFile() { close(); }
+		ERR open(const char* path);
+		void close();
+		const char* getString(unsigned int i);
+		offset_t size() const { return m_count; }
+	private:
+		char* m_content;
+		offset_t m_count;
+		offset_t* m_offsets;
+		char* m_strings;
+	};
+
+	class Locale
+	{
+	public:
+		static bool init(const char* fileRoot);
+	};
+
 }
 
-#endif //__SERVER_PCH_H__
+#endif // __LOCALE_H__

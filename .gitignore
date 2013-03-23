@@ -34,8 +34,7 @@ int
 
 /3rd/openssl/out32
 /3rd/openssl/tmp32/*.obj
-*.pbxuser
-*.perspectivev3
+*.mo
 build
 ipch
 output

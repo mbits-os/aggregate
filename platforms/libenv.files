@@ -8,6 +8,7 @@ libenv/includes/dbconn_driver.h
 libenv/includes/model.h
 libenv/includes/utils.h
 libenv/includes/crypt.hpp
+libenv/includes/locale.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -18,3 +19,5 @@ libenv/utils/url_utils.cpp
 libenv/utils/time_utils.cpp
 libenv/fast_cgi/fast_cgi.cpp
 libenv/fast_cgi/handlers.cpp
+libenv/locale/lang_file.cpp
+libenv/locale/locale.cpp

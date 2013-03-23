@@ -1,6 +1,9 @@
 server/pch.h
 server/pch.cpp=pch:1
+server/site_strings.h
 server/main.cpp
 server/pages/debug_handler.cpp
 server/pages/view_handler.cpp
 server/pages/data/subscription_handler.cpp
+strings/site_strings.txt
+
