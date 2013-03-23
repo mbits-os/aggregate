@@ -44,9 +44,11 @@ namespace app
 		struct DebugRequestState: FastCGI::RequestState
 		{
 			long long m_contentSize;
+			long long m_read;
 			char* m_buffer;
 			DebugRequestState()
 			: m_contentSize(0)
+			, m_read(0)
 			, m_buffer(nullptr)
 			{}
 			~DebugRequestState()
@@ -58,6 +60,7 @@ namespace app
 				free(m_buffer);
 				m_buffer = (char*)malloc((size_t)size);
 				m_contentSize = m_buffer ? size : 0;
+				m_read = 0;
 				return m_buffer != nullptr;
 			}
 		};
@@ -184,7 +187,7 @@ namespace app
 				if (state)
 				{
 					if (state->alloc(content_size))
-						request.read(state->m_buffer, state->m_contentSize);
+						state->m_read = request.read(state->m_buffer, state->m_contentSize);
 
 					request.setRequestState(FastCGI::RequestStatePtr(state));
 				}
@@ -193,8 +196,7 @@ namespace app
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			const char* QUERY_STRING = request.getParam("QUERY_STRING");
-			bool all = (QUERY_STRING != NULL) && (strncmp(QUERY_STRING, "all", 3) == 0);
+			bool all = request.getVariable("all") != NULL;
 
 			request << "<style type='text/css'>\n"
 				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
@@ -224,8 +226,11 @@ namespace app
 			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
 			if (state && state->m_contentSize > 0)
 			{
-				request << "<h2>Data: <em>" << state->m_contentSize << "</em></h2>\n<pre>";
-				for (long long i = 0; i < state->m_contentSize; i++)
+				request << "<h2>Data: <em>" << state->m_contentSize;
+				if (state->m_contentSize != state->m_read)
+					request << " (" << state->m_contentSize - state->m_read << " read)";
+				request << "</em></h2>\n<pre>";
+				for (long long i = 0; i < state->m_read; i++)
 					request << state->m_buffer[i];
 				request << "</pre>\n";
 			}
