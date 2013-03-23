@@ -37,7 +37,7 @@ extern char ** environ;
 
 namespace app
 {
-	class DebugPageHandler: public Handler
+	class DebugPageHandler: public PageHandler
 	{
 		std::string m_service_url;
 	public:
@@ -149,12 +149,17 @@ namespace app
 			request << "</tbody></table>\n";
 		}
 
-		void visit(FastCGI::Request& request)
+		bool restrictedPage() { return false; }
+		const char* getPageTitle(PageTranslation& tr) { return "Debug"; }
+		void prerender(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			crypt::session_t hash;
 			crypt::session("reader.login", hash);
-			request.setCookie("reader.login", hash, tyme::now() + 86400*60);
+			request.setCookie("cookie-test", hash, tyme::now() + 86400*60);
+		}
 
+		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
+		{
 			const char* QUERY_STRING = request.getParam("QUERY_STRING");
 			bool all = (QUERY_STRING != NULL) && (strcmp(QUERY_STRING, "all") == 0);
 
@@ -182,8 +187,6 @@ namespace app
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
-			request <<
-				"<p><strong>Session:</strong> " << hash << "</p>\n";
 
 			if (all) {
 				request << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
@@ -202,10 +205,14 @@ namespace app
 			cookies(request, request.cookieDebugData());
 
 			request << "<h2 class='head'><a name='session'></a>Session</h2>\n";
-			FastCGI::SessionPtr session = request.getSession(false);
+
 			if (session.get())
 			{
-				//...
+				char time[100];
+				tyme::strftime(time, "%a, %d-%b-%Y %H:%M:%S GMT", tyme::gmtime(session->getStartTime()));
+				request
+					<< "<p>Current user: <a href=\"" << session->getEmail() << "\">" << session->getName() << "<br/>\n"
+					<< "The session has started on " << time << ".</p>";
 			}
 			else
 			{

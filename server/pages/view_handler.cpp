@@ -27,7 +27,7 @@
 
 namespace app
 {
-	class WebUIPageHandler: public Handler
+	class WebUIPageHandler: public PageHandler
 	{
 	public:
 
@@ -36,24 +36,19 @@ namespace app
 			return "Web UI";
 		}
 
-		void visit(FastCGI::Request& request)
+		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			FastCGI::SessionPtr session = request.getSession();
-
-			request << 
-				"<html>\n"
-				"<title>Aggregator</title>\n"
-				"<h1>Aggregator</h1>\n"
-				;
 			fcgi::param_t QUERY_STRING = request.getParam("QUERY_STRING");
 			if (!QUERY_STRING || !*QUERY_STRING)
 			{
 				request << 
 					"łotewah";
-				request.die();
 			}
-			request << "<h1>Reading...</h1>";
-			request << "<p>Done</p>";
+			else
+			{
+				request << "<h1>Reading...</h1>";
+				request << "<p>Done</p>";
+			}
 		}
 
 	};
