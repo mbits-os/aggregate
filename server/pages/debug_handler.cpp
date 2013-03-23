@@ -41,6 +41,26 @@ namespace app
 	{
 		std::string m_service_url;
 	public:
+		struct DebugRequestState: FastCGI::RequestState
+		{
+			long long m_contentSize;
+			char* m_buffer;
+			DebugRequestState()
+			: m_contentSize(0)
+			, m_buffer(nullptr)
+			{}
+			~DebugRequestState()
+			{
+				free(m_buffer);
+			}
+			bool alloc(long long size)
+			{
+				free(m_buffer);
+				m_buffer = (char*)malloc((size_t)size);
+				m_contentSize = m_buffer ? size : 0;
+				return m_buffer != nullptr;
+			}
+		};
 
 		std::string name() const
 		{
@@ -156,12 +176,25 @@ namespace app
 			crypt::session_t hash;
 			crypt::session("reader.login", hash);
 			request.setCookie("cookie-test", hash, tyme::now() + 86400*60);
+
+			long long content_size = request.calcStreamSize();
+			if (content_size > -1)
+			{
+				DebugRequestState* state = new (std::nothrow) DebugRequestState();
+				if (state)
+				{
+					if (state->alloc(content_size))
+						request.read(state->m_buffer, state->m_contentSize);
+
+					request.setRequestState(FastCGI::RequestStatePtr(state));
+				}
+			}
 		}
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			const char* QUERY_STRING = request.getParam("QUERY_STRING");
-			bool all = (QUERY_STRING != NULL) && (strcmp(QUERY_STRING, "all") == 0);
+			bool all = (QUERY_STRING != NULL) && (strncmp(QUERY_STRING, "all", 3) == 0);
 
 			request << "<style type='text/css'>\n"
 				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
@@ -187,6 +220,15 @@ namespace app
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
+			FastCGI::RequestStatePtr statePtr = request.getRequestState();
+			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
+			if (state && state->m_contentSize > 0)
+			{
+				request << "<h2>Data: <em>" << state->m_contentSize << "</em></h2>\n<pre>";
+				for (long long i = 0; i < state->m_contentSize; i++)
+					request << state->m_buffer[i];
+				request << "</pre>\n";
+			}
 
 			if (all) {
 				request << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
