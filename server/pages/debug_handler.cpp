@@ -209,13 +209,13 @@ namespace app
 				"<h2>Table of Contents</h2>\n"
 				"<ol>\n";
 			if (all) request <<
-				"<li><a href='#request'>Request Environment</a></li>\n"
-				//"<li><a href='#process'>Process/Initial Environment</a></li>\n"
+				"<li><a href='#request'>Environment</a></li>\n"
 				;
 			request <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
-				"<li><a href='#requests'>Page Requests</a></li>\n"
-				"<li><a href='#cookies'>Page Cookies</a></li>\n"
+				"<li><a href='#requests'>Requests</a></li>\n"
+				"<li><a href='#variables'>Variables</a></li>\n"
+				"<li><a href='#cookies'>Cookies</a></li>\n"
 				"<li><a href='#session'>Session</a></li>\n"
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
@@ -231,19 +231,20 @@ namespace app
 			}
 
 			if (all) {
-				request << "<h2 class='head'><a name='request'></a>Request Environment</h2>\n";
+				request << "<h2 class='head'><a name='request'></a>Environment</h2>\n";
 				penv(request, request.envp());
-				//request << "<h2 class='head'><a name='process'></a>Process/Initial Environment</h2>\n";
-				//penv(request, environ);
 			}
 
 			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
 			handlers(request, app::Handlers::begin(), app::Handlers::end());
 
-			request << "<h2 class='head'><a name='requests'></a>Page Requests</h2>\n";
+			request << "<h2 class='head'><a name='requests'></a>Requests</h2>\n";
 			requests(request, request.app().requs());
 
-			request << "<h2 class='head'><a name='cookies'></a>Page Cookies</h2>\n";
+			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\n";
+			cookies(request, request.varDebugData());
+
+			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\n";
 			cookies(request, request.cookieDebugData());
 
 			request << "<h2 class='head'><a name='session'></a>Session</h2>\n";
