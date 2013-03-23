@@ -9,6 +9,7 @@ libenv/includes/model.h
 libenv/includes/utils.h
 libenv/includes/crypt.hpp
 libenv/includes/locale.hpp
+libenv/includes/site_strings.h
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp

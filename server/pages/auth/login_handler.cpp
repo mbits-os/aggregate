@@ -24,46 +24,35 @@
 
 #include "pch.h"
 #include "handlers.h"
-#include <dbconn.h>
-#include <locale.hpp>
 
-#ifdef _WIN32
-#define LOCALE_PATH "..\\locales\\"
-#endif
-
-#ifdef POSIX
-#define LOCALE_PATH "../locales/"
-#endif
-
-REGISTER_REDIRECT("/", "/view/");
-
-int main (void)
+namespace app
 {
-	db::environment env;
-	if (env.failed)
-		return 1;
-
-	FastCGI::Application app;
-
-	int ret = app.init(LOCALE_PATH);
-	if (ret != 0)
-		return ret;
-
-	while (app.accept())
+	class LoginPageHandler: public PageHandler
 	{
-		FastCGI::Request req(app);
+	public:
 
-		try {
-			app::HandlerPtr handler = app::Handlers::handler(req);
-			if (handler.get() != NULL)
-				handler->visit(req);
-			else
-				req.on404();
-
-		} catch(FastCGI::FinishResponse) {
-			// die() lands here
+		std::string name() const
+		{
+			return "Login";
 		}
-	}
 
-    return 0;
+	protected:
+		virtual bool restrictedPage() { return false; }
+		const char* getPageTitle(PageTranslation& tr) { return tr(lng::LNG_LOGIN_TITLE); }
+		void render(FastCGI::SessionPtr session, FastCGI::Request& request, PageTranslation& tr)
+		{
+			fcgi::param_t QUERY_STRING = request.getParam("QUERY_STRING");
+			if (!QUERY_STRING || !*QUERY_STRING)
+			{
+				request << 
+					"łotewah";
+				request.die();
+			}
+			request << "<h1>Reading...</h1>";
+			request << "<p>Done</p>";
+		}
+
+	};
 }
+
+REGISTER_HANDLER("/auth/login", app::LoginPageHandler);
