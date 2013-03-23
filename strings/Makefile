@@ -1,5 +1,5 @@
 LANGS=pl-PL en
-DEFINES_FILE=../server/site_strings.h
+DEFINES_FILE=../libenv/includes/site_strings.h
 
 Q=@
 
