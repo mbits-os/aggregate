@@ -23,76 +23,9 @@
  */
 
 #include "pch.h"
-#include "handlers.h"
-#include "forms.h"
-#include "crypt.hpp"
+#include "auth.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
-
-	class AuthPageHandler: public PageHandler
-	{
-	protected:
-		void onAuthFinished(Request& request)
-		{
-			param_t _continue = request.getVariable("continue");
-			if (_continue != nullptr)
-				request.redirectUrl(_continue);
-			request.redirect("/");
-		}
-		virtual bool restrictedPage() { return false; }
-	};
-
-	class Message: public Control
-	{
-	public:
-		Message(const std::string& name, const std::string&, const std::string& hint)
-			: Control(name, std::string(), hint)
-		{
-		}
-		virtual void getControlString(Request& request)
-		{
-			if (!m_value.empty())
-				request << "<td></td><td><span class='message'>" << m_value << "</span></td>";
-		}
-		void bindUI() {}
-	};
-	typedef std::tr1::shared_ptr<Message> MessagePtr;
-
-	struct UserInfo
-	{
-		long long m_id;
-		std::string m_name;
-		std::string m_email;
-		std::string m_hash;
-		static UserInfo fromDB(db::ConnectionPtr db, const char* email)
-		{
-			UserInfo out;
-
-			db::StatementPtr query = db->prepare(
-				"SELECT _id, name, passphrase "
-				"FROM user "
-				"WHERE email=?"
-				);
-
-			if (query.get() && query->bind(0, email))
-			{
-				db::CursorPtr c = query->query();
-				if (c.get() && c->next())
-				{
-					out.m_id = c->getLongLong(0);
-					out.m_name = c->getText(1);
-					out.m_email = email;
-					out.m_hash = c->getText(2);
-				}
-			}
-			return out;
-		}
-
-		bool passwordValid(const char* pass)
-		{
-			return crypt::verify(pass, m_hash.c_str());
-		}
-	};
 
 	class LoginPageHandler: public AuthPageHandler
 	{
@@ -163,6 +96,7 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 		}
 	};
+
 }}} // FastCGI::app::reader
 
 REGISTER_HANDLER("/auth/login", FastCGI::app::reader::LoginPageHandler);
