@@ -41,6 +41,33 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			if (request.getVariable("cancel"))
+				request.redirect("/");
+
+			FormPtr content(new (std::nothrow) Form(tr(lng::LNG_RESET_TITLE)));
+			request.setContent(content);
+
+			content->hidden("continue");
+
+			content->submit("submit", tr(lng::LNG_CMD_SEND));
+			content->submit("cancel", tr(lng::LNG_CMD_CLOSE));
+
+			Section& section = content->section(std::string());
+			auto email = section.text("email", tr(lng::LNG_LOGIN_USERNAME), false, tr(lng::LNG_LOGIN_USERNAME_HINT));
+
+			content->bind(request);
+
+			if (!request.getVariable("posted")) return;
+
+			if (email->hasUserData())
+			{
+				UserInfo info = UserInfo::fromDB(request.dbConn(), email->getData().c_str());
+				if (info.m_id != 0)
+				{
+					request.sendMail("password-reset.txt", info.m_email.c_str());
+				}
+				request.redirect("/auth/msg_sent", false);
+			}
 		}
 	};
 

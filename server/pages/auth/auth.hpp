@@ -66,6 +66,9 @@ namespace FastCGI { namespace app { namespace reader {
 		std::string m_name;
 		std::string m_email;
 		std::string m_hash;
+
+		UserInfo(): m_id(0) {}
+
 		static UserInfo fromDB(db::ConnectionPtr db, const char* email)
 		{
 			UserInfo out;
