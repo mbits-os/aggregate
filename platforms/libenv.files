@@ -3,6 +3,7 @@ libenv/pch.cpp=pch:1
 
 libenv/includes/fast_cgi.h
 libenv/includes/handlers.h
+libenv/includes/forms.h
 libenv/includes/dbconn.h
 libenv/includes/dbconn_driver.h
 libenv/includes/model.h
@@ -20,5 +21,6 @@ libenv/utils/url_utils.cpp
 libenv/utils/time_utils.cpp
 libenv/fast_cgi/fast_cgi.cpp
 libenv/fast_cgi/handlers.cpp
+libenv/fast_cgi/forms.cpp
 libenv/locale/lang_file.cpp
 libenv/locale/locale.cpp
