@@ -25,8 +25,8 @@
 #include "pch.h"
 #include "handlers.h"
 
-namespace app
-{
+namespace FastCGI { namespace app { namespace reader {
+
 	class WebUIPageHandler: public PageHandler
 	{
 	public:
@@ -52,7 +52,8 @@ namespace app
 		}
 
 	};
-}
 
-REGISTER_HANDLER("/view/", app::WebUIPageHandler);
+}}} // FastCGI::app::reader
+
+REGISTER_HANDLER("/view/", FastCGI::app::reader::WebUIPageHandler);
 REGISTER_REDIRECT("/view", "/view/");

@@ -25,8 +25,8 @@
 #include "pch.h"
 #include "handlers.h"
 
-namespace app
-{
+namespace FastCGI { namespace app { namespace reader {
+
 	class LoginPageHandler: public PageHandler
 	{
 	public:
@@ -39,7 +39,7 @@ namespace app
 	protected:
 		virtual bool restrictedPage() { return false; }
 		const char* getPageTitle(PageTranslation& tr) { return tr(lng::LNG_LOGIN_TITLE); }
-		void render(FastCGI::SessionPtr session, FastCGI::Request& request, PageTranslation& tr)
+		void render(SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			fcgi::param_t QUERY_STRING = request.getParam("QUERY_STRING");
 			if (!QUERY_STRING || !*QUERY_STRING)
@@ -53,6 +53,6 @@ namespace app
 		}
 
 	};
-}
+}}} // FastCGI::app::reader
 
-REGISTER_HANDLER("/auth/login", app::LoginPageHandler);
+REGISTER_HANDLER("/auth/login", FastCGI::app::reader::LoginPageHandler);

@@ -26,8 +26,8 @@
 #include <handlers.h>
 #include <utils.h>
 
-namespace app
-{
+namespace FastCGI { namespace app { namespace reader {
+
 	struct FolderInfo {
 		const char* m_title;
 		const char* m_id;
@@ -113,6 +113,6 @@ namespace app
 		}
 
 	};
-}
+}}}  // FastCGI::app::reader
 
-REGISTER_HANDLER("/data/subscription.json", app::SubscriptionPageHandler);
+REGISTER_HANDLER("/data/subscription.json", FastCGI::app::reader::SubscriptionPageHandler);

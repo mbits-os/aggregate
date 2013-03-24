@@ -54,7 +54,7 @@ int main (void)
 		FastCGI::Request req(app);
 
 		try {
-			app::HandlerPtr handler = app::Handlers::handler(req);
+			FastCGI::app::HandlerPtr handler = FastCGI::app::Handlers::handler(req);
 			if (handler.get() != NULL)
 				handler->visit(req);
 			else

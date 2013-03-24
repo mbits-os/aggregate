@@ -35,8 +35,8 @@
 extern char ** environ;
 #endif
 
-namespace app
-{
+namespace FastCGI { namespace app { namespace reader {
+
 	class DebugPageHandler: public PageHandler
 	{
 		std::string m_service_url;
@@ -269,8 +269,9 @@ namespace app
 		}
 
 	};
-}
-REGISTER_HANDLER("/debug/", app::DebugPageHandler);
+}}} // FastCGI::app::reader
+
+REGISTER_HANDLER("/debug/", FastCGI::app::reader::DebugPageHandler);
 REGISTER_REDIRECT("/debug", "/debug/");
 
 #endif
