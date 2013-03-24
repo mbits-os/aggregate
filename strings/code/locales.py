@@ -1,4 +1,4 @@
-﻿#! /usr/bin/python
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys, os, struct
@@ -184,7 +184,7 @@ namespace lng
 \tenum LNG
 \t{"""
     for key in keys:
-        print >>f, "\t\t%s = %s," % (key, i)
+        print >>f, "\t\t%s = %s, // %s" % (key, i, " ".join(strings[key].content.split("\n")))
         i += 1
     print >>f, "\t};\n} // lng\n#endif // __STRINGS_INCLUDE__"
     f.close()

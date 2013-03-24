@@ -35,6 +35,7 @@ int
 /3rd/openssl/out32
 /3rd/openssl/tmp32/*.obj
 *.mo
+*.pyc
 build
 ipch
 output
@@ -45,6 +46,7 @@ apache/dbtool
 apache/libmysql.dll
 # removing a file with a password from a public repo
 apache/conn.ini
+apache/error-*.log
 
 /3rd/curl/config.log
 /3rd/curl/config.status
