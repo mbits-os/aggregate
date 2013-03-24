@@ -173,7 +173,7 @@ namespace FastCGI { namespace app { namespace reader {
 		}
 
 		bool restrictedPage() { return false; }
-		const char* getPageTitle(PageTranslation& tr) { return "Debug"; }
+		const char* getPageTitle(Request&, PageTranslation& tr) { return "Debug"; }
 		void prerender(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			crypt::session_t hash;
@@ -259,7 +259,7 @@ namespace FastCGI { namespace app { namespace reader {
 				char time[100];
 				tyme::strftime(time, "%a, %d-%b-%Y %H:%M:%S GMT", tyme::gmtime(session->getStartTime()));
 				request
-					<< "<p>Current user: <a href=\"" << session->getEmail() << "\">" << session->getName() << "<br/>\n"
+					<< "<p>Current user: <a href=\"mailto:" << session->getEmail() << "\">" << session->getName() << "</a><br/>\n"
 					<< "The session has started on " << time << ".</p>";
 			}
 			else
