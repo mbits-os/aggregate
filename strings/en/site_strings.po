@@ -1,7 +1,7 @@
 # Copyright (C) 2013 Aggregate
 # This file is distributed under the same license as the Aggregate package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2013.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: ShelvesSite 1.0\n"
@@ -124,41 +124,13 @@ msgctxt "LNG_NAV_HELP"
 msgid "Help"
 msgstr "Help"
 
-msgctxt "LNG_NAV_LIBRARY"
-msgid "Library"
-msgstr "Library"
-
-msgctxt "LNG_NAV_NEW_FRIEND_SHELF"
-msgid "Friend"
-msgstr "Friend"
-
-msgctxt "LNG_NAV_NEW_IMPORTED_SHELF"
-msgid "Imported Library"
-msgstr "Imported Library"
-
-msgctxt "LNG_NAV_NEW_ITEM"
-msgid "Item"
-msgstr "Item"
-
 msgctxt "LNG_NAV_NEW_MENU"
-msgid "New"
-msgstr "New"
+msgid "Subscribe"
+msgstr "Subscribe"
 
 msgctxt "LNG_NAV_NEW_MENU_TIP"
-msgid "Add New"
-msgstr "Add New"
-
-msgctxt "LNG_NAV_NEW_NORMAL_SHELF"
-msgid "Normal Shelf"
-msgstr "Normal Shelf"
-
-msgctxt "LNG_NAV_NEW_SMART_SHELF"
-msgid "Smart Shelf"
-msgstr "Smart Shelf"
-
-msgctxt "LNG_NAV_PUBLIC"
-msgid "Public lists"
-msgstr "Public lists"
+msgid "Add New Feed"
+msgstr "Add New Feed"
 
 msgctxt "LNG_NAV_REFRESH"
 msgid "Refresh"
@@ -204,10 +176,6 @@ msgctxt "LNG_USER_SETTINGS_EMAIL"
 msgid "E-Mail:"
 msgstr "E-Mail:"
 
-msgctxt "LNG_USER_SETTINGS_ERROR_CUSTOM_NEEDED"
-msgid "Custom display name must be filled out."
-msgstr "Custom display name must be filled out."
-
 msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED"
 msgid "E-mail address used by different account."
 msgstr "E-mail address used by different account."
@@ -215,10 +183,6 @@ msgstr "E-mail address used by different account."
 msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_FILLED"
 msgid "E-mail address must be filled out."
 msgstr "E-mail address must be filled out."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_FAMILY_NAME_REQUIRED"
-msgid "User family name must be filled out."
-msgstr "User family name must be filled out."
 
 msgctxt "LNG_USER_SETTINGS_ERROR_INVALID_PASSWORD"
 msgid "Current password is invalid."
@@ -228,21 +192,9 @@ msgctxt "LNG_USER_SETTINGS_ERROR_NAME_REQUIRED"
 msgid "User name must be filled out."
 msgstr "User name must be filled out."
 
-msgctxt "LNG_USER_SETTINGS_ERROR_NO_OPTION"
-msgid "Somehow, you selected no option at all."
-msgstr "Somehow, you selected no option at all."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_OPTION_OUTSIDE"
-msgid "Somehow, you selected non-existent option."
-msgstr "Somehow, you selected non-existent option."
-
 msgctxt "LNG_USER_SETTINGS_ERROR_SOME_ISSUES"
 msgid "There were some issues:"
 msgstr "There were some issues:"
-
-msgctxt "LNG_USER_SETTINGS_ERROR_TITLE_REQUIRED"
-msgid "If you want to publish some shelves, you must title the collection."
-msgstr "If you want to publish some shelves, you must title the collection."
 
 msgctxt "LNG_USER_SETTINGS_NAME"
 msgid "Name:"
@@ -251,10 +203,6 @@ msgstr "Name:"
 msgctxt "LNG_USER_SETTINGS_PASSWORD_MAIL_HINT"
 msgid "You must supply password if you want to change e-mail"
 msgstr "You must supply password if you want to change e-mail"
-
-msgctxt "LNG_USER_SETTINGS_SEC_NAME"
-msgid "Name"
-msgstr "Name"
 
 msgctxt "LNG_USER_SETTINGS_SEC_SIGNIN"
 msgid "Signing in"

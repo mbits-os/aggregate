@@ -1,7 +1,7 @@
 # Copyright (C) 2013 Aggregate
 # This file is distributed under the same license as the Aggregate package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2013.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: ShelvesSite 1.0\n"
@@ -70,7 +70,7 @@ msgstr "Uaktualnij"
 
 msgctxt "LNG_GLOBAL_DESCRIPTION"
 msgid "stay up to date"
-msgstr "bądź na bierząco"
+msgstr "bądź na bieżąco"
 
 msgctxt "LNG_GLOBAL_PRODUCT"
 msgid "Aggregator"
@@ -82,7 +82,7 @@ msgstr "Agregator"
 
 msgctxt "LNG_LOGIN_ABSTRACT"
 msgid "Welcome to the Aggregator, your somsink, somsink."
-msgstr "Witamy w Aggregatorze, twoim somsink, somsink."
+msgstr "Witamy w Agregatorze, twoim somsink, somsink."
 
 msgctxt "LNG_LOGIN_ERROR_MISMATCHED"
 msgid "Username and password do not match each other."
@@ -124,41 +124,13 @@ msgctxt "LNG_NAV_HELP"
 msgid "Help"
 msgstr "Pomoc"
 
-msgctxt "LNG_NAV_LIBRARY"
-msgid "Library"
-msgstr "Biblioteka"
-
-msgctxt "LNG_NAV_NEW_FRIEND_SHELF"
-msgid "Friend"
-msgstr "Znajomy"
-
-msgctxt "LNG_NAV_NEW_IMPORTED_SHELF"
-msgid "Imported Library"
-msgstr "Importowana Biblioteka"
-
-msgctxt "LNG_NAV_NEW_ITEM"
-msgid "Item"
-msgstr "Element"
-
 msgctxt "LNG_NAV_NEW_MENU"
-msgid "New"
-msgstr "Nowy"
+msgid "Subscribe"
+msgstr "Subskrybuj"
 
 msgctxt "LNG_NAV_NEW_MENU_TIP"
-msgid "Add New"
-msgstr "Dodaj"
-
-msgctxt "LNG_NAV_NEW_NORMAL_SHELF"
-msgid "Normal Shelf"
-msgstr "Normalna półka"
-
-msgctxt "LNG_NAV_NEW_SMART_SHELF"
-msgid "Smart Shelf"
-msgstr "Inteligentna półka"
-
-msgctxt "LNG_NAV_PUBLIC"
-msgid "Public lists"
-msgstr "Listy publiczne"
+msgid "Add New Feed"
+msgstr "Dodaj nowy kanał"
 
 msgctxt "LNG_NAV_REFRESH"
 msgid "Refresh"
@@ -204,10 +176,6 @@ msgctxt "LNG_USER_SETTINGS_EMAIL"
 msgid "E-Mail:"
 msgstr "E-Mail:"
 
-msgctxt "LNG_USER_SETTINGS_ERROR_CUSTOM_NEEDED"
-msgid "Custom display name must be filled out."
-msgstr "Własny napis musi być podany."
-
 msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED"
 msgid "E-mail address used by different account."
 msgstr "Adres E-Mail jest już używany przez inne konto."
@@ -215,10 +183,6 @@ msgstr "Adres E-Mail jest już używany przez inne konto."
 msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_FILLED"
 msgid "E-mail address must be filled out."
 msgstr "Adres E-Mail musi być podany."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_FAMILY_NAME_REQUIRED"
-msgid "User family name must be filled out."
-msgstr "Nazwisko użytkownika musi być podane."
 
 msgctxt "LNG_USER_SETTINGS_ERROR_INVALID_PASSWORD"
 msgid "Current password is invalid."
@@ -228,22 +192,9 @@ msgctxt "LNG_USER_SETTINGS_ERROR_NAME_REQUIRED"
 msgid "User name must be filled out."
 msgstr "Imię użytkownika musi być podane."
 
-msgctxt "LNG_USER_SETTINGS_ERROR_NO_OPTION"
-msgid "Somehow, you selected no option at all."
-msgstr "W jakiś sposób nie wybrano żadnej opcji"
-
-msgctxt "LNG_USER_SETTINGS_ERROR_OPTION_OUTSIDE"
-msgid "Somehow, you selected non-existent option."
-msgstr "W jakiś sposób wybrano opcję, która nie istnieje."
-
 msgctxt "LNG_USER_SETTINGS_ERROR_SOME_ISSUES"
 msgid "There were some issues:"
 msgstr "Wystąpiły pewne problemy:"
-
-msgctxt "LNG_USER_SETTINGS_ERROR_TITLE_REQUIRED"
-msgid "If you want to publish some shelves, you must title the collection."
-msgstr ""
-"Jeśli chcesz publikować swoje półki, musisz zatytułować swoją kolekcję."
 
 msgctxt "LNG_USER_SETTINGS_NAME"
 msgid "Name:"
@@ -252,10 +203,6 @@ msgstr "Imię:"
 msgctxt "LNG_USER_SETTINGS_PASSWORD_MAIL_HINT"
 msgid "You must supply password if you want to change e-mail"
 msgstr "Musisz podać hasło, żeby zmienić adres e-mail"
-
-msgctxt "LNG_USER_SETTINGS_SEC_NAME"
-msgid "Name"
-msgstr "Nazwa"
 
 msgctxt "LNG_USER_SETTINGS_SEC_SIGNIN"
 msgid "Signing in"
