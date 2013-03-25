@@ -1,0 +1,21 @@
+.form td, .form th, input[type="submit"], input[type="reset"] {
+	font-family: Calibri, "Helvetica Neue", Arial, Helvetica, "Nimbus Sans L", sans-serif;
+}
+
+input[type=text], input[type=password], input[type=file], select, input[type=submit].fullwidth, input[type=reset].fullwidth { width: 220pt }
+input[disabled] { background: #E0E0E0; border: solid 1px #C0C0C0 }
+
+/* forms box */
+#content .form-table h3 { margin: 20px 0px 0px 0px }
+#content .form-table h3:first-child { margin-top: 0px }
+#content .form-table tr td { padding: 4px }
+#content .form-table img { width: 128px; height: 128px }
+.form-table td { vertical-align: top; border: none; }
+.form-table td:first-child { text-align: right; }
+.form-table td.header:first-child { text-align: left; padding: 0px }
+.form .error { color: red }
+.form .hint { font-size: 75%; color: #444 }
+.command, .command:visited { color: blue }
+#content .form .buttons { text-align: right; padding: 2em 1.5em 0px 1.5em; }
+#content .form .buttons input { padding-left: 3em; padding-right: 3em }
+#content .form .buttons input+input { margin-left: 0.75em }

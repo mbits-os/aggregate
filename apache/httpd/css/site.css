@@ -1,0 +1,21 @@
+body
+{
+    min-height: 100%;
+}
+
+#site-title { font-size: 48px; width: 600px; }
+#header { padding-top: 26px; height: 120px; }
+
+#site-title a { 
+	color: black;
+	text-decoration: none;
+	font-weight: 700;
+	font-family: FontinSmallCaps;
+}
+
+#site-description {
+	color: #e8d2a6;
+	font-family: Fontin;
+	font-size: 21px;
+	width: 268px;
+}

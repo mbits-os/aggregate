@@ -1,0 +1,154 @@
+#topbar *
+{
+	height:auto;
+	width:auto;
+	margin:0;
+	padding:0;
+	position:static;
+	text-transform:none;
+	letter-spacing:normal;
+	line-height:1;
+	font:normal 14px/32px sans-serif;
+	color:#ccc;
+	text-shadow: 1px -1px #222;
+}
+
+
+#topbar ul li::before, #topbar ul li::after { content: normal; }
+
+#topbar a,
+#topbar a:hover,
+#topbar a img,
+#topbar a img:hover {
+	outline:none;
+	border:none;
+	text-decoration:none;
+	background:none;
+}
+
+.topbar-standin
+{
+	height:32px;
+}
+
+#topbar
+{
+	direction:ltr;
+	color:#ccc;
+	font:normal 14px/32px sans-serif;
+	height:32px;
+	position:fixed;
+	top:0;
+	left:0;
+	width:100%;
+	min-width:600px;
+	z-index:99999;
+	background-color:#464646;
+	background-image:-ms-linear-gradient(bottom,#373737,#464646 5px);
+	background-image:-moz-linear-gradient(bottom,#373737,#464646 5px);
+	background-image:-o-linear-gradient(bottom,#373737,#464646 5px);
+	background-image:-webkit-gradient(linear,left bottom,left top,from(#373737),to(#464646));
+	background-image:-webkit-linear-gradient(bottom,#373737,#464646 5px);
+	background-image:linear-gradient(bottom,#373737,#464646 5px);
+}
+
+#topbar .tb-sub-wrapper, #topbar ul, #topbar ul li
+{ 
+	background: transparent;
+	clear: none;
+	list-style: none outside none;
+	margin: 0px;
+	padding: 0px;
+	position: relative;
+	z-index: 99999;
+}
+
+#topbar .navigation_links ul
+{
+	text-align:left;
+}
+
+#topbar li
+{
+	float:left;
+}
+
+#topbar .navigation_links > ul > li
+{
+	border-right:1px solid #555;
+}
+
+#topbar .navigation_links > ul > li > .bar-item,
+#topbar .navigation_links > ul > li > .tb-empty-item
+{
+	border-right: 1px solid #333;
+}
+
+#topbar .navigation_links .menu-top-links > li
+{
+	border-left: 1px solid #333;
+	border-right:0;
+}
+
+#topbar .navigation_links .menu-top-links > li > .bar-item,
+#topbar .navigation_links .menu-top-links > li > .tb-empty-item
+{
+	border-left:1px solid #555;
+	border-right:0;
+}
+
+#topbar .navigation_links .bar-item,
+#topbar .navigation_links .tb-empty-item,
+#topbar .shortlink-input
+{
+	height:32px;
+	display:block;
+	padding:0 12px;
+	margin:0;
+}
+
+#topbar #links-menu
+{
+	float:right
+}
+
+#topbar b
+{
+	font-weight: bold;
+}
+
+#topbar i
+{
+	font-style: italic;
+}
+
+#topbar .bar-icon,
+#topbar .bar-chevron
+{
+	background-image: url("/css/images/navbar-sprites.png");
+	background-repeat: no-repeat;
+	float: left;
+	position: relative;
+	height: 24px;
+	margin-top: 4px;
+	width: 24px;
+}
+#topbar .bar-chevron
+{
+	background-position: 0px -120px;
+	margin-left: 4px;
+	width: 14px;
+}
+
+#topbar-menu-search > .bar-item .bar-icon { 
+	background-position: 0px -168px;
+}
+
+#topbar-menu-new > .bar-item .bar-icon { 
+	background-position: 0px -24px;
+}
+
+#topbar-menu-refresh > .bar-item .bar-icon { 
+	background-position: 0px -72px;
+}
+
