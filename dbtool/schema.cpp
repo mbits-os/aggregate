@@ -25,6 +25,7 @@
 #include "schema.h"
 #include "crypt.hpp"
 #include "model.h"
+#include <algorithm>
 
 namespace db
 {
@@ -114,20 +115,22 @@ namespace db
 				return false;
 
 			program = sd.drop();
-			for (_cur = program.begin(), _end = program.end(); _cur != _end; ++_cur)
+			auto it = std::find_if(program.begin(), program.end(), [this](const std::string& sql) -> bool
 			{
-				//printf("%s\n", _cur->c_str());
-				if (!m_conn->exec(_cur->c_str()))
-					return false;
-			}
+				//printf("%s\n", sql.c_str());
+				return !m_conn->exec(sql.c_str());
+			});
+			if (it != program.end())
+				return false;
 
 			program = sd.create();
-			for (_cur = program.begin(), _end = program.end(); _cur != _end; ++_cur)
+			it = std::find_if(program.begin(), program.end(), [this](const std::string& sql) -> bool
 			{
-				//printf("%s\n", _cur->c_str());
-				if (!m_conn->exec(_cur->c_str()))
-					return false;
-			}
+				//printf("%s\n", sql.c_str());
+				return !m_conn->exec(sql.c_str());
+			});
+			if (it != program.end())
+				return false;
 
 			return transaction.commit();
 		}
@@ -284,7 +287,7 @@ namespace db
 						sql += m_ref;
 				}
 
-			return sql;
+				return sql;
 		}
 
 		void Field::constraints(std::list<std::string>& cos) const
