@@ -46,14 +46,11 @@
 #define Z_MAXFILENAMEINZIP (256)
 #endif
 
-void* c_vgl_malloc(size_t size);
-void  c_vgl_free(void* p);
-
 #ifndef ALLOC
-# define ALLOC(size) (c_vgl_malloc(size))
+# define ALLOC(size) (malloc(size))
 #endif
 #ifndef TRYFREE
-# define TRYFREE(p) {if (p) c_vgl_free(p);}
+# define TRYFREE(p) {if (p) free(p);}
 #endif
 
 /*
@@ -1098,7 +1095,7 @@ extern int ZEXPORT zipCloseFileInZipRaw (file, uncompressed_size, crc32)
     if (err==ZIP_OK)
         err = add_data_in_datablock(&zi->central_dir,zi->ci.central_header,
                                        (uLong)zi->ci.size_centralheader);
-    c_vgl_free(zi->ci.central_header);
+    free(zi->ci.central_header);
 
     if (err==ZIP_OK)
     {

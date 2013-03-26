@@ -99,7 +99,8 @@ int main(int argc, char* argv[])
 	if (env.failed)
 		return 1;
 
-	argv[0] = "dbtool";
+	char prog[] = "dbtool";
+	argv[0] = prog;
 	Command* command = get_cmmd(commands, argc, argv);
 	db::ConnectionPtr conn;
 

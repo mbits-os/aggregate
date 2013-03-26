@@ -31,6 +31,10 @@ using std::istream;
 using std::ostream;
 using std::streamsize;
 
+#ifndef EOF
+#define EOF (-1)
+#endif
+
 fcgi_streambuf::fcgi_streambuf(FCGX_Stream * fs, char * b, int bs)
 {
     init(fs, b, bs);

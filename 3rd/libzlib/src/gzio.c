@@ -40,11 +40,8 @@ extern voidp  VGL_MALLOC OF((uInt size));
 extern void   VGL_FREE   OF((voidpf ptr));
 #endif
 
-void* c_vgl_malloc(size_t size);
-void  c_vgl_free(void* p);
-
-#define ALLOC(size) c_vgl_malloc(size)
-#define TRYFREE(p) {if (p) c_vgl_free(p);}
+#define ALLOC(size) malloc(size)
+#define TRYFREE(p) {if (p) free(p);}
 
 static int const gz_magic[2] = {0x1f, 0x8b}; /* gzip magic header */
 

@@ -74,14 +74,11 @@ woven in by Terry Thorsen 1/2003.
 #define UNZ_MAXFILENAMEINZIP (256)
 #endif
 
-void* c_vgl_malloc(size_t size);
-void  c_vgl_free(void* p);
-
 #ifndef ALLOC
-# define ALLOC(size) (c_vgl_malloc(size))
+# define ALLOC(size) (malloc(size))
 #endif
 #ifndef TRYFREE
-# define TRYFREE(p) {if (p) c_vgl_free(p);}
+# define TRYFREE(p) {if (p) free(p);}
 #endif
 
 #define SIZECENTRALDIRITEM (0x2e)
