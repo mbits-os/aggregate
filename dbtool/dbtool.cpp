@@ -74,7 +74,7 @@ Command* get_cmmd(Command (&commands)[N], int argc, char* argv[])
 	for (size_t i = 0; i < array_size(commands); ++i)
 		fprintf(stderr, "\t%s\n", commands[i].name);
 
-	return NULL;
+	return nullptr;
 }
 
 int status(int, char*[], const db::ConnectionPtr&);
@@ -103,13 +103,13 @@ int main(int argc, char* argv[])
 	Command* command = get_cmmd(commands, argc, argv);
 	db::ConnectionPtr conn;
 
-	if (command == NULL)
+	if (command == nullptr)
 		return 1;
 
 	if (command->needsConnection)
 	{
 		conn = db::Connection::open("conn.ini");
-		if (conn.get() == NULL)
+		if (conn.get() == nullptr)
 		{
 			fprintf(stderr, "%s: error connecting to the database\n", argv[0]);
 			return 1;
@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 	}
 
 	int ret = command->run(argc - 1, argv + 1, conn);
-	if (ret != 0 && conn.get() != NULL)
+	if (ret != 0 && conn.get() != nullptr)
 	{
 		const char* error = conn->errorMessage();
 		if (error && *error)
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 
 int status(int, char*[], const db::ConnectionPtr& db)
 {
-	if (db != NULL && db->isStillAlive())
+	if (db != nullptr && db->isStillAlive())
 	{
 		printf("status: connection established\n");
 		return 0;
@@ -178,7 +178,7 @@ int user(int argc, char* argv[], const db::ConnectionPtr& conn)
 {
 	Command* command = get_cmmd(user_cmmd, argc, argv);
 
-	if (command == NULL)
+	if (command == nullptr)
 		return 1;
 
 	return command->run(argc - 1, argv + 1, conn);

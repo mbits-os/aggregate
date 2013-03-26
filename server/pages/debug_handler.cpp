@@ -83,10 +83,10 @@ namespace FastCGI { namespace app { namespace reader {
 					request << " class='even'";
 				request << "><td>";
 				if (eq == *envp) request << "&nbsp;";
-				else if (eq == NULL) request << *envp;
+				else if (eq == nullptr) request << *envp;
 				else request << std::string(*envp, eq);
 				request << "</td><td>";
-				if (eq == NULL) request << "&nbsp;";
+				if (eq == nullptr) request << "&nbsp;";
 				else if (strncmp("PATH=", *envp, 5))
 					request << eq + 1;
 				else 
@@ -196,7 +196,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			bool all = request.getVariable("all") != NULL;
+			bool all = request.getVariable("all") != nullptr;
 
 			request << "<style type='text/css'>\n"
 				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
