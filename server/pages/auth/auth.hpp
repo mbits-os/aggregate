@@ -101,7 +101,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		bool passwordValid(const char* pass)
 		{
-			return crypt::verify(pass, m_hash.c_str());
+			return Crypt::verify(pass, m_hash.c_str());
 		}
 	};
 

@@ -138,9 +138,9 @@ namespace db
 		bool Schema::addUser(const char* mail, const char* name)
 		{
 			char pass[13];
-			crypt::newSalt(pass);
-			crypt::password_t hash;
-			crypt::password(pass, hash);
+			Crypt::newSalt(pass);
+			Crypt::password_t hash;
+			Crypt::password(pass, hash);
 
 			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=?");
 			if (!select.get())
@@ -224,8 +224,8 @@ namespace db
 
 		bool Schema::changePasswd(const char* mail, const char* passwd)
 		{
-			crypt::password_t hash;
-			crypt::password(passwd, hash);
+			Crypt::password_t hash;
+			Crypt::password(passwd, hash);
 
 			db::StatementPtr update = m_conn->prepare("UPDATE user SET passphrase=? WHERE email=?");
 			if (!update.get())

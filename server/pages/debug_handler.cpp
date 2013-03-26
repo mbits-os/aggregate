@@ -176,8 +176,8 @@ namespace FastCGI { namespace app { namespace reader {
 		const char* getPageTitle(Request&, PageTranslation& tr) { return "Debug"; }
 		void prerender(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			crypt::session_t hash;
-			crypt::session("reader.login", hash);
+			Crypt::session_t hash;
+			Crypt::session("reader.login", hash);
 			request.setCookie("cookie-test", hash, tyme::now() + 86400*60);
 
 			long long content_size = request.calcStreamSize();
