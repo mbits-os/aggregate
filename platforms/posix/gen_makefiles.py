@@ -13,7 +13,7 @@ predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 
 _3rd = Project("3rdparty",
                ["HAVE_CONFIG_H", "USE_POSIX", "ZLIB", "L_ENDIAN", "HAVE_MEMMOVE"],
-               ["c", "stdc++", "dl", "pthread"],
+               [],
                [root+"3rd/libfcgi/inc",
                 root+"3rd/libzlib/inc",
                 root+"3rd/libexpat/inc",
@@ -21,7 +21,7 @@ _3rd = Project("3rdparty",
 
 libenv = Project("libenv",
                ["HAVE_CONFIG_H", "USE_POSIX", "ZLIB", "L_ENDIAN"],
-               ["c", "stdc++", "curl", "crypto", "ssl", "dl", "pthread", "mysqlclient"],
+               [],
                [root+"libenv",
                 root+"libenv/includes",
                 root+"3rd/libfcgi/inc",
@@ -29,7 +29,7 @@ libenv = Project("libenv",
 
 dbtool = Project("dbtool", 
                  ["USE_POSIX"],
-                 ["c", "stdc++", "curl", "crypto", "ssl", "dl", "pthread", "mysqlclient"],
+                 ["c", "stdc++", "curl", "crypto", "ssl", "dl", "z", "m", "rt", "pthread", "mysqlclient"],
                  [root+"3rd/libfcgi/inc",
                   root+"3rd/libzlib/inc",
                   root+"3rd/libexpat/inc",
@@ -37,7 +37,7 @@ dbtool = Project("dbtool",
 
 server = Project("server",
                  ["USE_POSIX"],
-                 ["c", "stdc++", "curl", "crypto", "ssl", "dl", "pthread", "mysqlclient"],
+                 ["c", "stdc++", "curl", "crypto", "ssl", "dl", "z", "m", "rt", "pthread", "mysqlclient"],
                  [root+"server",
                   root+"3rd/libfcgi/inc",
                   root+"3rd/libzlib/inc",
@@ -48,10 +48,10 @@ libenv.out = "env"
 server.out = "index.app"
 
 libenv.depends_on(_3rd)
-dbtool.depends_on(_3rd)
 dbtool.depends_on(libenv)
-server.depends_on(_3rd)
+dbtool.depends_on(_3rd)
 server.depends_on(libenv)
+server.depends_on(_3rd)
 
 print """CFLAGS = -g3 -Wno-system-headers
 CPPFLAGS = -std=c++11
@@ -59,7 +59,7 @@ CORE_CFLAGS= -fvisibility=hidden
 
 CC = gcc
 LIBTOOL = g++
-LD_DIRS = -L/opt/local/lib -L$(OUT) -L/usr/lib
+LD_DIRS = -L/usr/lib/x86_64-linux-gnu -L$(OUT)
 
 LD_LIBRARY_PATH=.
 
@@ -86,11 +86,7 @@ libenv.print_declaration()
 dbtool.print_declaration()
 server.print_declaration()
 
-print """DBTOOL_OBJ += $(A3RDPARTY_OBJ)
-DBTOOL_OBJ += $(LIBENV_OBJ)
-
-SERVER_OBJ += $(A3RDPARTY_OBJ)
-SERVER_OBJ += $(LIBENV_OBJ)
+print """
 
 all: %s %s %s %s
 

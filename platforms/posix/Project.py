@@ -20,7 +20,7 @@ kStaticLibrary = 2
 def arglist(prefix, l):
     if len(l) == 0: return ""
     return "%s%s" % (prefix, (" %s" % prefix).join(l))
-lib_ext
+
 class Project:
     def __init__(self, name, defs, libs, includes, bintype, predef):
         self.name = name
@@ -34,7 +34,7 @@ class Project:
         self.depends = []
 
         self.files.read(predef, "%splatforms/%s.files" % (root, name))
-        
+
         if self.safename[0] >= "0" and self.safename[0] <= "9": self.safename = "a%s" % self.safename
 
     def depends_on(self, project):
@@ -91,16 +91,18 @@ class Project:
         for dep in self.depends:
             if dep[:3] == "lib": dep = dep[3:]
             dep, ext = path.splitext(dep)
-            if ext != ".a": depends.append(dep)
+            depends.append(dep)
         deps = arglist("-l", depends)
         if deps != "": deps = " " + deps
         deps2 = arglist("$(OUT)/", self.depends)
         if deps2 != "": deps2 = " " + deps2
         print "%s: $(%s_TMP) $(%s_OBJ) $(OUT)%s Makefile.gen" % (self.get_dest(), n, n, deps2)
         if self.bintype == kApplication:
-            print "\t$(LINK) %s%s $(%s_OBJ) -o %s%s\n\tcp %s%s $@\n" % (libs, deps, n, self.out, app_ext, self.out, app_ext)
+            print "\t$(LINK) $(%s_OBJ) -o %s %s %s" % (n, self.out, deps, libs)
+            print "\tcp %s%s $@\n" % (self.out, app_ext)
         elif self.bintype == kDynamicLibrary:
-            print "\t$(LINK) -shared %s%s $(%s_OBJ) -o %s%s%s\n\tcp %s%s%s $@\n" % (libs, deps, n, so_prefix, self.out, so_ext, so_prefix, self.out, so_ext)
+            print "\t$(LINK) -shared $(%s_OBJ) -o %s%s%s  %s %s\n" % (n, so_prefix, self.out, so_ext, deps, libs)
+            print "\tcp %s%s%s $@\n" % (so_prefix, self.out, so_ext)
         elif self.bintype == kStaticLibrary:
             print "\t$(AR) $(AR_FLAGS) %s%s%s $(%s_OBJ)\n\tcp %s%s%s $@\n" % (lib_prefix, self.out, lib_ext, n, lib_prefix, self.out, lib_ext)
 
