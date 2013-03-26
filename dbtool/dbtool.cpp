@@ -65,16 +65,16 @@ Command* get_cmmd(Command (&commands)[N], int argc, char* argv[])
 				return commands + i;
 		}
 
-	if (argc > 1)
-		fprintf(stderr, "%s: unknown command: %s\n", argv[0], argv[1]);
-	else
-		fprintf(stderr, "%s: command missing\n", argv[0]);
+		if (argc > 1)
+			fprintf(stderr, "%s: unknown command: %s\n", argv[0], argv[1]);
+		else
+			fprintf(stderr, "%s: command missing\n", argv[0]);
 
-	fprintf(stderr, "\nKnown commands are:\n");
-	for (size_t i = 0; i < array_size(commands); ++i)
-		fprintf(stderr, "\t%s\n", commands[i].name);
+		fprintf(stderr, "\nKnown commands are:\n");
+		for (size_t i = 0; i < array_size(commands); ++i)
+			fprintf(stderr, "\t%s\n", commands[i].name);
 
-	return nullptr;
+		return nullptr;
 }
 
 int status(int, char*[], const db::ConnectionPtr&);
@@ -232,26 +232,26 @@ int user_remove(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 void stdinEcho(bool enable)
 {
 #ifdef WIN32
-    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
-    DWORD mode;
-    GetConsoleMode(hStdin, &mode);
+	HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE); 
+	DWORD mode;
+	GetConsoleMode(hStdin, &mode);
 
-    if( !enable )
-        mode &= ~ENABLE_ECHO_INPUT;
-    else
-        mode |= ENABLE_ECHO_INPUT;
+	if( !enable )
+		mode &= ~ENABLE_ECHO_INPUT;
+	else
+		mode |= ENABLE_ECHO_INPUT;
 
-    SetConsoleMode(hStdin, mode );
+	SetConsoleMode(hStdin, mode );
 
 #else
-    struct termios tty;
-    tcgetattr(STDIN_FILENO, &tty);
-    if( !enable )
-        tty.c_lflag &= ~ECHO;
-    else
-        tty.c_lflag |= ECHO;
+	struct termios tty;
+	tcgetattr(STDIN_FILENO, &tty);
+	if( !enable )
+		tty.c_lflag &= ~ECHO;
+	else
+		tty.c_lflag |= ECHO;
 
-    (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
+	(void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 #endif
 }
 

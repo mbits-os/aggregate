@@ -47,9 +47,9 @@ namespace FastCGI { namespace app { namespace reader {
 			long long m_read;
 			char* m_buffer;
 			DebugRequestState()
-			: m_contentSize(0)
-			, m_read(0)
-			, m_buffer(nullptr)
+				: m_contentSize(0)
+				, m_read(0)
+				, m_buffer(nullptr)
 			{}
 			~DebugRequestState()
 			{

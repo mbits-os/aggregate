@@ -51,7 +51,7 @@ namespace FastCGI { namespace app { namespace reader {
 			{ "news", "news", 0 },
 		};
 		FeedInfo feeds[] = {
- 			{ "Niebezpiecznik.pl", "http://niebezpiecznik.pl/", "http://feeds.feedburner.com/niebezpiecznik/", 2, "tech" },
+			{ "Niebezpiecznik.pl", "http://niebezpiecznik.pl/", "http://feeds.feedburner.com/niebezpiecznik/", 2, "tech" },
 			{ "Android Developers Blog", "http://android-developers.blogspot.com/", "http://feeds.feedburner.com/blogspot/hsDu", 0, "tech" },
 			{ "Saturday Morning Breakfast Cereal (updated daily)", "http://www.smbc-comics.com", "http://feeds.feedburner.com/smbc-comics/PvLb", 0, "fun" },
 			{ "TEDTalks (video)", "http://www.ted.com/talks/list", "http://feeds.feedburner.com/tedtalks_video", 0, "fun" },
