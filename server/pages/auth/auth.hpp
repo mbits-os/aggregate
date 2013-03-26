@@ -64,7 +64,7 @@ namespace FastCGI { namespace app { namespace reader {
 		}
 		void bindUI() {}
 	};
-	typedef std::tr1::shared_ptr<Message> MessagePtr;
+	typedef std::shared_ptr<Message> MessagePtr;
 
 	struct UserInfo
 	{
