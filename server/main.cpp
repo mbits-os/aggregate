@@ -31,7 +31,7 @@
 #define LOCALE_PATH "..\\locales\\"
 #endif
 
-#ifdef USE_POSIX
+#ifdef POSIX
 #define LOCALE_PATH "../locales/"
 #endif
 

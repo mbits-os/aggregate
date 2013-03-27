@@ -16,19 +16,19 @@ libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat
 common_incl = [root+"3rd/libfcgi/inc", root+"libenv/includes"]
 
 _3rd = Project("3rdparty",
-               ["HAVE_CONFIG_H", "USE_POSIX", "ZLIB", "L_ENDIAN", "HAVE_MEMMOVE"],
+               ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN", "HAVE_MEMMOVE"],
                [], [root+"3rd/libfcgi/inc", root+"3rd/"], kStaticLibrary, predef)
 
 libenv = Project("libenv",
-               ["HAVE_CONFIG_H", "USE_POSIX", "ZLIB", "L_ENDIAN"],
+               ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
                [], [root+"libenv"] + common_incl, kStaticLibrary, predef)
 
 dbtool = Project("dbtool", 
-                 ["USE_POSIX"],
+                 ["POSIX"],
                  libs, [root+"dbtool"] + common_incl, kApplication, predef)
 
 server = Project("server",
-                 ["USE_POSIX"],
+                 ["POSIX"],
                  libs, [root+"server"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
