@@ -85,7 +85,7 @@ print
 #print
 
 print """
-clean:
+clean: clean_strings
 \t@if [ -e $(TMP) ]; then { echo 'RM $(TMP)'; $(RM) -r $(TMP); }; fi
 """
 
@@ -106,11 +106,17 @@ print """$(DIRS):
 # INSTALL
 ############################################
 
-install: $(PREFIX)/www $(PREFIX)/dbtool $(PREFIX)/www/index.app
+install: $(PREFIX)/www strings $(PREFIX)/dbtool $(PREFIX)/www/index.app
 
 $(PREFIX)/dbtool: $(OUT)/dbtool
-\t@echo 'CP dbtool'; cp '$(OUT)/dbtool' '$(PREFIX)';
+\t@echo 'CP $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
 
 $(PREFIX)/www/index.app: $(OUT)/index.app
-\t@echo 'CP index.app'; cp '$(OUT)/index.app' '$(PREFIX)/www';
+\t@echo 'CP $@'; cp '$(OUT)/index.app' '$(PREFIX)/www';
+
+clean_strings:
+\t@$(MAKE) -C '$(ROOT)/strings' clean
+
+strings:
+\t@$(MAKE) -C '$(ROOT)/strings'
 """

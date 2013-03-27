@@ -42,7 +42,7 @@ msgs: $(MOS)
 
 $(DEFINES_FILE): site_strings.txt
 	$(Q)$(ECHO) "Writing" $(notdir $@)
-	$(Q)$(MKDIR) ../app/locales
+	$(Q)$(MKDIR) -p ../httpd/locales
 	$(Q)$(DEFINE) site_strings.txt $(DEFINES_FILE)
 
 site_strings.pot: site_strings.txt
