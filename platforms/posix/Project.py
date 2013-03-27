@@ -98,11 +98,9 @@ class Project:
         if deps2 != "": deps2 = " " + deps2
         print "%s: $(%s_TMP) $(%s_OBJ) $(OUT)%s Makefile.gen" % (self.get_dest(), n, n, deps2)
         if self.bintype == kApplication:
-            print "\t$(LINK) $(%s_OBJ) -o %s %s %s" % (n, self.out, deps, libs)
-            print "\tcp %s%s $@\n" % (self.out, app_ext)
+            print "\t$(LINK) $(%s_OBJ) -o $@ %s %s\n" % (n, deps, libs)
         elif self.bintype == kDynamicLibrary:
-            print "\t$(LINK) -shared $(%s_OBJ) -o %s%s%s  %s %s\n" % (n, so_prefix, self.out, so_ext, deps, libs)
-            print "\tcp %s%s%s $@\n" % (so_prefix, self.out, so_ext)
+            print "\t$(LINK) -shared $(%s_OBJ) -o $@  %s %s\n" % (n, deps, libs)
         elif self.bintype == kStaticLibrary:
-            print "\t$(AR) $(AR_FLAGS) %s%s%s $(%s_OBJ)\n\tcp %s%s%s $@\n" % (lib_prefix, self.out, lib_ext, n, lib_prefix, self.out, lib_ext)
+            print "\t$(AR) $(AR_FLAGS) $@ $(%s_OBJ)\n" % n
 

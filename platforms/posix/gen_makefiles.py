@@ -62,7 +62,7 @@ RMDIR = rmdir
 
 AR_FLAGS = rcs
 
-OUT_ROOT = %soutput
+OUT_ROOT = %sbin
 OUT_ = $(OUT_ROOT)/posix
 OUT = $(OUT_)/release
 
