@@ -216,6 +216,7 @@
 3rd/libexpat/inc/xmltok_impl.h
 #endif
 
+#ifndef EXTERNAL_Z
 3rd/libzlib/src/adler32.c
 3rd/libzlib/src/compress.c
 3rd/libzlib/src/crc32.c
@@ -243,6 +244,7 @@
 3rd/libzlib/inc/zutil.h
 3rd/libzlib/inc/zconf.h
 3rd/libzlib/inc/zlib.h
+#endif
 
 #ifndef EXTERNAL_OPENSSL
 3rd/openssl/ssl/s2_meth.c

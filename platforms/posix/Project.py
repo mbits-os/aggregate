@@ -76,6 +76,7 @@ class Project:
 
     def print_compile(self):
         n = self.safename.upper()
+        print "# %s" % self.name
         for k in self.files.cfiles + self.files.cppfiles:
             f = self.files.sec.items[k]
             print "$(%s_TMP)/%s.o: %s%s #$(%s_TMP) Makefile.gen" % (self.safename.upper(), path.split(path.splitext(f.name)[0])[1], root, f.name, self.safename.upper())
@@ -93,7 +94,6 @@ class Project:
             dep, ext = path.splitext(dep)
             depends.append(dep)
         deps = arglist("-l", depends)
-        if deps != "": deps = " " + deps
         deps2 = arglist("$(OUT)/", self.depends)
         if deps2 != "": deps2 = " " + deps2
         print "%s: $(%s_TMP) $(%s_OBJ) $(OUT)%s Makefile.gen" % (self.get_dest(), n, n, deps2)
