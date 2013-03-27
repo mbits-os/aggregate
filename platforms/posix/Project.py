@@ -1,4 +1,4 @@
-import sys
+import sys, platform
 sys.path.append("../solver")
 from os import path
 import uuid
@@ -74,12 +74,22 @@ class Project:
         print "%s_OBJ = %s\n" % (n, """ \\
 \t""".join(self.get_objects()))
 
+    def print_makefile(self):
+        print "############################################"
+        print "# %s" % self.name
+        print "############################################"
+        print
+        print "all_" + self.safename + ": " + self.get_dest()
+        print 
+        self.print_compile()
+        self.print_link()
+
     def print_compile(self):
         n = self.safename.upper()
-        print "# %s" % self.name
+        print "# compile"
         for k in self.files.cfiles + self.files.cppfiles:
             f = self.files.sec.items[k]
-            print "$(%s_TMP)/%s.o: %s%s #$(%s_TMP) Makefile.gen" % (self.safename.upper(), path.split(path.splitext(f.name)[0])[1], root, f.name, self.safename.upper())
+            print "$(%s_TMP)/%s.o: %s%s" % (self.safename.upper(), path.split(path.splitext(f.name)[0])[1], root, f.name)
             if path.splitext(f.name)[1] == ".c":
                 print "\t@echo CC $<; $(%s_C_COMPILE) -c -o $@ $<\n" % n
             else:
@@ -96,11 +106,19 @@ class Project:
         deps = arglist("-l", depends)
         deps2 = arglist("$(OUT)/", self.depends)
         if deps2 != "": deps2 = " " + deps2
-        print "%s: $(%s_TMP) $(%s_OBJ) $(OUT)%s Makefile.gen" % (self.get_dest(), n, n, deps2)
+        out = "$(OUT)"
+        dirs = self.out.split("/")
+        if len(dirs) > 1:
+            dirs = "/".join(dirs[:len(dirs)-1])
+            out = "$(OUT)/" + dirs
+        print "# link"
+        print "%s: $(%s_TMP) $(%s_OBJ) %s%s Makefile.gen" % (self.get_dest(), n, n, out, deps2)
         if self.bintype == kApplication:
-            print "\t$(LINK) $(%s_OBJ) -o $@ %s %s\n" % (n, deps, libs)
+            print "\t@echo LINK $@; $(LINK) $(%s_OBJ) -o $@ %s %s\n" % (n, deps, libs)
         elif self.bintype == kDynamicLibrary:
-            print "\t$(LINK) -shared $(%s_OBJ) -o $@  %s %s\n" % (n, deps, libs)
+            print "\t@echo LINK $@; $(LINK) -shared $(%s_OBJ) -o $@  %s %s\n" % (n, deps, libs)
         elif self.bintype == kStaticLibrary:
-            print "\t$(AR) $(AR_FLAGS) $@ $(%s_OBJ)\n" % n
+            print "\t@echo AR $@; $(AR) $(AR_FLAGS) $@ $(%s_OBJ)\n" % n
+
+
 

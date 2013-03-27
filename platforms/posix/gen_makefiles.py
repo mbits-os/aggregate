@@ -32,7 +32,7 @@ server = Project("server",
                  libs, [root+"server"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
-server.out = "index.app"
+server.out = "httpd/index.app"
 
 libenv.depends_on(_3rd)
 dbtool.depends_on(libenv)
@@ -66,30 +66,34 @@ OUT_ROOT = %sbin
 OUT_ = $(OUT_ROOT)/posix
 OUT = $(OUT_)/release
 
-TMP = ./int
+TMP = %sint/posix
 
-""" % root
+""" % (root, root)
 
 for pro in projects: pro.print_declaration()
 
-sys.stdout.write("""
+sys.stdout.write("all:")
+for pro in projects: sys.stdout.write(" all_" + pro.safename)
+print
 
-all:""")
-
-for pro in projects: sys.stdout.write(" " + pro.get_dest())
+#sys.stdout.write("install:")
+#for pro in projects: sys.stdout.write(" install_" + pro.safename)
+#print
 
 print """
-
 clean:
 \t@if [ -e $(TMP) ]; then { echo 'RM $(TMP)'; $(RM) -r $(TMP); }; fi
 """
 
-for pro in projects: pro.print_link()
+for pro in projects: pro.print_makefile()
 
-dirs = ["$(OUT_ROOT):", "$(OUT): $(OUT_)", "$(OUT_): $(OUT_ROOT)", "$(TMP):"]
-for pro in projects: dirs.append("$(%s_TMP): $(TMP)" % pro.safename.upper())
+print "############################################"
+print "# DIRECTORIES"
+print "############################################"
+print
+dirs = ["$(OUT)", "$(OUT)/httpd"]
+for pro in projects: dirs.append("$(%s_TMP)" % pro.safename.upper())
+print "DIRS =", " ".join(dirs)
 
-for d in dirs:
-    print "%s\n\t@if ! [ -e $@ ]; then { echo 'mkdir $@'; mkdir $@; }; fi\n" % d
-
-for pro in projects: pro.print_compile()
+print "$(DIRS):"
+print "\t@if ! [ -e $@ ]; then { echo 'DIR $@'; mkdir -p $@; }; fi"

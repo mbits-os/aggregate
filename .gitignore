@@ -29,6 +29,7 @@ pgo release
 x64
 tmp
 int
+obj
 .DS_Store
 .deps
 
