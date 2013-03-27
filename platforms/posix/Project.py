@@ -53,6 +53,16 @@ class Project:
             out.append("$(%s_TMP)/%s.o" % (self.safename.upper(), path.split(path.splitext(f.name)[0])[1]))
         return out
 
+    def get_code(self):
+        return [self.files.sec.items[k].name for k in self.files.cfiles + self.files.cppfiles]
+
+    def get_code_deps(self):
+        out = []
+        for k in self.files.cfiles + self.files.cppfiles:
+            f = self.files.sec.items[k]
+            out.append("$(%s_TMP)/%s.d" % (self.safename.upper(), path.split(path.splitext(f.name)[0])[1]))
+        return out
+
     def get_dest(self):
         return "$(OUT)/"+self.get_short_dest()
 
@@ -70,9 +80,15 @@ class Project:
         print "%s_INCLUDES = %s" % (n, arglist("-I", self.includes))
         print "%s_C_COMPILE = $(C_COMPILE) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_DEFS)" % (n, n, n, n)
         print "%s_CPP_COMPILE = $(CPP_COMPILE) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_CPPFLAGS) $(%s_DEFS)" % (n, n, n, n, n)
+        print "%s_C_MAKEDEPEND = $(C_MAKEDEPEND) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_DEFS)" % (n, n, n, n)
+        print "%s_CPP_MAKEDEPEND = $(CPP_MAKEDEPEND) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_CPPFLAGS) $(%s_DEFS)" % (n, n, n, n, n)
         print "%s_TMP = $(TMP)/%s" % (n, self.name)
-        print "%s_OBJ = %s\n" % (n, """ \\
-\t""".join(self.get_objects()))
+        print "%s_FILES = %s" % (n, """ \\
+\t""".join(self.get_code()))
+        print "%s_SRC = $(addprefix $(ROOT), $(%s_FILES))" % (n, n)
+        print "%s_OBJ = $(patsubst %%.c,%%.o,$(patsubst %%.cpp,%%.o,$(addprefix $(%s_TMP)/, $(%s_FILES))))" % (n, n, n)
+        print "%s_DEP = $(patsubst %%.c,%%.d,$(patsubst %%.cpp,%%.d,$(addprefix $(%s_TMP)/, $(%s_FILES))))" % (n, n, n)
+        print
 
     def print_makefile(self):
         print "############################################"
@@ -80,6 +96,7 @@ class Project:
         print "############################################"
         print
         print "all_" + self.safename + ": " + self.get_dest()
+        print ".PHONY: all_" + self.safename
         print 
         self.print_compile()
         self.print_link()
@@ -87,13 +104,21 @@ class Project:
     def print_compile(self):
         n = self.safename.upper()
         print "# compile"
-        for k in self.files.cfiles + self.files.cppfiles:
-            f = self.files.sec.items[k]
-            print "$(%s_TMP)/%s.o: %s%s" % (self.safename.upper(), path.split(path.splitext(f.name)[0])[1], root, f.name)
-            if path.splitext(f.name)[1] == ".c":
-                print "\t@echo CC $<; $(%s_C_COMPILE) -c -o $@ $<\n" % n
-            else:
-                print "\t@echo CC $<; $(%s_CPP_COMPILE) -c -o $@ $<\n" % n
+        print "$(%s_TMP)%%.o: $(ROOT)%%.c" % n
+        print "\t@echo [ CC ] $<"
+        print "\t@mkdir -p $(dir $@)"
+        print "\t@touch $(patsubst %.o,%.d,$@) && \\"
+        print "\t\t$(%s_C_MAKEDEPEND) -f $(patsubst %%.o,%%.d,$@) $< 2>/dev/null" % n
+        print "\t@$(%s_C_COMPILE) -c -o $@ $<\n" % n
+
+        print "$(%s_TMP)%%.o: $(ROOT)%%.cpp" % n
+        print "\t@echo [ CC ] $<"
+        print "\t@mkdir -p $(dir $@)"
+        print "\t@touch $(patsubst %.o,%.d,$@) && \\"
+        print "\t\t$(%s_CPP_MAKEDEPEND) -f $(patsubst %%.o,%%.d,$@) $< 2>/dev/null" % n
+        print "\t@$(%s_CPP_COMPILE) -c -o $@ $<\n" % n
+
+        print "-include $(%s_DEP)\n" % n
 
     def print_link(self):
         n = self.safename.upper()
@@ -114,11 +139,11 @@ class Project:
         print "# link"
         print "%s: $(%s_TMP) $(%s_OBJ) %s%s Makefile.gen" % (self.get_dest(), n, n, out, deps2)
         if self.bintype == kApplication:
-            print "\t@echo LINK $@; $(LINK) $(%s_OBJ) -o $@ %s %s\n" % (n, deps, libs)
+            print "\t@echo [LINK] $@; $(LINK) $(%s_OBJ) -o $@ %s %s\n" % (n, deps, libs)
         elif self.bintype == kDynamicLibrary:
-            print "\t@echo LINK $@; $(LINK) -shared $(%s_OBJ) -o $@  %s %s\n" % (n, deps, libs)
+            print "\t@echo [LINK] $@; $(LINK) -shared $(%s_OBJ) -o $@  %s %s\n" % (n, deps, libs)
         elif self.bintype == kStaticLibrary:
-            print "\t@echo AR $@; $(AR) $(AR_FLAGS) $@ $(%s_OBJ)\n" % n
+            print "\t@echo [ AR ] $@; $(AR) $(AR_FLAGS) $@ $(%s_OBJ)\n" % n
 
 
 

@@ -42,42 +42,17 @@ server.depends_on(_3rd)
 
 projects = [_3rd, libenv, dbtool, server]
 
-print """CFLAGS = -g3 -Wno-system-headers
-CPPFLAGS = -std=c++11
-CORE_CFLAGS= -fvisibility=hidden
-
-CC = gcc
-LIBTOOL = g++
-LD_DIRS = -L/usr/lib -L$(OUT)
-
-LD_LIBRARY_PATH=.
-
-C_COMPILE = gcc $(INCLUDES) $(CFLAGS) $(DEFS) -x c
-CPP_COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(DEFS) -x c++
-
-CCLD = $(CC)
-LINK = $(LIBTOOL) $(LD_DIRS) $(CFLAGS) $(LDFLAGS)
-RM = rm
-RMDIR = rmdir
-
-AR_FLAGS = rcs
-
-ROOT = %s
-
-OUT_ROOT = $(ROOT)bin
-OUT_ = $(OUT_ROOT)/posix
-OUT = $(OUT_)/release
-
-TMP = $(ROOT)int/posix
-
-PREFIX = $(ROOT)httpd
-
-""" % root
+print "include common.mak"
+print
 
 for pro in projects: pro.print_declaration()
 
-sys.stdout.write("all:")
-for pro in projects: sys.stdout.write(" all_" + pro.safename)
+
+all_safe = " ".join(["all_" + pro.safename for pro in projects])
+print ".PHONY: all clean install clean_strings strings %s" % all_safe
+print
+
+sys.stdout.write("all: strings " + all_safe)
 print
 
 #sys.stdout.write("install:")
@@ -100,7 +75,7 @@ for pro in projects: dirs.append("$(%s_TMP)" % pro.safename.upper())
 print "DIRS =", " ".join(dirs)
 
 print """$(DIRS):
-\t@if ! [ -e $@ ]; then { echo 'DIR $@'; mkdir -p $@; }; fi
+\t@if ! [ -e $@ ]; then { echo '[DIR ] $@'; mkdir -p $@; }; fi
 
 ############################################
 # INSTALL
@@ -109,10 +84,10 @@ print """$(DIRS):
 install: $(PREFIX)/www strings $(PREFIX)/dbtool $(PREFIX)/www/index.app
 
 $(PREFIX)/dbtool: $(OUT)/dbtool
-\t@echo 'CP $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
+\t@echo '[ CP ] $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
 
 $(PREFIX)/www/index.app: $(OUT)/index.app
-\t@echo 'CP $@'; cp '$(OUT)/index.app' '$(PREFIX)/www';
+\t@echo '[ CP ] $@'; cp '$(OUT)/index.app' '$(PREFIX)/www';
 
 clean_strings:
 \t@$(MAKE) -C '$(ROOT)/strings' clean

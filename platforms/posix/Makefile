@@ -4,17 +4,11 @@ FILES = \
 	../libenv.files \
 	../server.files
 
-all: Makefile.gen
-	$(MAKE) -f Makefile.gen all
-
-clean: Makefile.gen
-	$(MAKE) -f Makefile.gen clean
-
-install: Makefile.gen
-	$(MAKE) -f Makefile.gen install
+all clean install: Makefile.gen
+	@$(MAKE) -C . -f Makefile.gen $@
 
 clean_gen:
 	rm Makefile.gen
 
 Makefile.gen: $(FILES) gen_makefiles.py Project.py
-	python gen_makefiles.py 2>&1 >Makefile.gen
+	@echo [ PY ] Makefile; python gen_makefiles.py 2>&1 >Makefile.gen
