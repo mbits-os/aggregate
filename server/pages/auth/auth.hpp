@@ -46,7 +46,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			PageHandler::headElement(session, request, tr);
-			request << "    <style type=\"text/css\">@import url(\"/css/forms.css\");</style>\r\n";
+			request << "    <style type=\"text/css\">@import url(\"" STATIC_RESOURCES "/css/forms.css\");</style>\r\n";
 		}
 	};
 
