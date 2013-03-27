@@ -19,7 +19,7 @@ RM=rm -f
 SAVE_LANGS = $(subst -,_,$(LANGS))
 POS = $(addsuffix /site_strings.po,$(SAVE_LANGS))
 MOS = $(addsuffix /site_strings.mo,$(SAVE_LANGS))
-LNGS = $(addprefix ../apache/locales/, $(addsuffix /site_strings.lng,$(SAVE_LANGS)))
+LNGS = $(addprefix ../httpd/locales/, $(addsuffix /site_strings.lng,$(SAVE_LANGS)))
 
 get-locale=$(subst _,-,$(word 1,$(subst /, ,$1)))
 get-locale-2=$(subst _,-,$(word 4,$(subst /, ,$1)))

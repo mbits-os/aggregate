@@ -32,7 +32,7 @@ server = Project("server",
                  libs, [root+"server"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
-server.out = "httpd/index.app"
+server.out = "index.app"
 
 libenv.depends_on(_3rd)
 dbtool.depends_on(libenv)
@@ -62,13 +62,17 @@ RMDIR = rmdir
 
 AR_FLAGS = rcs
 
-OUT_ROOT = %sbin
+ROOT = %s
+
+OUT_ROOT = $(ROOT)bin
 OUT_ = $(OUT_ROOT)/posix
 OUT = $(OUT_)/release
 
-TMP = %sint/posix
+TMP = $(ROOT)int/posix
 
-""" % (root, root)
+PREFIX = $(ROOT)httpd
+
+""" % root
 
 for pro in projects: pro.print_declaration()
 
@@ -87,13 +91,26 @@ clean:
 
 for pro in projects: pro.print_makefile()
 
-print "############################################"
-print "# DIRECTORIES"
-print "############################################"
-print
-dirs = ["$(OUT)", "$(OUT)/httpd"]
+print """############################################
+# DIRECTORIES
+############################################
+"""
+dirs = ["$(OUT)", "$(PREFIX)/www"]
 for pro in projects: dirs.append("$(%s_TMP)" % pro.safename.upper())
 print "DIRS =", " ".join(dirs)
 
-print "$(DIRS):"
-print "\t@if ! [ -e $@ ]; then { echo 'DIR $@'; mkdir -p $@; }; fi"
+print """$(DIRS):
+\t@if ! [ -e $@ ]; then { echo 'DIR $@'; mkdir -p $@; }; fi
+
+############################################
+# INSTALL
+############################################
+
+install: $(PREFIX)/www $(PREFIX)/dbtool $(PREFIX)/www/index.app
+
+$(PREFIX)/dbtool: $(OUT)/dbtool
+\t@echo 'CP dbtool'; cp '$(OUT)/dbtool' '$(PREFIX)';
+
+$(PREFIX)/www/index.app: $(OUT)/index.app
+\t@echo 'CP index.app'; cp '$(OUT)/index.app' '$(PREFIX)/www';
+"""

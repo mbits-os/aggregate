@@ -41,13 +41,13 @@ build
 ipch
 output
 bin
-apache/httpd/index.app
-apache/dbtool.exe
-apache/dbtool
-apache/libmysql.dll
+httpd/www/index.app
+httpd/dbtool.exe
+httpd/dbtool
+httpd/libmysql.dll
 # removing a file with a password from a public repo
-apache/conn.ini
-apache/error-*.log
+httpd/conn.ini
+httpd/error-*.log
 
 /3rd/curl/config.log
 /3rd/curl/config.status

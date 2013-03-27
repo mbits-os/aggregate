@@ -18,7 +18,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "..\..\apache"</Command>
+      <Command>copy "$(TargetPath)" "..\..\httpd"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying to the developement</Message>
