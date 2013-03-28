@@ -88,7 +88,13 @@ namespace FastCGI { namespace app { namespace reader {
 				request << "</td><td>";
 				if (eq == nullptr) request << "&nbsp;";
 				else if (strncmp("PATH=", *envp, 5))
-					request << eq + 1;
+				{
+					++eq;
+					if (*eq)
+						request << eq;
+					else
+						request << "<em style=\"color: silver\">empty</em>";
+				}
 				else 
 				{
 					const char* prev = eq + 1;
