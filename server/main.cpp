@@ -23,8 +23,8 @@
  */
 
 #include "pch.h"
-#include "handlers.h"
-#include <dbconn.h>
+#include <handlers.hpp>
+#include <dbconn.hpp>
 #include <locale.hpp>
 
 #ifdef _WIN32

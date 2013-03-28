@@ -29,9 +29,9 @@
 #include <iostream>
 #include <algorithm>
 
-#include <dbconn.h>
-#include <utils.h>
-#include "schema.h"
+#include <dbconn.hpp>
+#include <utils.hpp>
+#include "schema.hpp"
 
 #ifdef WIN32
 #include <windows.h>

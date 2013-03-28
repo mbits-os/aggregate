@@ -1,14 +1,14 @@
 libenv/pch.h
 libenv/pch.cpp=pch:1
 
-libenv/includes/fast_cgi.h
-libenv/includes/handlers.h
+libenv/includes/fast_cgi.hpp
+libenv/includes/handlers.hpp
 libenv/includes/top_menu.hpp
-libenv/includes/forms.h
-libenv/includes/dbconn.h
-libenv/includes/dbconn_driver.h
-libenv/includes/model.h
-libenv/includes/utils.h
+libenv/includes/forms.hpp
+libenv/includes/dbconn.hpp
+libenv/includes/dbconn_driver.hpp
+libenv/includes/model.hpp
+libenv/includes/utils.hpp
 libenv/includes/crypt.hpp
 libenv/includes/locale.hpp
 libenv/includes/site_strings.h

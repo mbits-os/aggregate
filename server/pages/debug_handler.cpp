@@ -23,8 +23,8 @@
  */
 
 #include "pch.h"
-#include "handlers.h"
-#include "crypt.hpp"
+#include <handlers.hpp>
+#include <crypt.hpp>
 
 #if DEBUG_CGI
 

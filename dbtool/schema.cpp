@@ -22,9 +22,9 @@
  * SOFTWARE.
  */
 
-#include "schema.h"
-#include "crypt.hpp"
-#include "model.h"
+#include "schema.hpp"
+#include <crypt.hpp>
+#include <model.hpp>
 #include <algorithm>
 
 namespace db

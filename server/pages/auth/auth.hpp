@@ -25,9 +25,9 @@
 #ifndef __AUTH_HPP__
 #define __AUTH_HPP__
 
-#include "handlers.h"
-#include "forms.h"
-#include "crypt.hpp"
+#include <handlers.hpp>
+#include <forms.hpp>
+#include <crypt.hpp>
 
 namespace FastCGI { namespace app { namespace reader {
 

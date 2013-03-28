@@ -23,8 +23,8 @@
  */
 
 #include "pch.h"
-#include <handlers.h>
-#include <utils.h>
+#include <handlers.hpp>
+#include <utils.hpp>
 
 namespace FastCGI { namespace app { namespace reader {
 
