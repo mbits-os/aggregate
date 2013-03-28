@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Aggregate
+# Copyright (C) 2013 midnightBITS
 # This file is distributed under the same license as the Aggregate package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2013.
 # 

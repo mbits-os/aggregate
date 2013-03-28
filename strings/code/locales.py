@@ -1,4 +1,4 @@
-#! /usr/bin/python
+﻿#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys, os, struct
@@ -195,7 +195,7 @@ def writePOTFile(strings, path):
 
     f = open(path, "w")
 
-    print >>f, '# Copyright (C) 2013 Aggregate'
+    print >>f, '# Copyright (C) 2013 midnightBITS'
     print >>f, '# This file is distributed under the same license as the Aggregate package.'
     print >>f, '# Marcin Zdun <mzdun@midnightbits.com>, 2013.'
     print >>f, '#'
