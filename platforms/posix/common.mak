@@ -3,8 +3,8 @@ CXXFLAGS =
 CPPFLAGS = -std=c++11 $(CXXFLAGS)
 CORE_CFLAGS= -fvisibility=hidden
 
-CC = gcc
-LIBTOOL = g++
+CC = gcc-4.7
+LIBTOOL = g++-4.7
 LD_DIRS = -L/usr/lib -L$(OUT)
 
 LD_LIBRARY_PATH=.
