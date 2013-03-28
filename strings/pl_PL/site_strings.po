@@ -73,16 +73,16 @@ msgid "stay up to date"
 msgstr "bądź na bieżąco"
 
 msgctxt "LNG_GLOBAL_PRODUCT"
-msgid "Aggregator"
-msgstr "Agregator"
+msgid "reedr"
+msgstr "reedr"
 
 msgctxt "LNG_GLOBAL_SITENAME"
-msgid "Aggregator"
-msgstr "Agregator"
+msgid "reedr"
+msgstr "reedr"
 
 msgctxt "LNG_LOGIN_ABSTRACT"
-msgid "Welcome to the Aggregator, your somsink, somsink."
-msgstr "Witamy w Agregatorze, twoim somsink, somsink."
+msgid "Welcome to the reedr, your somsink, somsink."
+msgstr "Witamy w reedrze, twoim somsink, somsink."
 
 msgctxt "LNG_LOGIN_ERROR_MISMATCHED"
 msgid "Username and password do not match each other."

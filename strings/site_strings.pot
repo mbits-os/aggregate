@@ -73,15 +73,15 @@ msgid "stay up to date"
 msgstr ""
 
 msgctxt "LNG_GLOBAL_PRODUCT"
-msgid "Aggregator"
+msgid "reedr"
 msgstr ""
 
 msgctxt "LNG_GLOBAL_SITENAME"
-msgid "Aggregator"
+msgid "reedr"
 msgstr ""
 
 msgctxt "LNG_LOGIN_ABSTRACT"
-msgid "Welcome to the Aggregator, your somsink, somsink."
+msgid "Welcome to the reedr, your somsink, somsink."
 msgstr ""
 
 msgctxt "LNG_LOGIN_ERROR_MISMATCHED"
