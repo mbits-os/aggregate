@@ -37,11 +37,40 @@
 
 REGISTER_REDIRECT("/", "/view/");
 
-int main (void)
+void onRequest(FastCGI::Application& app)
+{
+	FastCGI::Request req(app);
+
+	try {
+		FastCGI::app::HandlerPtr handler = FastCGI::app::Handlers::handler(req);
+		if (handler.get() != nullptr)
+			handler->visit(req);
+		else
+			req.on404();
+
+	} catch(FastCGI::FinishResponse) {
+		// die() lands here
+	}
+}
+
+int main (int argc, char* argv[])
 {
 	db::environment env;
 	if (env.failed)
 		return 1;
+
+	if (argc > 2 && !strcmp(argv[1], "-uri"))
+	{
+		FastCGI::Application app(argv[2]);
+		int ret = app.init(LOCALE_PATH);
+		if (ret != 0)
+			return ret;
+
+		app.addStlSession();
+
+		onRequest(app);
+		return 0;
+	}
 
 	FastCGI::Application app;
 
@@ -50,20 +79,7 @@ int main (void)
 		return ret;
 
 	while (app.accept())
-	{
-		FastCGI::Request req(app);
-
-		try {
-			FastCGI::app::HandlerPtr handler = FastCGI::app::Handlers::handler(req);
-			if (handler.get() != nullptr)
-				handler->visit(req);
-			else
-				req.on404();
-
-		} catch(FastCGI::FinishResponse) {
-			// die() lands here
-		}
-	}
+		onRequest(app);
 
 	return 0;
 }
