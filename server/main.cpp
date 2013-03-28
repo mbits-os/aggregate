@@ -26,6 +26,7 @@
 #include <handlers.hpp>
 #include <dbconn.hpp>
 #include <locale.hpp>
+#include <string.h>
 
 #ifdef _WIN32
 #define LOCALE_PATH "..\\locales\\"
