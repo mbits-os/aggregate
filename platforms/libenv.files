@@ -11,6 +11,7 @@ libenv/includes/model.hpp
 libenv/includes/utils.hpp
 libenv/includes/crypt.hpp
 libenv/includes/locale.hpp
+libenv/includes/feed_parser.hpp
 libenv/includes/site_strings.h
 
 libenv/database/dbconn.cpp
@@ -25,3 +26,4 @@ libenv/fast_cgi/handlers.cpp
 libenv/fast_cgi/forms.cpp
 libenv/locale/lang_file.cpp
 libenv/locale/locale.cpp
+libenv/feeds/feed_parser.cpp
