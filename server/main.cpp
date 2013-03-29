@@ -28,6 +28,8 @@
 #include <locale.hpp>
 #include <string.h>
 
+#define THREAD_COUNT 10
+
 #ifdef _WIN32
 #define LOCALE_PATH "..\\locales\\"
 #endif
@@ -38,21 +40,20 @@
 
 REGISTER_REDIRECT("/", "/view/");
 
-void onRequest(FastCGI::Application& app)
+class Thread: public FastCGI::Thread
 {
-	FastCGI::Request req(app);
-
-	try {
+public:
+	Thread() {}
+	Thread(const char* uri):  FastCGI::Thread(uri) {}
+	void onRequest(FastCGI::Request& req)
+	{
 		FastCGI::app::HandlerPtr handler = FastCGI::app::Handlers::handler(req);
 		if (handler.get() != nullptr)
 			handler->visit(req);
 		else
 			req.on404();
-
-	} catch(FastCGI::FinishResponse) {
-		// die() lands here
 	}
-}
+};
 
 int main (int argc, char* argv[])
 {
@@ -60,27 +61,31 @@ int main (int argc, char* argv[])
 	if (env.failed)
 		return 1;
 
-	if (argc > 2 && !strcmp(argv[1], "-uri"))
-	{
-		FastCGI::Application app(argv[2]);
-		int ret = app.init(LOCALE_PATH);
-		if (ret != 0)
-			return ret;
-
-		app.addStlSession();
-
-		onRequest(app);
-		return 0;
-	}
-
 	FastCGI::Application app;
 
 	int ret = app.init(LOCALE_PATH);
 	if (ret != 0)
 		return ret;
 
-	while (app.accept())
-		onRequest(app);
+	if (argc > 2 && !strcmp(argv[1], "-uri"))
+	{
+		Thread local(argv[2]);
+		local.setApplication(app);
+
+		app.addStlSession();
+
+		local.handleRequest();
+		return 0;
+	}
+
+	Thread threads[THREAD_COUNT];
+	for (size_t i = 0; i < THREAD_COUNT; ++i)
+		threads[i].setApplication(app);
+
+	for (size_t i = 1; i < THREAD_COUNT; ++i)
+		threads[i].start();
+
+	threads[0].run();
 
 	return 0;
 }
