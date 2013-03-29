@@ -13,6 +13,7 @@ libenv/includes/crypt.hpp
 libenv/includes/locale.hpp
 libenv/includes/feed_parser.hpp
 libenv/includes/site_strings.h
+libenv/includes/os.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -27,3 +28,10 @@ libenv/fast_cgi/forms.cpp
 libenv/locale/lang_file.cpp
 libenv/locale/locale.cpp
 libenv/feeds/feed_parser.cpp
+#ifdef POSIX
+libenv/utils/os_posix.cpp
+#endif
+#ifdef WIN32
+libenv/utils/os_posix.cpp=exclude:*|*
+libenv/utils/os_win32.cpp
+#endif
