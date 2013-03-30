@@ -28,6 +28,7 @@
 #include <memory>
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 #include <dbconn.hpp>
 #include <utils.hpp>
@@ -39,6 +40,8 @@
 #include <termios.h>
 #include <unistd.h>
 #endif
+
+#include <http.hpp>
 
 struct Command {
 	const char* name;
@@ -82,6 +85,7 @@ int install(int, char*[], const db::ConnectionPtr&);
 int backup(int, char*[], const db::ConnectionPtr&);
 int restore(int, char*[], const db::ConnectionPtr&);
 int refresh(int, char*[], const db::ConnectionPtr&);
+int fetch(int, char*[], const db::ConnectionPtr&);
 int user(int, char*[], const db::ConnectionPtr&);
 
 Command commands[] = {
@@ -90,6 +94,7 @@ Command commands[] = {
 	Command("backup", backup),
 	Command("restore", restore),
 	Command("refresh", refresh),
+	Command("fetch", fetch, false),
 	Command("user", user)
 };
 
@@ -162,6 +167,71 @@ int restore(int, char*[], const db::ConnectionPtr&)
 int refresh(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
+	return 0;
+}
+
+class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
+{
+	size_t m_read;
+	void onReadyStateChange(http::XmlHttpRequest* xhr)
+	{
+		auto text = xhr->getResponseText();
+		auto len = xhr->getResponseTextLength();
+		auto block = len - m_read;
+		text += m_read;
+		m_read = len;
+		printf("....calback: %d %d %s; %p + %u\n", xhr->getReadyState(),
+			xhr->getStatus(), xhr->getStatusText().c_str(), text, block);
+		if (xhr->getReadyState() == http::XmlHttpRequest::DONE)
+		{
+			printf("HEADERS:\n");
+			auto headers = xhr->getResponseHeaders();
+			std::for_each(headers.begin(), headers.end(), [](const std::pair<std::string, std::string>& value)
+			{
+				bool upcase = true;
+				std::string head = value.first;
+				std::transform(head.begin(), head.end(), head.begin(), [&upcase](char c) -> char
+				{
+					if (upcase)
+					{
+						upcase = false;
+						return toupper(c);
+					}
+					if (c == '-')
+						upcase = true;
+					return c;
+				});
+				printf("%s: %s\n", head.c_str(), value.second.c_str());
+			});
+			printf("CONTENTS:\n\n");
+			fwrite(xhr->getResponseText(), xhr->getResponseTextLength(), 1, stdout);
+			printf("\n");
+		}
+	}
+public:
+	OnReadyStateChange(): m_read(0) {}
+};
+
+int fetch(int argc, char* argv[], const db::ConnectionPtr&)
+{
+	if (argc < 1)
+	{
+		fprintf(stderr, "fetch: not enough params\n");
+		fprintf(stderr, "fetch <url>\n");
+		return 1;
+	}
+
+	printf("URL: %s\n", argv[1]);
+	auto xhr = http::XmlHttpRequest::Create();
+	if (xhr.get())
+	{
+		OnReadyStateChange rsc;
+		//xhr->setDebug();
+		xhr->onreadystatechange(&rsc);
+		xhr->open(http::HTTP_GET, argv[1], false);
+		xhr->send();
+	}
+
 	return 0;
 }
 
