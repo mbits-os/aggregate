@@ -175,14 +175,15 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 	size_t m_read;
 	void onReadyStateChange(http::XmlHttpRequest* xhr)
 	{
+		auto state = xhr->getReadyState();
 		auto text = xhr->getResponseText();
 		auto len = xhr->getResponseTextLength();
 		auto block = len - m_read;
 		text += m_read;
 		m_read = len;
-		printf("....calback: %d %d %s; %p + %u\n", xhr->getReadyState(),
-			xhr->getStatus(), xhr->getStatusText().c_str(), text, block);
-		if (xhr->getReadyState() == http::XmlHttpRequest::DONE)
+		printf("....calback: %d %d (%s); %p + %u\n", state, xhr->getStatus(), xhr->getStatusText().c_str(), text, block);
+
+		if (state == http::XmlHttpRequest::HEADERS_RECEIVED)
 		{
 			printf("HEADERS:\n");
 			auto headers = xhr->getResponseHeaders();
@@ -203,8 +204,17 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 				});
 				printf("%s: %s\n", head.c_str(), value.second.c_str());
 			});
-			printf("CONTENTS:\n\n");
-			fwrite(xhr->getResponseText(), xhr->getResponseTextLength(), 1, stdout);
+			printf("\n");
+		}
+
+		if (state == http::XmlHttpRequest::DONE)
+		{
+			printf("CONTENTS:\n---------\n");
+			auto xml = xhr->getResponseXml();
+			if (xml)
+				dom::Print(xml->documentElement(), true);
+			else
+				fwrite(xhr->getResponseText(), xhr->getResponseTextLength(), 1, stdout);
 			printf("\n");
 		}
 	}
