@@ -15,6 +15,7 @@ libenv/includes/feed_parser.hpp
 libenv/includes/site_strings.h
 libenv/includes/http.hpp
 libenv/includes/expat.hpp
+libenv/includes/dom.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -32,3 +33,4 @@ libenv/feeds/feed_parser.cpp
 libenv/http/http.cpp
 libenv/http/curl_http.cpp
 libenv/http/curl_http.hpp
+libenv/http/dom.cpp
