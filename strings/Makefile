@@ -47,7 +47,7 @@ $(DEFINES_FILE): site_strings.txt
 
 site_strings.pot: site_strings.txt
 	$(Q)$(ECHO) "Extracting" $@
-	$(Q)$(MKDIR) ../app/locales
+	$(Q)$(MKDIR) ../httpd/locales
 	$(Q)$(EXTRACT) site_strings.txt site_strings.pot
 
 %.mo: %.po
