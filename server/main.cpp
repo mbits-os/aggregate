@@ -85,7 +85,10 @@ int main (int argc, char* argv[])
 	for (size_t i = 1; i < THREAD_COUNT; ++i)
 		threads[i].start();
 
-	threads[0].run();
+	threads[0].attach();
+
+	for (size_t i = 1; i < THREAD_COUNT; ++i)
+		threads[i].stop();
 
 	return 0;
 }
