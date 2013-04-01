@@ -159,6 +159,23 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "</tbody></table>\n";
 		}
 
+		static void threads(FastCGI::Request& request, const std::list<FastCGI::ThreadPtr>& threadList)
+		{
+			request << "<table class='threads'>\n";
+			request << "<thead><tr><th>Thread ID</th><th>Requests</th><thead><tbody>\n";
+			size_t counter = 0;
+			std::for_each(threadList.begin(), threadList.end(), [&request, &counter](FastCGI::ThreadPtr thread)
+			{
+				request << "<tr";
+				if (counter++ % 2)
+					request << " class='even'";
+				request
+					<< "><td><nobr>0x" << std::hex << thread->threadId() << std::dec << "</nobr></td>"
+					<< "<td>" << thread->getLoad() << "</td></tr>\n";
+			});
+			request << "</tbody></table>\n";
+		}
+
 		static void cookies(FastCGI::Request& request, const std::map<std::string, std::string>& list)
 		{
 			request << "<table class='cookies'>\n";
@@ -222,6 +239,7 @@ namespace FastCGI { namespace app { namespace reader {
 			request <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
 				"<li><a href='#requests'>Requests</a></li>\n"
+				"<li><a href='#threads'>Thread Load</a></li>\n"
 				"<li><a href='#variables'>Variables</a></li>\n"
 				"<li><a href='#cookies'>Cookies</a></li>\n"
 				"<li><a href='#session'>Session</a></li>\n"
@@ -252,6 +270,9 @@ namespace FastCGI { namespace app { namespace reader {
 
 			request << "<h2 class='head'><a name='requests'></a>Requests</h2>\n";
 			requests(request, request.app().requs());
+
+			request << "<h2 class='threads'><a name='threads'></a>Thread Load</h2>\n";
+			threads(request, request.app().getThreads());
 
 			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\n";
 			cookies(request, request.varDebugData());

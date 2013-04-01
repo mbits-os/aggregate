@@ -42,16 +42,22 @@ REGISTER_REDIRECT("/", "/view/");
 
 class Thread: public FastCGI::Thread
 {
+	unsigned long m_load;
 public:
-	Thread() {}
+	Thread(): m_load(0) {}
 	Thread(const char* uri):  FastCGI::Thread(uri) {}
 	void onRequest(FastCGI::Request& req)
 	{
+		++m_load;
 		FastCGI::app::HandlerPtr handler = FastCGI::app::Handlers::handler(req);
 		if (handler.get() != nullptr)
 			handler->visit(req);
 		else
 			req.on404();
+	}
+	unsigned long getLoad() const
+	{
+		return m_load;
 	}
 };
 
@@ -78,17 +84,9 @@ int main (int argc, char* argv[])
 		return 0;
 	}
 
-	Thread threads[THREAD_COUNT];
-	for (size_t i = 0; i < THREAD_COUNT; ++i)
-		threads[i].setApplication(app);
+	if (!app.addThreads<Thread>(THREAD_COUNT))
+		return 1;
 
-	for (size_t i = 1; i < THREAD_COUNT; ++i)
-		threads[i].start();
-
-	threads[0].attach();
-
-	for (size_t i = 1; i < THREAD_COUNT; ++i)
-		threads[i].stop();
-
+	app.run();
 	return 0;
 }
