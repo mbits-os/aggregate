@@ -227,6 +227,7 @@ namespace FastCGI { namespace app { namespace reader {
 				"<li><a href='#session'>Session</a></li>\n"
 				"</ol>\n"
 				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
+				"<h2>Thread: <em>" << mt::Thread::currentId() << "</em></h2>\n"
 				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
 			FastCGI::RequestStatePtr statePtr = request.getRequestState();
 			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
