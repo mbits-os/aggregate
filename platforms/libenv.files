@@ -2,6 +2,11 @@ libenv/pch.h
 libenv/pch.cpp=pch:1
 
 libenv/includes/fast_cgi.hpp
+libenv/includes/fast_cgi/application.hpp
+libenv/includes/fast_cgi/backends.hpp
+libenv/includes/fast_cgi/request.hpp
+libenv/includes/fast_cgi/session.hpp
+libenv/includes/fast_cgi/thread.hpp
 libenv/includes/handlers.hpp
 libenv/includes/top_menu.hpp
 libenv/includes/forms.hpp
@@ -22,7 +27,11 @@ libenv/model/model.cpp
 libenv/crypt/crypt.cpp
 libenv/utils/url_utils.cpp
 libenv/utils/time_utils.cpp
-libenv/fast_cgi/fast_cgi.cpp
+libenv/fast_cgi/application.cpp
+libenv/fast_cgi/backends.cpp
+libenv/fast_cgi/request.cpp
+libenv/fast_cgi/session.cpp
+libenv/fast_cgi/thread.cpp
 libenv/fast_cgi/handlers.cpp
 libenv/fast_cgi/forms.cpp
 libenv/locale/lang_file.cpp

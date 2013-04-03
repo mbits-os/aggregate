@@ -38,7 +38,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			fcgi::param_t QUERY_STRING = request.getParam("QUERY_STRING");
+			param_t QUERY_STRING = request.getParam("QUERY_STRING");
 			if (!QUERY_STRING || !*QUERY_STRING)
 			{
 				request << 
