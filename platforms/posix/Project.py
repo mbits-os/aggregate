@@ -104,21 +104,22 @@ class Project:
     def print_compile(self):
         n = self.safename.upper()
         print "# compile"
+
         print "$(%s_TMP)%%.o: $(ROOT)%%.c" % n
         print "\t@echo [ CC ] $<"
         print "\t@mkdir -p $(dir $@)"
-        print "\t@touch $(patsubst %.o,%.d,$@) && \\"
-        print "\t\t$(%s_C_MAKEDEPEND) -f $(patsubst %%.o,%%.d,$@) $< 2>/dev/null" % n
+        print "\t@echo -n $(dir $@) > $(patsubst %.o,%.d,$@)"
+        print "\t@$(%s_C_MAKEDEPEND) $< >> $(patsubst %%.o,%%.d,$@)" %n # 2>/dev/null" % n
         print "\t@$(%s_C_COMPILE) -c -o $@ $<\n" % n
+
+        print "-include $(%s_DEP)\n" % n
 
         print "$(%s_TMP)%%.o: $(ROOT)%%.cpp" % n
         print "\t@echo [ CC ] $<"
         print "\t@mkdir -p $(dir $@)"
-        print "\t@touch $(patsubst %.o,%.d,$@) && \\"
-        print "\t\t$(%s_CPP_MAKEDEPEND) -f $(patsubst %%.o,%%.d,$@) $< 2>/dev/null" % n
+        print "\t@echo -n $(dir $@) > $(patsubst %.o,%.d,$@)"
+        print "\t@$(%s_CPP_MAKEDEPEND) $< >> $(patsubst %%.o,%%.d,$@)" %n # 2>/dev/null" % n
         print "\t@$(%s_CPP_COMPILE) -c -o $@ $<\n" % n
-
-        print "-include $(%s_DEP)\n" % n
 
     def print_link(self):
         n = self.safename.upper()

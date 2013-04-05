@@ -1,5 +1,5 @@
-CFLAGS = -g3 -Wno-system-headers
-CXXFLAGS = 
+CFLAGS = -Wno-system-headers
+CXXFLAGS =
 CPPFLAGS = -std=c++11 $(CXXFLAGS)
 CORE_CFLAGS= -fvisibility=hidden
 
@@ -9,13 +9,13 @@ LD_DIRS = -L/usr/lib -L$(OUT)
 
 LD_LIBRARY_PATH=.
 
-C_COMPILE = gcc $(INCLUDES) $(CFLAGS) $(DEFS) -x c
-CPP_COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(DEFS) -x c++
-C_MAKEDEPEND = makedepend $(INCLUDES) $(CFLAGS) $(DEFS)
-CPP_MAKEDEPEND = makedepend $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $(DEFS)
+C_COMPILE = gcc $(INCLUDES) $(CFLAGS) $(DEFS) -o3 -x c
+CPP_COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(CPPFLAGS) $(DEFS) -o3 -x c++
+C_MAKEDEPEND = gcc -M $(INCLUDES) $(CFLAGS) $(DEFS)
+CPP_MAKEDEPEND = gcc -M $(INCLUDES) $(CFLAGS) $(CXXFLAGS) $(DEFS)
 
 CCLD = $(CC)
-LINK = $(LIBTOOL) $(LD_DIRS) $(CFLAGS) $(LDFLAGS)
+LINK = $(LIBTOOL) $(LD_DIRS) $(CFLAGS) -s $(LDFLAGS)
 RM = rm
 RMDIR = rmdir
 
