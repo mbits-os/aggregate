@@ -104,7 +104,7 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 				if (feed::parse(xml, feed))
 				{
 					if (!feed.m_feed.m_title.empty()) std::cout << "\"" << stripws(feed.m_feed.m_title) << "\"" << std::endl;
-					else std::cout << "(bez tytu³u)" << std::endl;
+					else std::cout << "(no title)" << std::endl;
 					if (!feed.m_feed.m_url.empty()) std::cout << "href: " << feed.m_feed.m_url << std::endl;
 					if (!feed.m_description.empty()) std::cout << feed.m_description << std::endl;
 					if (!feed.m_author.m_name.empty() || !feed.m_author.m_email.empty())
@@ -126,7 +126,7 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 					{
 						std::cout << "    ------------------------------------------------------------\n\n";
 						if (!entry.m_entry.m_title.empty()) std::cout << "    \"" << stripws(entry.m_entry.m_title) << "\"" << std::endl;
-						else std::cout << "    (bez tytu³u)" << std::endl;
+						else std::cout << "    (no title)" << std::endl;
 						if (!entry.m_entry.m_url.empty()) std::cout << "    href: " << entry.m_entry.m_url << std::endl;
 						if (!entry.m_entryUniqueId.empty()) std::cout << "    guid: " << entry.m_entryUniqueId << std::endl;
 						else std::cout << "    guid missing!" << std::endl;
