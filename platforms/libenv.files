@@ -16,6 +16,7 @@ libenv/includes/site_strings.h
 libenv/includes/http.hpp
 libenv/includes/expat.hpp
 libenv/includes/dom.hpp
+libenv/includes/dom_xpath.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -34,3 +35,4 @@ libenv/http/http.cpp
 libenv/http/curl_http.cpp
 libenv/http/curl_http.hpp
 libenv/http/dom.cpp
+libenv/http/dom_xpath.cpp
