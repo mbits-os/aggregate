@@ -41,8 +41,6 @@
 #include <unistd.h>
 #endif
 
-#include <http.hpp>
-
 struct Command {
 	const char* name;
 	int (*command)(int, char* [], const db::ConnectionPtr&);
@@ -85,7 +83,7 @@ int install(int, char*[], const db::ConnectionPtr&);
 int backup(int, char*[], const db::ConnectionPtr&);
 int restore(int, char*[], const db::ConnectionPtr&);
 int refresh(int, char*[], const db::ConnectionPtr&);
-int fetch(int, char*[], const db::ConnectionPtr&);
+int fetch(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int user(int, char*[], const db::ConnectionPtr&);
 
 Command commands[] = {
@@ -167,81 +165,6 @@ int restore(int, char*[], const db::ConnectionPtr&)
 int refresh(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
-	return 0;
-}
-
-class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
-{
-	size_t m_read;
-	void onReadyStateChange(http::XmlHttpRequest* xhr)
-	{
-		auto state = xhr->getReadyState();
-		auto text = xhr->getResponseText();
-		auto len = xhr->getResponseTextLength();
-		auto block = len - m_read;
-		text += m_read;
-		m_read = len;
-		printf("....calback: %d %d (%s); %p + %u\n", state, xhr->getStatus(), xhr->getStatusText().c_str(), text, block);
-
-		if (state == http::XmlHttpRequest::HEADERS_RECEIVED)
-		{
-			printf("HEADERS:\n");
-			auto headers = xhr->getResponseHeaders();
-			std::for_each(headers.begin(), headers.end(), [](const std::pair<std::string, std::string>& value)
-			{
-				bool upcase = true;
-				std::string head = value.first;
-				std::transform(head.begin(), head.end(), head.begin(), [&upcase](char c) -> char
-				{
-					if (upcase)
-					{
-						upcase = false;
-						return toupper(c);
-					}
-					if (c == '-')
-						upcase = true;
-					return c;
-				});
-				printf("%s: %s\n", head.c_str(), value.second.c_str());
-			});
-			printf("\n");
-		}
-
-		if (state == http::XmlHttpRequest::DONE)
-		{
-			printf("CONTENTS:\n---------\n");
-			auto xml = xhr->getResponseXml();
-			if (xml)
-				dom::Print(xml->documentElement(), true);
-			else
-				fwrite(xhr->getResponseText(), xhr->getResponseTextLength(), 1, stdout);
-			printf("\n");
-		}
-	}
-public:
-	OnReadyStateChange(): m_read(0) {}
-};
-
-int fetch(int argc, char* argv[], const db::ConnectionPtr&)
-{
-	if (argc < 1)
-	{
-		fprintf(stderr, "fetch: not enough params\n");
-		fprintf(stderr, "fetch <url>\n");
-		return 1;
-	}
-
-	printf("URL: %s\n", argv[1]);
-	auto xhr = http::XmlHttpRequest::Create();
-	if (xhr.get())
-	{
-		OnReadyStateChange rsc;
-		//xhr->setDebug();
-		xhr->onreadystatechange(&rsc);
-		xhr->open(http::HTTP_GET, argv[1], false);
-		xhr->send();
-	}
-
 	return 0;
 }
 
