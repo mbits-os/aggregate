@@ -12,6 +12,7 @@ libenv/includes/utils.hpp
 libenv/includes/crypt.hpp
 libenv/includes/locale.hpp
 libenv/includes/feed_parser.hpp
+libenv/includes/opml.hpp
 libenv/includes/site_strings.h
 libenv/includes/http.hpp
 libenv/includes/expat.hpp
@@ -36,6 +37,7 @@ libenv/feeds/atom_03.cpp
 libenv/feeds/atom_10.cpp
 libenv/feeds/rdf_10.cpp
 libenv/feeds/rss_20.cpp
+libenv/feeds/opml.cpp
 libenv/http/http.cpp
 libenv/http/curl_http.cpp
 libenv/http/curl_http.hpp
