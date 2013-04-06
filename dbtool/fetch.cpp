@@ -30,6 +30,7 @@
 
 #include <http.hpp>
 #include <feed_parser.hpp>
+#include <opml.hpp>
 
 std::string stripws(const std::string& n)
 {
@@ -197,7 +198,7 @@ public:
 
 int fetch(int argc, char* argv[], const db::ConnectionPtr&)
 {
-	if (argc < 1)
+	if (argc < 2)
 	{
 		fprintf(stderr, "fetch: not enough params\n");
 		fprintf(stderr, "fetch <url>\n");
@@ -214,6 +215,48 @@ int fetch(int argc, char* argv[], const db::ConnectionPtr&)
 		xhr->onreadystatechange(&rsc);
 		xhr->open(http::HTTP_GET, argv[1], false);
 		xhr->send();
+	}
+
+	return 0;
+}
+
+void printOutline(const opml::Outline& outline, size_t depth = 0)
+{
+	std::string pre;
+	for (size_t i = 0; i < depth; ++i) pre += "    ";
+	std::cout << pre << outline.m_text;
+	if (!outline.m_url.empty())
+	{
+		std::cout << " [" << outline.m_url << "]";
+	}
+	std::cout << std::endl;
+
+	auto cur = outline.m_children.begin(), end = outline.m_children.end();
+	++depth;
+	for (; cur != end; ++cur)
+		printOutline(*cur, depth);
+}
+
+int opml_cmd(int argc, char* argv[], const db::ConnectionPtr&)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "opml: not enough params\n");
+		fprintf(stderr, "opml <file>\n");
+		return 1;
+	}
+
+	printf("PATH: %s\n", argv[1]);
+
+	dom::XmlDocumentPtr doc = dom::XmlDocument::fromFile(argv[1]);
+
+	if (doc.get())
+	{
+		opml::Outline outline;
+		if (opml::parse(doc, outline))
+		{
+			printOutline(outline);
+		};
 	}
 
 	return 0;

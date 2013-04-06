@@ -84,6 +84,7 @@ int backup(int, char*[], const db::ConnectionPtr&);
 int restore(int, char*[], const db::ConnectionPtr&);
 int refresh(int, char*[], const db::ConnectionPtr&);
 int fetch(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
+int opml_cmd(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int user(int, char*[], const db::ConnectionPtr&);
 
 Command commands[] = {
@@ -93,6 +94,7 @@ Command commands[] = {
 	Command("restore", restore),
 	Command("refresh", refresh),
 	Command("fetch", fetch, false),
+	Command("opml", opml_cmd, false),
 	Command("user", user)
 };
 
