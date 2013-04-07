@@ -109,7 +109,11 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 					if (!feed.m_feed.m_url.empty()) std::cout << "href: " << feed.m_feed.m_url << std::endl;
 					if (!feed.m_description.empty()) std::cout << feed.m_description << std::endl;
 					if (!feed.m_author.m_name.empty() || !feed.m_author.m_email.empty())
-						std::cout << "by " << feed.m_author.m_name << " " << feed.m_author.m_email << std::endl;
+					{
+						std::cout << "by " << feed.m_author.m_name;
+						if (!feed.m_author.m_email.empty())
+							std::cout << " <" << feed.m_author.m_email << ">" << std::endl;
+					}
 					if (feed.m_categories.size() > 0)
 					{
 						std::cout << "categories:";
@@ -131,8 +135,19 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 						if (!entry.m_entry.m_url.empty()) std::cout << "    href: " << entry.m_entry.m_url << std::endl;
 						if (!entry.m_entryUniqueId.empty()) std::cout << "    guid: " << entry.m_entryUniqueId << std::endl;
 						else std::cout << "    guid missing!" << std::endl;
+						if (entry.m_dateTime != -1)
+						{
+							char timebuf[100];
+							tyme::strftime(timebuf, "%a, %d-%b-%Y %H:%M:%S GMT", tyme::gmtime(entry.m_dateTime) );
+							printf("    %s\n", timebuf);
+						}
+
 						if (!entry.m_author.m_name.empty() || !entry.m_author.m_email.empty())
-							std::cout << "    by " << entry.m_author.m_name << " " << entry.m_author.m_email << std::endl;
+						{
+							std::cout << "    by " << entry.m_author.m_name;
+							if (!entry.m_author.m_email.empty())
+								std::cout << " <" << entry.m_author.m_email << ">" << std::endl;
+						}
 						if (entry.m_categories.size() > 0)
 						{
 							std::cout << "    in:";
