@@ -1,3 +1,4 @@
 dbtool/dbtool.cpp
 dbtool/schema.hpp
 dbtool/schema.cpp
+dbtool/fetch.cpp
