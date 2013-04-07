@@ -48,3 +48,5 @@ LNG_USER_SETTINGS_ERROR_INVALID_PASSWORD = "Current password is invalid."
 LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED = "E-mail address used by different account."
 LNG_USER_SETTINGS_ERROR_NAME_REQUIRED = "User name must be filled out."
 LNG_USER_SETTINGS_ERROR_SOME_ISSUES = "There were some issues:"
+
+LNG_URL_MISSING = "URL parameter is missing"

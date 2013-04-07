@@ -1,4 +1,4 @@
-# Copyright (C) 2013 Aggregate
+# Copyright (C) 2013 midnightBITS
 # This file is distributed under the same license as the Aggregate package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2013.
 #
@@ -162,6 +162,10 @@ msgstr ""
 
 msgctxt "LNG_RESET_USERNAME_HINT"
 msgid "Enter your user name or your e-mail"
+msgstr ""
+
+msgctxt "LNG_URL_MISSING"
+msgid "URL parameter is missing"
 msgstr ""
 
 msgctxt "LNG_USER_HELLO"

@@ -1,20 +1,20 @@
 # Copyright (C) 2013 midnightBITS
 # This file is distributed under the same license as the Aggregate package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2013.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: ShelvesSite 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-22 20:47+0200\n"
-"PO-Revision-Date: 2012-11-10 08:49+0100\n"
+"PO-Revision-Date: 2013-04-07 22:20+0100\n"
 "Last-Translator: Marcin Zdun <marcin.zdun+win@gmail.com>\n"
 "Language-Team: Translators <translate@midnightbits.com>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.5.5\n"
 
 msgctxt "LNG_CHNGPASS_CURRENT"
 msgid "Current password:"
@@ -163,6 +163,10 @@ msgstr "Reset my password"
 msgctxt "LNG_RESET_USERNAME_HINT"
 msgid "Enter your user name or your e-mail"
 msgstr "Enter your user name or your e-mail"
+
+msgctxt "LNG_URL_MISSING"
+msgid "URL parameter is missing"
+msgstr "The URL parameter is missing."
 
 msgctxt "LNG_USER_HELLO"
 msgid "Hello, %1!"
