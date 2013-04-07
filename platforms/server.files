@@ -7,6 +7,7 @@ server/pages/auth/login_handler.cpp
 server/pages/auth/logout_handler.cpp
 server/pages/auth/reset_handler.cpp
 server/pages/auth/auth.hpp
+server/pages/data/api_handler.cpp
+server/pages/data/api_subscribe.cpp
 server/pages/data/subscription_handler.cpp
 strings/site_strings.txt
-

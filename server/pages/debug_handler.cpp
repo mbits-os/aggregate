@@ -25,6 +25,7 @@
 #include "pch.h"
 #include <handlers.hpp>
 #include <crypt.hpp>
+#include "data/api_handler.hpp"
 
 #if DEBUG_CGI
 
@@ -133,6 +134,41 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "</tbody></table>\n";
 		}
 
+		static void handlers(FastCGI::Request& request,
+			api::OperationMap::const_iterator begin,
+			api::OperationMap::const_iterator end)
+		{
+			request << "<table class='operations'>\n";
+			request << "<thead><tr><th>Name</th><th>Query</th><th>File</th></tr><thead><tbody>\n";
+			size_t counter = 0;
+			for ( ; begin != end; ++begin)
+			{
+				request << "<tr";
+				if (counter++ % 2)
+					request << " class='even'";
+				const char* ellipsis = "=<span style='color:silver'>\xE2\x80\xA6</span>";
+				const char* join = "&amp;";
+				request
+					<< "><td><nobr>" << begin->first << "</a></nobr></td>"
+					<< "<td><nobr>";
+
+				bool first = true;
+				const char** vars = begin->second.ptr->getVariables();
+				while (*vars)
+				{
+					if (first) first = false;
+					else request << join;
+					request << *vars << ellipsis;
+					++vars;
+				}
+
+				request
+					<< "</nobr></td><td>" << begin->second.file << ":"
+					<< begin->second.line << "</td></tr>\n";
+			}
+			request << "</tbody></table>\n";
+		}
+
 		static void requests(FastCGI::Request& request, const FastCGI::Application::ReqList& list)
 		{
 			request << "<table class='requests'>\n";
@@ -221,6 +257,7 @@ namespace FastCGI { namespace app { namespace reader {
 				;
 			request <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\n"
+				"<li><a href='#operations'>Operation Handlers</a></li>\n"
 				"<li><a href='#requests'>Requests</a></li>\n"
 				"<li><a href='#variables'>Variables</a></li>\n"
 				"<li><a href='#cookies'>Cookies</a></li>\n"
@@ -248,6 +285,9 @@ namespace FastCGI { namespace app { namespace reader {
 
 			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
 			handlers(request, app::Handlers::begin(), app::Handlers::end());
+
+			request << "<h2 class='head'><a name='operations'></a>Operation Handlers</h2>\n";
+			handlers(request, api::Operations::begin(), api::Operations::end());
 
 			request << "<h2 class='head'><a name='requests'></a>Requests</h2>\n";
 			requests(request, request.app().requs());
