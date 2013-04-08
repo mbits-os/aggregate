@@ -136,7 +136,13 @@ namespace FastCGI { namespace app { namespace api
 					<< ",\"authorLink\":" << escape("mailto:" + entry.m_author.m_email)
 					<< ",\"description\":" << escape(entry.m_description)
 					<< ",\"date\":" << entry.m_dateTime
-					<< ",\"categories\":[";
+					<< ",\"enclosures\":[";
+				for_each(request, entry.m_enclosures, ",", [](Request& request, const feed::Enclosure& enclosure)
+				{
+					request << "{\"url\":" << escape(enclosure.m_url) << ",\"mime\":" << escape(enclosure.m_type) << ",\"length\":" << enclosure.m_size << "}";
+				});
+				request
+					<< "],\"categories\":[";
 				for_each(request, entry.m_categories, ",", [](Request& request, const std::string& cat) { request << escape(cat); });
 				request << "],\"content\":" << escape(entry.m_content) << "}";
 			});
