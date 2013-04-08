@@ -68,6 +68,18 @@ msgctxt "LNG_CMD_UPDATE"
 msgid "Update"
 msgstr ""
 
+msgctxt "LNG_FEED_ERROR"
+msgid "Unknown error occured while feed was downloaded"
+msgstr ""
+
+msgctxt "LNG_FEED_FAILED"
+msgid "Feed could not be found"
+msgstr ""
+
+msgctxt "LNG_FEED_SERVER_FAILED"
+msgid "Feed server did not respond"
+msgstr ""
+
 msgctxt "LNG_GLOBAL_DESCRIPTION"
 msgid "stay up to date"
 msgstr ""
@@ -154,6 +166,10 @@ msgstr ""
 
 msgctxt "LNG_NAV_SKIP"
 msgid "Skip to content"
+msgstr ""
+
+msgctxt "LNG_NOT_A_FEED"
+msgid "URL does not point to a known feed format"
 msgstr ""
 
 msgctxt "LNG_RESET_TITLE"
