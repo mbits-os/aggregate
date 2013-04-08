@@ -158,7 +158,7 @@ namespace FastCGI { namespace app { namespace reader {
 				{
 					if (first) first = false;
 					else request << join;
-					request << *vars << ellipsis;
+					request << *vars << "=<span style='color:silver;font-style:italic'>" << std::toupper(*vars) << "</span>";
 					++vars;
 				}
 
