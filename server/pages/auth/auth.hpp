@@ -69,6 +69,7 @@ namespace FastCGI { namespace app { namespace reader {
 	struct UserInfo
 	{
 		long long m_id;
+		std::string m_login;
 		std::string m_name;
 		std::string m_email;
 		std::string m_hash;
@@ -80,7 +81,7 @@ namespace FastCGI { namespace app { namespace reader {
 			UserInfo out;
 
 			db::StatementPtr query = db->prepare(
-				"SELECT _id, name, passphrase "
+				"SELECT _id, login, name, passphrase "
 				"FROM user "
 				"WHERE email=?"
 				);
@@ -91,9 +92,31 @@ namespace FastCGI { namespace app { namespace reader {
 				if (c.get() && c->next())
 				{
 					out.m_id = c->getLongLong(0);
-					out.m_name = c->getText(1);
+					out.m_login = c->getText(1);
+					out.m_name = c->getText(2);
 					out.m_email = email;
-					out.m_hash = c->getText(2);
+					out.m_hash = c->getText(3);
+				}
+				else
+				{
+					query = db->prepare(
+						"SELECT _id, name, email, passphrase "
+						"FROM user "
+						"WHERE login=?"
+						);
+
+					if (query.get() && query->bind(0, email))
+					{
+						db::CursorPtr c = query->query();
+						if (c.get() && c->next())
+						{
+							out.m_id = c->getLongLong(0);
+							out.m_login = email;
+							out.m_name = c->getText(1);
+							out.m_email = c->getText(2);
+							out.m_hash = c->getText(3);
+						}
+					}
 				}
 			}
 			return out;

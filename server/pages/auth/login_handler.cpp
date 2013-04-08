@@ -73,7 +73,7 @@ namespace FastCGI { namespace app { namespace reader {
 						content->setError(tr(lng::LNG_LOGIN_ERROR_MISMATCHED)); 
 					else
 					{
-						SessionPtr session = request.startSession(set_cookie, email->getData().c_str());
+						SessionPtr session = request.startSession(set_cookie, info.m_email.c_str());
 						if (session.get())
 							onAuthFinished(request);
 						else
@@ -89,8 +89,10 @@ namespace FastCGI { namespace app { namespace reader {
 			{
 				Strings data;
 				if (session.get())
+				{
 					data["email"] = session->getEmail();
-				data["message"] = tr(lng::LNG_LOGIN_UI_STALE); 
+					data["message"] = tr(lng::LNG_LOGIN_UI_STALE); 
+				}
 				message->bind(request, data);
 				email->bind(request, data);
 			}

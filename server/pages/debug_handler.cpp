@@ -327,7 +327,7 @@ namespace FastCGI { namespace app { namespace reader {
 				char time[100];
 				tyme::strftime(time, "%a, %d-%b-%Y %H:%M:%S GMT", tyme::gmtime(session->getStartTime()));
 				request
-					<< "<p>Current user: <a href=\"mailto:" << session->getEmail() << "\">" << session->getName() << "</a><br/>\n"
+					<< "<p>Current user: <a href=\"mailto:" << session->getEmail() << "\">" << session->getLogin() << " (" << session->getName() << ")</a><br/>\n"
 					<< "The session has started on " << time << ".</p>";
 			}
 			else

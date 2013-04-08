@@ -192,14 +192,14 @@ int user(int argc, char* argv[], const db::ConnectionPtr& conn)
 
 int user_add(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 {
-	if (argc < 3)
+	if (argc < 4)
 	{
 		fprintf(stderr, "user: not enough params\n");
-		fprintf(stderr, "user add <mail> <name>\n");
+		fprintf(stderr, "user add <login> <mail> <name>\n");
 		return 1;
 	}
 
-	if (!db::model::Schema(dbConn).addUser(argv[1], argv[2]))
+	if (!db::model::Schema(dbConn).addUser(argv[1], argv[2], argv[3]))
 	{
 		fprintf(stderr, "user: error adding new user\n");
 		return 1;

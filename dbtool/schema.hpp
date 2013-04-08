@@ -181,7 +181,7 @@ namespace db
 		public:
 			Schema(const ConnectionPtr& conn): m_conn(conn) {}
 			bool install();
-			bool addUser(const char* mail, const char* name);
+			bool addUser(const char* login, const char* mail, const char* name);
 			bool removeUser(const char* mail);
 			bool changePasswd(const char* mail, const char* passwd);
 		};

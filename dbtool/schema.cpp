@@ -38,6 +38,7 @@ namespace db
 			{
 				sd.table("user")
 					._id()
+					.field("login")
 					.field("name")
 					.field("email")
 					.field("passphrase")
@@ -65,7 +66,11 @@ namespace db
 					.field("title")
 					.field("site")
 					.field("feed")
-					.field("last_update")
+					.field("last_update", std::string(), field_type::TIME)
+					.nullable("author")
+					.nullable("authorLink")
+					.nullable("etag")
+					.nullable("last_modified")
 					;
 
 				sd.table("entry")
@@ -74,25 +79,35 @@ namespace db
 					.field("guid")
 					.field("title", "")
 					.nullable("url")
-					.nullable("date")
+					.nullable("date", std::string(), field_type::TIME)
 					.nullable("author")
-					.field("contents")
+					.nullable("authorLink")
+					//only one of those can acutally be null:
+					.nullable("description")
+					.nullable("contents")
+					;
+
+				sd.table("enclosure")
+					.refer("entry")
+					.field("url")
+					.field("mime")
+					.field("length", std::string(), field_type::INTEGER)
+					;
+
+				sd.table("categories")
+					.refer("entry")
+					.field("cat")
 					;
 
 				sd.table("subscription")
-					.refer("user")
 					.refer("feed")
 					.refer("folder")
 					;
 
-				sd.table("unread")
+				sd.table("state")
 					.refer("user")
 					.refer("entry")
-					;
-
-				sd.table("starred")
-					.refer("user")
-					.refer("entry")
+					.field("type", std::string(), field_type::INTEGER) // 0 - unread; 1 - starred; ?2 - important?
 					;
 			}
 		};
@@ -135,25 +150,27 @@ namespace db
 			return transaction.commit();
 		}
 
-		bool Schema::addUser(const char* mail, const char* name)
+		bool Schema::addUser(const char* login, const char* mail, const char* name)
 		{
 			char pass[13];
 			Crypt::newSalt(pass);
 			Crypt::password_t hash;
 			Crypt::password(pass, hash);
 
-			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=?");
+			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=? OR login=?");
 			if (!select.get())
 				return false;
 
-			db::StatementPtr insert = m_conn->prepare("INSERT INTO user (name, email, passphrase) VALUES (?, ?, ?)");
+			db::StatementPtr insert = m_conn->prepare("INSERT INTO user (login, name, email, passphrase) VALUES (?, ?, ?, ?)");
 			if (!insert.get())
 				return false;
 
 			if (!select->bind(0, mail)) return false;
-			if (!insert->bind(0, name)) return false;
-			if (!insert->bind(1, mail)) return false;
-			if (!insert->bind(2, hash)) return false;
+			if (!select->bind(1, login)) return false;
+			if (!insert->bind(0, login)) return false;
+			if (!insert->bind(1, name)) return false;
+			if (!insert->bind(2, mail)) return false;
+			if (!insert->bind(3, hash)) return false;
 
 			db::Transaction transaction(m_conn);
 			if (!transaction.begin())
@@ -165,20 +182,39 @@ namespace db
 			long count = c->getLong(0);
 			if (count != 0)
 			{
-				fprintf(stderr, "error: user already exists:\n", mail);
+				long long id = -1;
+				fprintf(stderr, "error: user already exists:\n");
+				select = m_conn->prepare("SELECT * FROM user WHERE login=?");
+				if (select.get())
+				{
+					select->bind(0, login);
+					c = select->query();
+					if (c.get() && c->next())
+					{
+						id = c->getLongLong(0);
+						const char* login = c->getText(1);
+						const char* name = c->getText(2);
+						const char* mail = c->getText(3);
+						bool is_admin = c->getInt(4) != 0;
+						fprintf(stderr, "    #%llu: %s / %s <%s> %s\n",
+							id, login, name, mail, is_admin ? "(admin)" : ""
+							);
+					}
+				}
 				select = m_conn->prepare("SELECT * FROM user WHERE email=?");
 				if (select.get())
 				{
 					select->bind(0, mail);
 					c = select->query();
-					if (c.get() && c->next())
+					if (c.get() && c->next() && (id == -1 || id != c->getLongLong(0)))
 					{
-						long long id = c->getLongLong(0);
-						const char* name = c->getText(1);
-						const char* mail = c->getText(2);
+						id = c->getLongLong(0);
+						const char* login = c->getText(1);
+						const char* name = c->getText(2);
+						const char* mail = c->getText(3);
 						bool is_admin = c->getInt(4) != 0;
-						fprintf(stderr, "    #%llu: %s <%s> %s\n",
-							id, name, mail, is_admin ? "(admin)" : ""
+						fprintf(stderr, "    #%llu: %s / %s <%s> %s\n",
+							id, login, name, mail, is_admin ? "(admin)" : ""
 							);
 					}
 				}
