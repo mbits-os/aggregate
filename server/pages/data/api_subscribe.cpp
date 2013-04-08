@@ -25,26 +25,122 @@
 #include "pch.h"
 #include <handlers.hpp>
 #include <utils.hpp>
+#include <http.hpp>
+#include <feed_parser.hpp>
 #include "api_handler.hpp"
 
 namespace FastCGI { namespace app { namespace api
 {
+	template <typename Container, typename Pred>
+	void for_each(Request& request, const Container& cont, const std::string& join, Pred pred)
+	{
+		bool first = true;
+		auto from = cont.begin(), to = cont.end();
+		for (; from != to; ++from)
+		{
+			if (first) first = false;
+			else request << join;
+			pred(request, *from);
+		}
+	}
+
+	std::string escape(const std::string& in)
+	{
+		if (in.empty())
+			return "null";
+
+		std::string out;
+		out.reserve(in.length() * 110 / 100);
+		out.push_back('"');
+		std::for_each(in.begin(), in.end(), [&out](char c)
+		{
+			switch(c)
+			{
+			case '"': out += "\\\""; break;
+			case '\\': out += "\\\\"; break;
+			case '/': out += "\\/"; break;
+			case '\b': out += "\\b"; break;
+			case '\f': out += "\\f"; break;
+			case '\n': out += "\\n"; break;
+			case '\r': out += "\\r"; break;
+			case '\t': out += "\\t"; break;
+			default:
+				//unicode charcters...
+				out.push_back(c);
+			}
+		});
+		out.push_back('"');
+		return out;
+	}
 
 	class Subscribe: public APIOperation
 	{
 	public:
 		void render(SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			request.setHeader("Content-Type", "application/json");
+			auto xhr = http::XmlHttpRequest::Create();
+			if (!xhr)
+				request.on500();
 
+			request.setHeader("Content-Type", "application/json; charset=utf-8");
+
+			std::string error;
 			param_t url = request.getVariable("url");
-			if (!url)
+			if (!url) error = tr(lng::LNG_URL_MISSING);
+
+			dom::XmlDocumentPtr doc;
+
+			if (url)
+			{
+				xhr->open(http::HTTP_GET, url, false);
+				xhr->send();
+
+				int issue = xhr->getStatus() / 100;
+				if (issue == 4)      error = tr(lng::LNG_FEED_FAILED);
+				else if (issue == 5) error = tr(lng::LNG_FEED_SERVER_FAILED);
+				else if (issue != 2) error = tr(lng::LNG_FEED_ERROR);
+
+				if (error.empty())
+					doc = xhr->getResponseXml();
+			}
+
+			feed::Feed feed;
+			if (error.empty() && (!doc || !feed::parse(doc, feed)))
+				error = tr(lng::LNG_NOT_A_FEED);
+
+			if (!error.empty())
 			{
 				request.setHeader("Status", "400 Bad Request");
-				request << "{'error': '" << tr(lng::LNG_URL_MISSING) << "'}";
+				request << "{\"error\":" << escape(error); if (url) request << ",\"url\":" << escape(url); request << "}";
 				request.die();
 			}
-			request << "{}";
+
+			request <<
+				"{\"id\":123456789"
+				<< ",\"title\":" << escape(feed.m_feed.m_title)
+				<< ",\"feed\":" << escape(url)
+				<< ",\"site\":" << escape(feed.m_feed.m_url)
+				<< ",\"description\":" << escape(feed.m_description)
+				<< ",\"categories\":["
+				;
+			for_each(request, feed.m_categories, ",", [](Request& request, const std::string& cat) { request << escape(cat); });
+
+			request << "],\"entries\":[";
+			for_each(request, feed.m_entry, ",", [](Request& request, const feed::Entry& entry)
+			{
+				request <<
+					"{\"id\":123456789"
+					<< ",\"title\":" << escape(entry.m_entry.m_title)
+					<< ",\"link\":" << escape(entry.m_entry.m_url)
+					<< ",\"author\":" << escape(entry.m_author.m_name)
+					<< ",\"authorLink\":" << escape("mailto:" + entry.m_author.m_email)
+					<< ",\"description\":" << escape(entry.m_description)
+					<< ",\"date\":" << entry.m_dateTime
+					<< ",\"categories\":[";
+				for_each(request, entry.m_categories, ",", [](Request& request, const std::string& cat) { request << escape(cat); });
+				request << "],\"content\":" << escape(entry.m_content) << "}";
+			});
+			request << "]}";
 		}
 
 		const char** getVariables() const
