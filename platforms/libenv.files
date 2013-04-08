@@ -2,6 +2,11 @@ libenv/pch.h
 libenv/pch.cpp=pch:1
 
 libenv/includes/fast_cgi.hpp
+libenv/includes/fast_cgi/application.hpp
+libenv/includes/fast_cgi/backends.hpp
+libenv/includes/fast_cgi/request.hpp
+libenv/includes/fast_cgi/session.hpp
+libenv/includes/fast_cgi/thread.hpp
 libenv/includes/handlers.hpp
 libenv/includes/top_menu.hpp
 libenv/includes/forms.hpp
@@ -18,6 +23,7 @@ libenv/includes/http.hpp
 libenv/includes/expat.hpp
 libenv/includes/dom.hpp
 libenv/includes/dom_xpath.hpp
+libenv/includes/mt.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -26,7 +32,11 @@ libenv/model/model.cpp
 libenv/crypt/crypt.cpp
 libenv/utils/url_utils.cpp
 libenv/utils/time_utils.cpp
-libenv/fast_cgi/fast_cgi.cpp
+libenv/fast_cgi/application.cpp
+libenv/fast_cgi/backends.cpp
+libenv/fast_cgi/request.cpp
+libenv/fast_cgi/session.cpp
+libenv/fast_cgi/thread.cpp
 libenv/fast_cgi/handlers.cpp
 libenv/fast_cgi/forms.cpp
 libenv/locale/lang_file.cpp
@@ -43,3 +53,10 @@ libenv/http/curl_http.cpp
 libenv/http/curl_http.hpp
 libenv/http/dom.cpp
 libenv/http/dom_xpath.cpp
+#ifdef POSIX
+libenv/utils/mt_posix.cpp
+#endif
+#ifdef WIN32
+libenv/utils/mt_posix.cpp=exclude:*|*
+libenv/utils/mt_win32.cpp
+#endif

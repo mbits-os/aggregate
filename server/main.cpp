@@ -28,59 +28,75 @@
 #include <locale.hpp>
 #include <string.h>
 
+#define THREAD_COUNT 1
+
 #ifdef _WIN32
 #define LOCALE_PATH "..\\locales\\"
+#define LOG_FILE "..\\reedr.log"
 #endif
 
 #ifdef POSIX
 #define LOCALE_PATH "../locales/"
+#define LOG_FILE "../reedr.log"
 #endif
 
 REGISTER_REDIRECT("/", "/view/");
 
-void onRequest(FastCGI::Application& app)
+class Thread: public FastCGI::Thread
 {
-	FastCGI::Request req(app);
-
-	try {
+	unsigned long m_load;
+public:
+	Thread(): m_load(0) {}
+	Thread(const char* uri):  FastCGI::Thread(uri) {}
+	void onRequest(FastCGI::Request& req)
+	{
+		++m_load;
 		FastCGI::app::HandlerPtr handler = FastCGI::app::Handlers::handler(req);
 		if (handler.get() != nullptr)
 			handler->visit(req);
 		else
 			req.on404();
-
-	} catch(FastCGI::FinishResponse) {
-		// die() lands here
 	}
-}
+	unsigned long getLoad() const
+	{
+		return m_load;
+	}
+};
 
 int main (int argc, char* argv[])
 {
+	FastCGI::FLogSource log(LOG_FILE);
+	FLOG << "Application started";
+
 	db::environment env;
 	if (env.failed)
 		return 1;
-
-	if (argc > 2 && !strcmp(argv[1], "-uri"))
-	{
-		FastCGI::Application app(argv[2]);
-		int ret = app.init(LOCALE_PATH);
-		if (ret != 0)
-			return ret;
-
-		app.addStlSession();
-
-		onRequest(app);
-		return 0;
-	}
 
 	FastCGI::Application app;
 
 	int ret = app.init(LOCALE_PATH);
 	if (ret != 0)
+	{
+		//FLOG << "app.init(" << LOCALE_PATH << ") failed: " << ret;
 		return ret;
+	}
 
-	while (app.accept())
-		onRequest(app);
+	//FLOG << "app.init(" << LOCALE_PATH << ");";
 
+	if (argc > 2 && !strcmp(argv[1], "-uri"))
+	{
+		Thread local(argv[2]);
+		local.setApplication(app);
+
+		app.addStlSession();
+
+		local.handleRequest();
+		return 0;
+	}
+
+	if (!app.addThreads<Thread>(THREAD_COUNT))
+		return 1;
+
+	app.run();
 	return 0;
 }
