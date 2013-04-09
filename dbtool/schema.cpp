@@ -42,6 +42,7 @@ namespace db
 					.field("name")
 					.field("email")
 					.field("passphrase")
+					.field("root_folder", "0", field_type::KEY)
 					.field("is_admin", "0", field_type::BOOLEAN)
 					;
 
@@ -59,6 +60,7 @@ namespace db
 					.refer("user")
 					.field("name")
 					.field("parent", "0", field_type::KEY)
+					.field("ord", "0", field_type::INTEGER)
 					;
 
 				sd.table("feed")
@@ -102,6 +104,7 @@ namespace db
 				sd.table("subscription")
 					.refer("feed")
 					.refer("folder")
+					.field("ord", std::string(), field_type::INTEGER)
 					;
 
 				sd.table("state")
@@ -132,8 +135,12 @@ namespace db
 			program = sd.drop();
 			auto it = std::find_if(program.begin(), program.end(), [this](const std::string& sql) -> bool
 			{
-				//printf("%s\n", sql.c_str());
-				return !m_conn->exec(sql.c_str());
+				bool ret = !m_conn->exec(sql.c_str());
+				if (ret)
+				{
+					printf("%s\n", sql.c_str());
+				}
+				return ret;
 			});
 			if (it != program.end())
 				return false;
@@ -141,8 +148,12 @@ namespace db
 			program = sd.create();
 			it = std::find_if(program.begin(), program.end(), [this](const std::string& sql) -> bool
 			{
-				//printf("%s\n", sql.c_str());
-				return !m_conn->exec(sql.c_str());
+				bool ret = !m_conn->exec(sql.c_str());
+				if (ret)
+				{
+					printf("%s\n", sql.c_str());
+				}
+				return ret;
 			});
 			if (it != program.end())
 				return false;
@@ -165,12 +176,27 @@ namespace db
 			if (!insert.get())
 				return false;
 
+			db::StatementPtr query = m_conn->prepare("SELECT _id FROM user WHERE login=?");
+			if (!query.get())
+				return false;
+
+			db::StatementPtr insert_root = m_conn->prepare("INSERT INTO folder (user_id, name) VALUES (?, \"\")");
+			if (!insert_root.get())
+				return false;
+
+			db::StatementPtr update = m_conn->prepare("UPDATE user SET root_folder=(SELECT _id FROM folder WHERE user_id=? AND parent=0) WHERE _id=?");
+			if (!update.get())
+				return false;
+
 			if (!select->bind(0, mail)) return false;
 			if (!select->bind(1, login)) return false;
+
 			if (!insert->bind(0, login)) return false;
 			if (!insert->bind(1, name)) return false;
 			if (!insert->bind(2, mail)) return false;
 			if (!insert->bind(3, hash)) return false;
+
+			if (!query->bind(0, login)) return false;
 
 			db::Transaction transaction(m_conn);
 			if (!transaction.begin())
@@ -222,6 +248,20 @@ namespace db
 				return false;
 			}
 			if (!insert->execute()) return false;
+
+			long long _id = -1;
+			c = query->query();
+			if (c && c->next())
+				_id = c->getLongLong(0);
+			if (_id == -1)
+				return false;
+
+			if (!insert_root->bind(0, _id)) return false;
+			if (!update->bind(0, _id)) return false;
+			if (!update->bind(1, _id)) return false;
+
+			if (!insert_root->execute()) return false;
+			if (!update->execute()) return false;
 
 			printf("pass: %s\n", pass);
 			return transaction.commit();
