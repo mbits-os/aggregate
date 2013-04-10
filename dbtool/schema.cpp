@@ -200,7 +200,7 @@ namespace db
 			if (!query.get())
 				return false;
 
-			db::StatementPtr insert_root = m_conn->prepare("INSERT INTO folder (user_id, name) VALUES (?, \"\")");
+			db::StatementPtr insert_root = m_conn->prepare("INSERT INTO folder (user_id, name) VALUES (?, \"root\")");
 			if (!insert_root.get())
 				return false;
 
