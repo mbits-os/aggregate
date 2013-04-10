@@ -27,6 +27,10 @@
 
 #include <fast_cgi/request.hpp>
 
+#if defined(_MSC_VER)
+#define strtoll _strtoi64
+#endif
+
 namespace json
 {
 	std::string escape(const char* in);
@@ -151,6 +155,21 @@ namespace json
 		}
 	};
 
+	template <>
+	struct Json<bool>: JsonBase
+	{
+		Json(const bool& ctx): JsonBase(&ctx) {}
+		bool render(FastCGI::Request& request)
+		{
+			const bool* ctx = (const bool*)m_ctx;
+			if (!ctx)
+				return false;
+
+			request << (*ctx ? "true" : "false");
+			return true;
+		}
+	};
+
 	template <typename T>
 	struct Json< std::list<T> >: JsonBase
 	{
@@ -197,6 +216,26 @@ namespace json
 		bool render(FastCGI::Request& request, const db::CursorPtr& c)
 		{
 			const Member& new_ctx = db::Selector<Member>::get(c, m_column);
+			return json::render(request, new_ctx);
+		}
+		std::string name() const { return m_name; }
+	};
+
+	template <>
+	struct ColumnSelector<db::time_tag>: ColumnSelectorBase
+	{
+		std::string m_name;
+		int m_column;
+
+		ColumnSelector(const std::string& name, int column)
+			: m_name(name)
+			, m_column(column)
+		{
+		}
+
+		bool render(FastCGI::Request& request, const db::CursorPtr& c)
+		{
+			tyme::time_t new_ctx = db::Selector<db::time_tag>::get(c, m_column);
 			return json::render(request, new_ctx);
 		}
 		std::string name() const { return m_name; }
@@ -371,6 +410,7 @@ namespace json
 	type::type(const db::CursorPtr& c): CursorJson<type>(c)
 #define JSON_CURSOR_ADD(name, column, type) add<type>(#name, (column))
 #define JSON_CURSOR_TEXT(name, column) add<const char*>(#name, (column))
+#define JSON_CURSOR_TIME(name, column) add<db::time_tag>(#name, (column))
 #define JSON_CURSOR_L(name, column) add<long>(#name, (column))
 #define JSON_CURSOR_LL(name, column) add<long long>(#name, (column))
 
