@@ -25,43 +25,39 @@
 #include "pch.h"
 #include <handlers.hpp>
 #include <utils.hpp>
+#include "json.hpp"
+
+namespace json
+{
+	struct Subscriptions
+	{
+		db::CursorPtr folders;
+		db::CursorPtr feeds;
+	};
+
+	JSON_CURSOR_RULE(Folders)
+	{
+		JSON_CURSOR_LL(id, 0);
+		JSON_CURSOR_TEXT(title, 1);
+		JSON_CURSOR_TEXT(parent, 2);
+	}
+
+	JSON_CURSOR_RULE(Feeds)
+	{
+		JSON_CURSOR_LL(id, 0);
+		JSON_CURSOR_TEXT(title, 1);
+		JSON_CURSOR_LL(parent, 2);
+		JSON_CURSOR_LL(unread, 3);
+	}
+
+	JSON_RULE(Subscriptions)
+	{
+		JSON_ADD_CURSOR(folders, Folders);
+		JSON_ADD_CURSOR(feeds, Feeds);
+	}
+};
 
 namespace FastCGI { namespace app { namespace reader {
-
-	struct FolderInfo {
-		const char* m_title;
-		const char* m_id;
-		unsigned long long m_unread;
-		const char* m_parent;
-	};
-
-	struct FeedInfo {
-		const char* m_title;
-		const char* m_url;
-		const char* m_feed;
-		unsigned long long m_unread;
-		const char* m_folder;
-	};
-
-	namespace {
-		//hardcoded data for now...
-		FolderInfo folders[] = {
-			{ "fun", "fun", 1 },
-			{ "tech", "tech", 2 },
-			{ "news", "news", 0 },
-		};
-		FeedInfo feeds[] = {
-			{ "Niebezpiecznik.pl", "http://niebezpiecznik.pl/", "http://feeds.feedburner.com/niebezpiecznik/", 2, "tech" },
-			{ "Android Developers Blog", "http://android-developers.blogspot.com/", "http://feeds.feedburner.com/blogspot/hsDu", 0, "tech" },
-			{ "Saturday Morning Breakfast Cereal (updated daily)", "http://www.smbc-comics.com", "http://feeds.feedburner.com/smbc-comics/PvLb", 0, "fun" },
-			{ "TEDTalks (video)", "http://www.ted.com/talks/list", "http://feeds.feedburner.com/tedtalks_video", 0, "fun" },
-			{ "The Big Picture", "http://www.boston.com/bigpicture/", "http://feeds.boston.com/boston/bigpicture/index", 1, "fun" },
-			{ "The Daily WTF", "http://thedailywtf.com/", "http://syndication.thedailywtf.com/TheDailyWtf", 0, "fun" },
-			{ "Has the Large Hadron Collider destroyed the world yet?", "http://www.hasthelargehadroncolliderdestroyedtheworldyet.com/", "http://www.hasthelargehadroncolliderdestroyedtheworldyet.com/atom.xml", 0, "news" },
-			{ "xkcd.com", "http://xkcd.com/", "http://xkcd.com/atom.xml", 0 }
-		};
-		const char* user_id = "07279206485321865861";
-	}
 
 	class SubscriptionPageHandler: public Handler
 	{
@@ -73,43 +69,42 @@ namespace FastCGI { namespace app { namespace reader {
 			return "JSON::Feeds";
 		}
 
-		static void folder(FastCGI::Request& request, const FolderInfo& nfo, bool add_comma) {
-			if (add_comma)
-				request << ",";
-			request << 
-				"{\"title\":\"" << nfo.m_title << "\", "
-				"\"url\": \"user/" << user_id << "/" << nfo.m_id << "\", "
-				"\"unread\": " << nfo.m_unread << ", ";
-			if (nfo.m_parent && *nfo.m_parent)
-				request << "\"parent\": \"" << nfo.m_parent << "\"}";
-			else
-				request << "\"parent\": null}";
-		}
-
-		static void feed(FastCGI::Request& request, const FeedInfo& nfo, bool add_comma) {
-			if (add_comma)
-				request << ",";
-			request << 
-				"{\"title\":\"" << nfo.m_title << "\", "
-				"\"url\": \"" << nfo.m_url << "\", "
-				"\"feed_url\": \"" << nfo.m_feed << "\", "
-				"\"unread\": " << nfo.m_unread << ", ";
-			if (nfo.m_folder && *nfo.m_folder)
-				request << "\"folder\": \"" << nfo.m_folder << "\"}";
-			else
-				request << "\"folder\": null}";
-		}
-
 		void visit(FastCGI::Request& request)
 		{
+			SessionPtr session = request.getSession();
+			db::ConnectionPtr db = request.dbConn();
+
+			auto folders = db->prepare("SELECT folder_id, name, parent FROM parents WHERE user_id=?");
+			if (!folders || !folders->bind(0, session->getId()))
+			{
+				FLOG << (folders ? folders->errorMessage() : db->errorMessage());
+				request.on500();
+			}
+
+			auto feeds = db->prepare("SELECT feed_id, feed, folder_id, count FROM ordered_stats WHERE user_id=? AND type=0");
+			if (!feeds || !feeds->bind(0, session->getId()))
+			{
+				FLOG << (feeds ? feeds->errorMessage() : db->errorMessage());
+				request.on500();
+			}
+
+			json::Subscriptions subs;
+			subs.folders = folders->query();
+			if (!subs.folders)
+			{
+				FLOG << folders->errorMessage();
+				request.on500();
+			}
+
+			subs.feeds = feeds->query();
+			if (!subs.feeds)
+			{
+				FLOG << feeds->errorMessage();
+				request.on500();
+			}
+
 			request.setHeader("Content-Type", "application/json; charset=utf-8");
-			request << "{\"folders\":[";
-			for (size_t i = 0; i < array_size(folders); ++i)
-				folder(request, folders[i], i != 0);
-			request << "], \"feeds\":[";
-			for (size_t i = 0; i < array_size(feeds); ++i)
-				feed(request, feeds[i], i != 0);
-			request << "]}";
+			json::render(request, subs);
 		}
 
 	};
