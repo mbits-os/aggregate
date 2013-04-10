@@ -28,6 +28,40 @@
 #include <http.hpp>
 #include <feed_parser.hpp>
 #include "api_handler.hpp"
+#include "json.hpp"
+
+namespace FastCGI { namespace app { namespace api
+{
+	struct JsonError
+	{
+		std::string error;
+		const char* url;
+	};
+
+	struct SubscribeAnswer
+	{
+		long long feed;
+		long long folder;
+		int position;
+		SubscribeAnswer(): feed(0), folder(0), position(0) {}
+	};
+}}}
+
+namespace json
+{
+	JSON_RULE(FastCGI::app::api::JsonError)
+	{
+		JSON_ADD(error);
+		JSON_ADD(url);
+	}
+
+	JSON_RULE(FastCGI::app::api::SubscribeAnswer)
+	{
+		JSON_ADD(feed);
+		JSON_ADD(folder);
+		JSON_ADD(position);
+	}
+};
 
 namespace FastCGI { namespace app { namespace api
 {
@@ -44,91 +78,59 @@ namespace FastCGI { namespace app { namespace api
 		}
 	}
 
-	std::string escape(const std::string& in)
-	{
-		if (in.empty())
-			return "null";
-
-		std::string out;
-		out.reserve(in.length() * 110 / 100);
-		out.push_back('"');
-		std::for_each(in.begin(), in.end(), [&out](char c)
-		{
-			switch(c)
-			{
-			case '"': out += "\\\""; break;
-			case '\\': out += "\\\\"; break;
-			case '/': out += "\\/"; break;
-			case '\b': out += "\\b"; break;
-			case '\f': out += "\\f"; break;
-			case '\n': out += "\\n"; break;
-			case '\r': out += "\\r"; break;
-			case '\t': out += "\\t"; break;
-			default:
-				//unicode charcters...
-				out.push_back(c);
-			}
-		});
-		out.push_back('"');
-		return out;
-	}
-
 	class Subscribe: public APIOperation
 	{
 	public:
 		void render(SessionPtr session, Request& request, PageTranslation& tr)
 		{
 #if 1
-			long long feed_id = 0;
-			std::string error;
+			SubscribeAnswer answer;
+			JsonError err;
 			param_t url = request.getVariable("url");
-			if (!url) error = tr(lng::LNG_URL_MISSING);
+			if (!url) err.error = tr(lng::LNG_URL_MISSING);
 			else
 			{
 				db::ConnectionPtr db = request.dbConn();
-				feed_id = session->subscribe(db, url);
-				if (feed_id < 0)
+				answer.feed = session->subscribe(db, url);
+				if (answer.feed < 0)
 				{
-					switch(feed_id)
+					switch(answer.feed)
 					{
 					case SERR_INTERNAL_ERROR: request.on500();
-					case SERR_4xx_ANSWER:   error = tr(lng::LNG_FEED_FAILED); break;
-					case SERR_5xx_ANSWER:   error = tr(lng::LNG_FEED_SERVER_FAILED); break;
-					case SERR_OTHER_ANSWER: error = tr(lng::LNG_FEED_ERROR); break;
-					case SERR_NOT_A_FEED:   error = tr(lng::LNG_NOT_A_FEED); break;
+					case SERR_4xx_ANSWER:   err.error = tr(lng::LNG_FEED_FAILED); break;
+					case SERR_5xx_ANSWER:   err.error = tr(lng::LNG_FEED_SERVER_FAILED); break;
+					case SERR_OTHER_ANSWER: err.error = tr(lng::LNG_FEED_ERROR); break;
+					case SERR_NOT_A_FEED:   err.error = tr(lng::LNG_NOT_A_FEED); break;
 					}
 				}
 			}
 
-			long long folder_id = 0;
-			long ord = 0;
-			if (error.empty())
+			if (err.error.empty())
 			{
 				db::ConnectionPtr db = request.dbConn();
 				auto select = db->prepare("SELECT folder_id, ord FROM subscription WHERE feed_id=? AND folder_id IN (SELECT _id FROM folder WHERE user_id=?)");
 				if (!select) request.on500();
-				if (!select->bind(0, feed_id)) request.on500();
+				if (!select->bind(0, answer.feed)) request.on500();
 				if (!select->bind(1, session->getId())) request.on500();
 
 				auto c = select->query();
 				if (!c || !c->next()) request.on500();
 
-				folder_id = c->getLongLong(0);
-				ord = c->getLong(1);
+				answer.folder = c->getLongLong(0);
+				answer.position = c->getLong(1);
 			}
 
 			request.setHeader("Content-Type", "application/json; charset=utf-8");
 
-			if (!error.empty())
+			if (!err.error.empty())
 			{
+				err.url = url;
 				request.setHeader("Status", "400 Bad Request");
-				request << "{\"error\":" << escape(error);
-				if (url) request << ",\"url\":" << escape(url);
-				request << "}";
+				json::render(request, err);
 				request.die();
 			}
 
-			request << "{\"feed\":" << feed_id << ",\"folder\":" << folder_id << ",\"position\":" << ord << "}";
+			json::render(request, answer);
 #else
 			auto xhr = http::XmlHttpRequest::Create();
 			if (!xhr)
