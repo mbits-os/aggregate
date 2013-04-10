@@ -6,6 +6,7 @@
     <None Include="create_projects.py" />
     <None Include="..\dbtool.files" />
     <None Include="..\libenv.files" />
+    <None Include="..\..\strings\site_strings.txt" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="projects.cmd" />

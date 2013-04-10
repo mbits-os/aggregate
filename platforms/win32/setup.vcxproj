@@ -23,6 +23,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemGroup>
+    <None Include="..\..\strings\site_strings.txt" />
     <None Include="..\3rdparty.files" />
     <None Include="..\dbtool.files" />
     <None Include="..\libenv.files" />
