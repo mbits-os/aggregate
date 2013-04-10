@@ -27,6 +27,7 @@
 #include <utils.hpp>
 #include <http.hpp>
 #include <dbconn.hpp>
+#include <stdlib.h>
 #include "api_handler.hpp"
 #include "json.hpp"
 
@@ -51,8 +52,9 @@ namespace FastCGI { namespace app { namespace api
 		const char* url;
 		const char* author;
 		const char* authorLink;
+		tyme::time_t lastUpdate;
 		db::CursorPtr entries;
-		FeedAnswer(): feed(0), page(0), pageLength(PAGE_SIZE) {}
+		FeedAnswer(): feed(0), page(0), pageLength(PAGE_SIZE), lastUpdate(-1) {}
 	};
 
 }}}
@@ -100,6 +102,7 @@ namespace db
 		CURSOR_ADD(2, url);
 		CURSOR_ADD(3, author);
 		CURSOR_ADD(4, authorLink);
+		CURSOR_TIME(5, lastUpdate);
 	}
 };
 
@@ -136,7 +139,7 @@ namespace FastCGI { namespace app { namespace api
 			else
 			{
 				char* _err = nullptr;
-				answer.feed = strtoll(sfeed, &_err, 10);
+				answer.feed = asctoll(sfeed, &_err);
 				if (_err && *_err)
 					err.error = tr(lng::LNG_FEED_UNKNOWN);
 
@@ -146,7 +149,7 @@ namespace FastCGI { namespace app { namespace api
 			if (spage)
 			{
 				char* _err = nullptr;
-				answer.page = (int)strtol(spage, &_err, 10);
+				answer.page = (int)asctoll(spage, &_err);
 				if (_err && *_err)
 					answer.page = 0;
 			}
@@ -158,7 +161,7 @@ namespace FastCGI { namespace app { namespace api
 				if (!transaction.begin())
 					request.on500();
 
-				header = db->prepare("SELECT title, site, feed AS url, author, authorLink FROM feed WHERE _id=?");
+				header = db->prepare("SELECT title, site, feed AS url, author, authorLink, last_update FROM feed WHERE _id=?");
 				if (!header || !header->bind(0, answer.feed))
 				{
 					FLOG << (header ? header->errorMessage() : db->errorMessage());
@@ -174,6 +177,7 @@ namespace FastCGI { namespace app { namespace api
 				else
 				{
 					db::get(headerCursor, answer);
+					request.onLastModified(answer.lastUpdate);
 
 					entries = db->prepare("SELECT _id, title, url, author, authorLink, date, description, contents FROM entry WHERE feed_id=?", answer.page * answer.pageLength, (answer.page + 1) * answer.pageLength);
 					if (!entries || !entries->bind(0, answer.feed))
