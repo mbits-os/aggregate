@@ -1,6 +1,9 @@
 body
 {
     min-height: 100%;
+    padding: 0px;
+    margin: 0px;
+    font-family: sans-serif;
 }
 
 #site-title { font-size: 48px; width: 600px; }
@@ -18,4 +21,34 @@ body
 	font-family: Fontin;
 	font-size: 21px;
 	width: 268px;
+}
+
+#navigation {
+    padding: 0px;
+    margin: 0px;
+    float: left;
+    width: 248px;
+    height: 100px;
+    display: none;
+    border-right: 2px solid #BBB;
+    background: #DDD;
+}
+
+#listing {
+    min-width: 700px;
+    margin-left: 250px;
+    height: 100px;
+    display: none;
+    border-left: 2px solid #DDD;
+    background: #EEE;
+}
+
+#startup 
+{
+    position: fixed;
+    left: 0px;
+    top: 32px;
+    width: 100%;
+    height: 100%;
+    background: url("../images/loader.gif") no-repeat 50% 33%;
 }

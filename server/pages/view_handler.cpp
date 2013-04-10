@@ -36,19 +36,19 @@ namespace FastCGI { namespace app { namespace reader {
 			return "Web UI";
 		}
 
+		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
+		{
+			PageHandler::headElement(session, request, tr);
+			request << "    <script type=\"text/javascript\" src=\""STATIC_RESOURCES"/code/jquery-1.9.1.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\""STATIC_RESOURCES"/code/view.js\"></script>\r\n";
+		}
+
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			param_t QUERY_STRING = request.getParam("QUERY_STRING");
-			if (!QUERY_STRING || !*QUERY_STRING)
-			{
-				request << 
-					"łotewah";
-			}
-			else
-			{
-				request << "<h1>Reading...</h1>";
-				request << "<p>Done</p>";
-			}
+			request << 
+				"              <div id=\"navigation\"></div>\r\n"
+				"              <div id=\"listing\"></div>\r\n"
+				"              <div id=\"startup\"></div>";
 		}
 
 	};
