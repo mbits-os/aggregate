@@ -112,6 +112,26 @@ namespace db
 					.refer("entry")
 					.field("type", std::string(), field_type::INTEGER) // 0 - unread; 1 - starred; ?2 - important?
 					;
+
+				sd.view("parents",
+					"SELECT folder.user_id AS user_id, folder._id AS folder_id, folder.name AS name, parent.name AS parent, folder.ord AS ord "
+					"FROM folder "
+					"LEFT JOIN folder AS parent ON (parent._id = folder.parent) "
+					"ORDER BY parent.name, folder.ord");
+
+				sd.view("state_stats",
+					"SELECT state.user_id AS user_id, entry.feed_id AS feed_id, state.type AS type, count(*) AS count "
+					"FROM state "
+					"LEFT JOIN entry ON (entry._id = state.entry_id) "
+					"GROUP BY state.type, entry.feed_id, state.user_id");
+
+				sd.view("ordered_stats",
+					"SELECT state_stats.user_id AS user_id, subscription.folder_id AS folder_id, subscription.ord AS ord, feed._id AS feed_id, feed.title AS feed, type, count "
+					"FROM subscription "
+					"LEFT JOIN folder ON (subscription.folder_id = folder._id) "
+					"LEFT JOIN feed ON (subscription.feed_id = feed._id) "
+					"LEFT JOIN state_stats ON (state_stats.feed_id = feed._id AND state_stats.user_id = folder.user_id) "
+					"ORDER BY folder_id, type, ord");
 			}
 		};
 
