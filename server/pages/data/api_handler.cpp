@@ -26,6 +26,7 @@
 #include <handlers.hpp>
 #include <utils.hpp>
 #include "api_handler.hpp"
+#include "json.hpp"
 
 namespace FastCGI { namespace app { namespace api
 {
@@ -33,7 +34,12 @@ namespace FastCGI { namespace app { namespace api
 	{
 		param_t op = request.getVariable("op");
 		if (!op)
-			request.on400("Operation is missing");
+		{
+			request.setHeader("Content-Type", "application/json; charset=utf-8");
+			request.setHeader("Status", "400 Operation is missing");
+			request << "{\"error\":\"Operation is missing\"}";
+			request.die();
+		}
 
 		auto _it = m_handlers.find(op);
 		if (_it == m_handlers.end()) return nullptr;
@@ -56,7 +62,12 @@ namespace FastCGI { namespace app { namespace reader {
 		{
 			api::APIOperationPtr ptr = api::Operations::handler(request);
 			if (!ptr)
-				request.on400("Operation not recognized");
+			{
+				request.setHeader("Content-Type", "application/json; charset=utf-8");
+				request.setHeader("Status", "404 Operation not recognized");
+				request << "{\"error\":\"Operation not recognized\",\"op\":" << json::escape(request.getVariable("op")) << "}";
+				request.die();
+			}
 
 			SessionPtr session = request.getSession();
 			PageTranslation tr;
