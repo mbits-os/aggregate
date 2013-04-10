@@ -152,3 +152,7 @@
 	background-position: 0px -72px;
 }
 
+.popup .tb-sub-wrapper {
+    display: none;
+    float: none;
+}

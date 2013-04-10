@@ -48,6 +48,11 @@ namespace FastCGI { namespace app { namespace reader {
 			PageHandler::headElement(session, request, tr);
 			request << "    <style type=\"text/css\">@import url(\"" STATIC_RESOURCES "/css/forms.css\");</style>\r\n";
 		}
+
+		void buildTopMenu(TopMenu::TopBar& menu, SessionPtr session, Request& request, PageTranslation& tr)
+		{
+			menu.left().home("home", 0, tr(lng::LNG_GLOBAL_PRODUCT), tr(lng::LNG_GLOBAL_DESCRIPTION));
+		}
 	};
 
 	class Message: public Control
