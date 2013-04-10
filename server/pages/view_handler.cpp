@@ -39,8 +39,8 @@ namespace FastCGI { namespace app { namespace reader {
 		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			PageHandler::headElement(session, request, tr);
-			request << "    <script type=\"text/javascript\" src=\""STATIC_RESOURCES"/code/jquery-1.9.1.js\"></script>\r\n";
-			request << "    <script type=\"text/javascript\" src=\""STATIC_RESOURCES"/code/view.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/jquery-1.9.1.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/view.js\"></script>\r\n";
 		}
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
