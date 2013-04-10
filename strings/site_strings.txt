@@ -54,3 +54,6 @@ LNG_FEED_FAILED = "Feed could not be found"
 LNG_FEED_SERVER_FAILED = "Feed server did not respond"
 LNG_NOT_A_FEED = "URL does not point to a known feed format"
 LNG_FEED_ERROR = "Unknown error occured while feed was downloaded"
+
+LNG_FEED_MISSING = "Feed parameter is missing"
+LNG_FEED_UNKNOWN = "Feed is unknown"

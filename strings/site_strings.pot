@@ -76,8 +76,16 @@ msgctxt "LNG_FEED_FAILED"
 msgid "Feed could not be found"
 msgstr ""
 
+msgctxt "LNG_FEED_MISSING"
+msgid "Feed parameter is missing"
+msgstr ""
+
 msgctxt "LNG_FEED_SERVER_FAILED"
 msgid "Feed server did not respond"
+msgstr ""
+
+msgctxt "LNG_FEED_UNKNOWN"
+msgid "Feed is unknown"
 msgstr ""
 
 msgctxt "LNG_GLOBAL_DESCRIPTION"
