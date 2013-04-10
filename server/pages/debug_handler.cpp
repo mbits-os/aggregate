@@ -235,13 +235,6 @@ namespace FastCGI { namespace app { namespace reader {
 		const char* getPageTitle(Request&, PageTranslation& tr) { return "Debug"; }
 		void prerender(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			Crypt::session_t hash;
-			Crypt::session("reader.login", hash);
-			request.setCookie("cookie-test", hash, tyme::now() + 86400*60);
-			char lastModified[100];
-			tyme::strftime(lastModified, "%a, %d %b %Y %H:%M:%S GMT", tyme::gmtime(tyme::now()));
-			request.setHeader("Last-Modified", lastModified);
-
 			long long content_size = request.calcStreamSize();
 			if (content_size > -1)
 			{
