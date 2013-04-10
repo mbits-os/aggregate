@@ -40,7 +40,7 @@ namespace json
 	{
 		JSON_CURSOR_LL(id, 0);
 		JSON_CURSOR_TEXT(title, 1);
-		JSON_CURSOR_TEXT(parent, 2);
+		JSON_CURSOR_LL(parent, 2);
 	}
 
 	JSON_CURSOR_RULE(Feeds)
@@ -67,7 +67,7 @@ namespace FastCGI { namespace app { namespace api {
 		{
 			db::ConnectionPtr db = request.dbConn();
 
-			auto folders = db->prepare("SELECT folder_id, name, parent FROM parents WHERE user_id=?");
+			auto folders = db->prepare("SELECT _id, name, parent FROM folder WHERE user_id=?");
 			if (!folders || !folders->bind(0, session->getId()))
 			{
 				FLOG << (folders ? folders->errorMessage() : db->errorMessage());
