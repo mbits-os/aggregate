@@ -11,5 +11,6 @@ server/pages/data/json.hpp
 server/pages/data/json.cpp
 server/pages/data/api_handler.cpp
 server/pages/data/api_subscribe.cpp
-server/pages/data/subscription_handler.cpp
+server/pages/data/api_subscription.cpp
+server/pages/data/api_feed.cpp
 strings/site_strings.txt
