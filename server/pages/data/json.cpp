@@ -25,6 +25,43 @@
 #include "pch.h"
 #include "json.hpp"
 
+long long asctoll(const char* ptr, char** end)
+{
+	if (!ptr) return 0;
+	if (!*ptr)
+	{
+		if (end) *end = (char*)ptr;
+		return 0;
+	}
+
+	long long out = 0;
+	int sign = 1;
+	const char* e = ptr + strlen(ptr);
+	if (ptr < e && (*ptr == '+' || *ptr == '-'))
+	{
+		if (*ptr == '-') sign = -1;
+		++ptr;
+	}
+	while (ptr < e)
+	{
+		if (*ptr >= '0' && *ptr <= '9')
+		{
+			out *= 10;
+			out += *ptr - '0';
+		}
+		else
+		{
+			if (end) *end = (char*)ptr;
+			break;
+		}
+		++ptr;
+	}
+
+	if (sign == -1)
+		out = -out;
+	return out;
+}
+
 namespace json
 {
 	std::string escape(const char* in)

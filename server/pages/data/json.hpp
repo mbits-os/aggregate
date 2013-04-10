@@ -27,9 +27,7 @@
 
 #include <fast_cgi/request.hpp>
 
-#if defined(_MSC_VER)
-#define strtoll _strtoi64
-#endif
+long long asctoll(const char* ptr, char** end);
 
 namespace json
 {
