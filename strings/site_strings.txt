@@ -57,3 +57,7 @@ LNG_FEED_ERROR = "Unknown error occured while feed was downloaded"
 
 LNG_FEED_MISSING = "Feed parameter is missing"
 LNG_FEED_UNKNOWN = "Feed is unknown"
+
+LNG_VIEW_HOME = "Home"
+LNG_VIEW_ALL_ITEMS = "All items"
+LNG_VIEW_SUBSCRIPTIONS = "Subscriptions"

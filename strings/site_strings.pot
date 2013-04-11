@@ -239,3 +239,15 @@ msgstr ""
 msgctxt "LNG_USER_SETTINGS_TITLE"
 msgid "Settings"
 msgstr ""
+
+msgctxt "LNG_VIEW_ALL_ITEMS"
+msgid "All items"
+msgstr ""
+
+msgctxt "LNG_VIEW_HOME"
+msgid "Home"
+msgstr ""
+
+msgctxt "LNG_VIEW_SUBSCRIPTIONS"
+msgid "Subscriptions"
+msgstr ""
