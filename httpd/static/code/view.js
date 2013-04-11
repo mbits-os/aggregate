@@ -23,9 +23,6 @@
  */
 
 var HEADER_HEIGHT = -1;
-var LNG_VIEW_HOME;
-var LNG_VIEW_ALL_ITEMS;
-var LNG_VIEW_SUBSCRIPTIONS;
 var $navigation;
 var $homeLink;
 var $allItems;
@@ -114,7 +111,7 @@ function presentFeed(data) {
         if (entry.title != null)
             title = entry.title;
         if (!title) {
-            title = "(bez tytułu)"; // TODO: translation
+            title = LNG_VIEW_TITLE_MISSING;
         }
 
         $h = $e("h4");
@@ -137,9 +134,28 @@ function presentFeed(data) {
         if (author) {
             $author = $e("div");
             $author.addClass("author");
-            $author.append($t("by ")); // TODO: translation
+            $author.append($t(LNG_VIEW_BY));
             $author.append($t(author));
             $title.append($author);
+        }
+
+        if (entry.categories.length > 0) {
+            $cats = $e("div");
+            $cats.addClass("categories");
+            $cats.append($t(LNG_VIEW_PUBLISHED_UNDER));
+            for (x = 0; x < entry.categories.length; x++) {
+                if (entry.categories.length == 1 || x + 1 < entry.categories.length)
+                    $cats.append($t(" "));
+                else
+                    $cats.append($t(" " + LNG_GENERIC_LIST_LAST + " "));
+                $nobr = $e("nobr");
+                $nobr.append(entry.categories[x]);
+                $term = $e("span");
+                $term.addClass("term");
+                $term.append($nobr);
+                $cats.append($term);
+            }
+            $title.append($cats);
         }
 
         content = "<div class='content'>";
@@ -158,9 +174,12 @@ function showFeed(title, id) {
     $.getJSON("/data/api?" + $.param({ op: "feed", feed: id }))
         .done(function (data, textStatus, xhr) {
             presentFeed(data);
-            $pre = $e("pre");
-            $pre.append($t(print(data, 0)));
-            $listing.append($pre);
+            //$pre = $e("pre");
+            //$pre.append($t(print(data, 0)));
+            //$listing.append($pre);
+            $p = $e("p");
+            $p.append($t(xhr.responseText));
+            $listing.append($p);
         })
         .error(function (xhr, testStatus, error) {
         });
@@ -358,9 +377,6 @@ $(function () {
     $homeLink = $("#home", $navigation);
     $allItems = $("#all-items", $navigation);
     $subscriptions = $("#subscriptions", $navigation);
-    LNG_VIEW_HOME = $homeLink.text();
-    LNG_VIEW_ALL_ITEMS = $allItems.text();
-    LNG_VIEW_SUBSCRIPTIONS = $subscriptions.text();
 
     window.onresize = resizePanes;
     resizePanes();

@@ -38,7 +38,11 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			std::string culture = tr(lng::CULTURE);
+			std::transform(culture.begin(), culture.end(), culture.begin(), [](char c) { return c == '-' ? '_' : c; });
+
 			PageHandler::headElement(session, request, tr);
+			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/lang/client-" << culture << ".js\"></script>\r\n";
 			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/view.js\"></script>\r\n";
 		}
 
@@ -47,9 +51,9 @@ namespace FastCGI { namespace app { namespace reader {
 			request << 
 				"<div id=\"navigation\">"
 					"<ul>"
-						"<li id=\"home\" class=\"section-link\">" << tr(lng::LNG_VIEW_HOME) << "</li>"
-						"<li id=\"all-items\" class=\"section-link\">" << tr(lng::LNG_VIEW_ALL_ITEMS) << "</li>"
-						"<li id=\"subscriptions\" class=\"section-link\"><span class=\"section-chevron\"></span>" << tr(lng::LNG_VIEW_SUBSCRIPTIONS) << "</li>"
+						"<li id=\"home\" class=\"section-link\"></li>"
+						"<li id=\"all-items\" class=\"section-link\"></li>"
+						"<li id=\"subscriptions\" class=\"section-link\"><span class=\"section-chevron\"></span></li>"
 					"</ul>"
 				"</div>"
 				"<div id=\"listing\"></div>"
