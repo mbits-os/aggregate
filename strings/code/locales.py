@@ -182,7 +182,8 @@ def writeDefines(strings, path):
 namespace lng
 {
 \tenum LNG
-\t{"""
+\t{
+\t\tCULTURE = 0, // ISO code for the culture"""
     for key in keys:
         print >>f, "\t\t%s = %s, // %s" % (key, i, " ".join(strings[key].content.split("\n")))
         i += 1
