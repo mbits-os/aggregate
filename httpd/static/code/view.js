@@ -34,6 +34,19 @@ var $listing;
 var rootFolder;
 var $selected = null;
 
+function $e(name) { return $(document.createElement(name)); }
+function $t(text) { return $(document.createTextNode(text)); }
+
+String.prototype.repeat = function(count) {
+    if (count < 1) return '';
+    var result = '', pattern = this.valueOf();
+    while (count > 0) {
+        if (count & 1) result += pattern;
+        count >>= 1, pattern += pattern;
+    }
+    return result;
+};
+
 function resizePanes() {
     var windowHeight = ($(window).height() - HEADER_HEIGHT);
     $navigation.css({ height: windowHeight + "px" });
@@ -41,9 +54,19 @@ function resizePanes() {
     $("body").css({ 'min-height': $(window).height() + "px" });
 }
 
-function makeHeader(title) {
-    $h = $(document.createElement("h3"));
-    $h.append($(document.createTextNode(title)));
+function makeHeader(title, href) {
+    $h = $e("h3");
+    $h.addClass("feed-title");
+    if (href == null)
+        $h.append($t(title));
+    else {
+        $a = $e("a");
+        $a.attr("href", href);
+        $a.attr("target", "_blank");
+        $a.append($t(title + " »"));
+        $h.append($a);
+    }
+
     $listing.append($h);
 }
 
@@ -51,8 +74,96 @@ function showMixed(title, id) {
     makeHeader(title);
 }
 
+function print(json, depth) {
+    if (depth > 3) return "...";
+    if (json == null) return "<null>";
+    if (typeof json == "string") return json;
+    if (typeof json == "boolean") return json ? "true" : "false";
+    if (typeof json == "number") return "" + json;
+    if (json instanceof Array) {
+        var s = "[\n";
+        d = "    ".repeat(depth + 1);
+        for (i = 0; i < json.length; ++i) {
+            s += d + print(json[i], depth + 1) + "\n";
+        }
+        return s + "    ".repeat(depth) + "]\n";
+    }
+
+    var s = "{\n";
+    d = "    ".repeat(depth + 1);
+    for (x in json) {
+        s += d + x + ": " + print(json[x], depth + 1) + "\n";
+    }
+    return s + "    ".repeat(depth) + "}\n";
+}
+
+function presentFeed(data) {
+    $listing.empty();
+    makeHeader(data.title, data.site);
+    for (i = data.entries.length; i > 0; --i) {
+        var entry = data.entries[i - 1];
+        $entry = $e("div");
+        $listing.append($entry);
+
+        $entry.addClass("entry-container");
+        $title = $e("div");
+        $title.addClass("entry-title");
+        $entry.append($title);
+
+        title = "";
+        if (entry.title != null)
+            title = entry.title;
+        if (!title) {
+            title = "(bez tytułu)"; // TODO: translation
+        }
+
+        $h = $e("h4");
+        if (entry.url != null) {
+            $a = $e("a");
+            $a.attr("href", entry.url);
+            $a.attr("target", "_blank");
+            $a.append($t(title));
+            $h.append($a);
+        } else $h.append($t(title));
+        $title.append($h);
+
+        author = "";
+        if (entry.author || entry.authorLink) {
+            if (entry.author) author = entry.author;
+            if (entry.author && entry.authorLink) author += " ";
+            if (entry.authorLink) author += entry.authorLink;
+        }
+
+        if (author) {
+            $author = $e("div");
+            $author.addClass("author");
+            $author.append($t("by ")); // TODO: translation
+            $author.append($t(author));
+            $title.append($author);
+        }
+
+        content = "<div class='content'>";
+        if (entry.contents != null)
+            content += entry.contents;
+        else if (entry.description != null)
+            content += entry.description;
+        content += "</div>";
+        $entry.append($(content));
+    }
+}
+
 function showFeed(title, id) {
     makeHeader(title);
+    $listing.append($t("/data/api?" + $.param({ op: "feed", feed: id })));
+    $.getJSON("/data/api?" + $.param({ op: "feed", feed: id }))
+        .done(function (data, textStatus, xhr) {
+            presentFeed(data);
+            $pre = $e("pre");
+            $pre.append($t(print(data, 0)));
+            $listing.append($pre);
+        })
+        .error(function (xhr, testStatus, error) {
+        });
 }
 
 function selectItem(anchor) {
@@ -70,11 +181,11 @@ function selectItem(anchor) {
     $next.trigger("select");
 }
 
-function navItem($e, title, unread, chevron, icon, onselect) {
-    $a = $(document.createElement("a"));
+function navItem($element, title, unread, chevron, icon, onselect) {
+    $a = $e("a");
     $a.addClass("nav-link");
     if (onselect != null) {
-        $e.on("select", onselect);
+        $element.on("select", onselect);
         $a.click(function (ev) {
             selectItem(this);
             ev.stopImmediatePropagation();
@@ -82,7 +193,7 @@ function navItem($e, title, unread, chevron, icon, onselect) {
         $a.css({ cursor: "pointer" });
     }
     if (chevron != null) {
-        var $chevron = $(document.createElement("span"));
+        var $chevron = $e("span");
         $chevron.addClass(chevron);
         $a.append($chevron);
         $chevron.css({ cursor: "pointer" });
@@ -97,31 +208,31 @@ function navItem($e, title, unread, chevron, icon, onselect) {
         });
     }
     if (icon != null) {
-        var $chevron = $(document.createElement("span"));
+        var $chevron = $e("span");
         $chevron.addClass(icon);
         $a.append($chevron);
     }
 
-    var $text = $(document.createTextNode(title));
+    var $text = $t(title);
     if (unread != 0) {
-        var $bold = $(document.createElement("strong"));
+        var $bold = $e("strong");
         $bold.append($text);
-        var $label = $(document.createElement("span"));
+        var $label = $e("span");
         $label.append($bold);
         $label.addClass("label");
         $a.append($label);
         $text = $(document.createTextNode("(" + unread + ")"));
     }
 
-    var $t = $(document.createElement("span"));
-    $t.append($text);
-    $t.addClass("label");
-    $a.append($t);
-    $e.append($a);
+    var $tt = $e("span");
+    $tt.append($text);
+    $tt.addClass("label");
+    $a.append($tt);
+    $element.append($a);
 }
 
 function navFolder(folder) {
-    var $li = $(document.createElement("li"));
+    var $li = $e("li");
     $li.addClass("feed-folder");
     $li.attr("id", "feed-folder-" + folder.id);
 
@@ -136,7 +247,7 @@ function navFolder(folder) {
 }
 
 function navFeed(feed, parent) {
-    var $li = $(document.createElement("li"));
+    var $li = $e("li");
     $li.addClass("feed-link");
     $li.attr("id", "feed-" + parent + "-" + feed.id);
 

@@ -3,7 +3,7 @@ body
     min-height: 100%;
     padding: 0px;
     margin: 0px;
-    font:normal 14px/32px sans-serif;
+    font:normal 13px/21px sans-serif;
 }
 
 #header { padding-top: 26px; height: 120px; }
@@ -176,4 +176,16 @@ body
 ul.closed
 {
     display: none;
+}
+
+/**********************************************
+ *
+ * LISTING
+ *
+ **********************************************/
+
+.feed-title a 
+{
+    color: black;
+    text-decoration: none;
 }
