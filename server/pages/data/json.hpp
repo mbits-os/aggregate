@@ -239,6 +239,36 @@ namespace json
 		std::string name() const { return m_name; }
 	};
 
+	template <typename SubcursorJson>
+	struct SubquerySelector: ColumnSelectorBase
+	{
+		std::string m_name;
+		std::string m_query;
+
+		SubquerySelector(const std::string& name, const std::string& query)
+			: m_name(name)
+			, m_query(query)
+		{
+		}
+
+		bool render(FastCGI::Request& request, const db::CursorPtr& c)
+		{
+			auto conn = c->getConnection();
+			if (!conn) return false;
+
+			auto index = db::Selector<long long>::get(c, 0);
+			auto stmt = conn->prepare(m_query.c_str());
+			if (!stmt || !stmt->bind(0, index))
+				return false;
+
+			auto subc = stmt->query();
+			if (!subc) return false;
+
+			return SubcursorJson(subc).render(request);
+		}
+		std::string name() const { return m_name; }
+	};
+
 	template <typename Type>
 	struct CursorJson: JsonBase
 	{
@@ -250,10 +280,28 @@ namespace json
 			m_selectors.push_back(std::make_shared< ColumnSelector<Member> >(name, column));
 		}
 
+		template <typename SubcursorJson>
+		void addSubquery(const std::string& name, const std::string& query)
+		{
+			m_selectors.push_back(std::make_shared< SubquerySelector<SubcursorJson> >(name, query));
+		}
+
 		bool entireCursor() const { return true; }
+		bool entryIsScalar() const { return false; }
 
 		bool renderCurrent(FastCGI::Request& request, const db::CursorPtr& c)
 		{
+			if (static_cast<Type*>(this)->entryIsScalar())
+			{
+				auto cur = m_selectors.begin(), end = m_selectors.end();
+				if (cur == end) return false;
+
+				ColumnSelectorBasePtr& selector = *cur++;
+				if (cur != end) return false;
+
+				return selector->render(request, c);
+			}
+
 			request << "{";
 			bool first = true;
 			auto cur = m_selectors.begin(), end = m_selectors.end();
@@ -411,5 +459,6 @@ namespace json
 #define JSON_CURSOR_TIME(name, column) add<db::time_tag>(#name, (column))
 #define JSON_CURSOR_L(name, column) add<long>(#name, (column))
 #define JSON_CURSOR_LL(name, column) add<long long>(#name, (column))
+#define JSON_CURSOR_SUBQUERY(name, cursorType, query) addSubquery<cursorType>(#name, query);
 
 #endif //__JSON_HPP__
