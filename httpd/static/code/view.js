@@ -97,8 +97,8 @@ function print(json, depth) {
 function presentFeed(data) {
     $listing.empty();
     makeHeader(data.title, data.site);
-    for (i = data.entries.length; i > 0; --i) {
-        var entry = data.entries[i - 1];
+    for (i = 0; i < data.entries.length; ++i) {
+        var entry = data.entries[i];
         $entry = $e("div");
         $listing.append($entry);
 
@@ -132,7 +132,7 @@ function presentFeed(data) {
         }
 
         if (author) {
-            $author = $e("div");
+            var $author = $e("div");
             $author.addClass("author");
             $author.append($t(LNG_VIEW_BY));
             $author.append($t(author));
@@ -140,7 +140,7 @@ function presentFeed(data) {
         }
 
         if (entry.categories.length > 0) {
-            $cats = $e("div");
+            var $cats = $e("div");
             $cats.addClass("categories");
             $cats.append($t(LNG_VIEW_PUBLISHED_UNDER));
             for (x = 0; x < entry.categories.length; x++) {
@@ -148,9 +148,9 @@ function presentFeed(data) {
                     $cats.append($t(" "));
                 else
                     $cats.append($t(" " + LNG_GENERIC_LIST_LAST + " "));
-                $nobr = $e("nobr");
+                var $nobr = $e("nobr");
                 $nobr.append(entry.categories[x]);
-                $term = $e("span");
+                var $term = $e("span");
                 $term.addClass("term");
                 $term.append($nobr);
                 $cats.append($term);
@@ -165,6 +165,42 @@ function presentFeed(data) {
             content += entry.description;
         content += "</div>";
         $entry.append($(content));
+
+        if (entry.enclosures.length > 0) {
+            var $enc = $e("div");
+            $enc.addClass("enclosures");
+            var $ul = $e("ul");
+            for (x = 0; x < entry.enclosures.length; ++x) {
+                var enclosure = entry.enclosures[x];
+                var $li = $e("li");
+                var $a = $e("a");
+                $a.attr("href", enclosure.url);
+                $a.append($t(enclosure.url));
+                $li.append($a);
+                $ul.append($li);
+                if (enclosure.mime.substr(0, 6) == "video/") {
+                    var v = document.createElement("video");
+                    if (typeof v != "undefined") {
+                        if (v.canPlayType(enclosure.mime) != "") {
+                            var $v = $(v);
+                            $v.attr("src", enclosure.url);
+                            $enc.append($v);
+                        }
+                    }
+                } else if (enclosure.mime.substr(0, 6) == "audio/") {
+                    var v = document.createElement("audio");
+                    if (typeof v != "undefined") {
+                        if (v.canPlayType(enclosure.mime) != "") {
+                            var $v = $(v);
+                            $v.attr("src", enclosure.url);
+                            $enc.append($v);
+                        }
+                    }
+                }
+            }
+            $enc.append($ul);
+            $entry.append($enc);
+        }
     }
 }
 
