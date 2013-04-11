@@ -23,32 +23,101 @@
  */
 
 var HEADER_HEIGHT = -1;
+var LNG_VIEW_HOME;
 var LNG_VIEW_ALL_ITEMS;
 var LNG_VIEW_SUBSCRIPTIONS;
 var $navigation;
+var $homeLink;
 var $allItems;
 var $subscriptions;
-var listingPane;
+var $listing;
 var rootFolder;
+var $selected = null;
 
 function resizePanes() {
     var windowHeight = ($(window).height() - HEADER_HEIGHT);
     $navigation.css({ height: windowHeight + "px" });
-    listingPane.css({ height: windowHeight + "px" });
+    $listing.css({ height: windowHeight + "px" });
     $("body").css({ 'min-height': $(window).height() + "px" });
 }
 
-function navTitle($e, title, unread) {
+function makeHeader(title) {
+    $h = $(document.createElement("h6"));
+    $h.append($(document.createTextNode(title)));
+    $listing.append($h);
+}
+
+function showMixed(title, id) {
+    makeHeader(title);
+}
+
+function showFeed(title, id) {
+    makeHeader(title);
+}
+
+function selectItem(anchor) {
+    $next = $(anchor).parent();
+
+    if ($selected == $next)
+        return;
+
+    if ($selected != null)
+        $selected.toggleClass("selected");
+    $selected = $next;
+    $selected.toggleClass("selected");
+    $listing.empty();
+
+    $next.trigger("select");
+}
+
+function navItem($e, title, unread, chevron, icon, onselect) {
+    $a = $(document.createElement("a"));
+    $a.addClass("nav-link");
+    if (onselect != null) {
+        $e.on("select", onselect);
+        $a.click(function (ev) {
+            selectItem(this);
+            ev.stopImmediatePropagation();
+        });
+        $a.css({ cursor: "pointer" });
+    }
+    if (chevron != null) {
+        var $chevron = $(document.createElement("span"));
+        $chevron.addClass(chevron);
+        $a.append($chevron);
+        $chevron.css({ cursor: "pointer" });
+        $chevron.click(function (ev) {
+            $(this).toggleClass("closed");
+            //one for "a", second for "li"
+            $("ul", $(this).parent().parent()).each(function () {
+                $(this).toggleClass("closed");
+                return false;
+            });
+            ev.stopImmediatePropagation();
+        });
+    }
+    if (icon != null) {
+        var $chevron = $(document.createElement("span"));
+        $chevron.addClass(icon);
+        $a.append($chevron);
+    }
+
     var $text = $(document.createTextNode(title));
     if (unread != 0) {
         var $bold = $(document.createElement("strong"));
         $bold.append($text);
-        $text = $(document.createTextNode(" (" + unread + ")"));
-        $e.append($bold);
-        $e.append($text);
+        var $label = $(document.createElement("span"));
+        $label.append($bold);
+        $label.addClass("label");
+        $a.append($label);
+        $text = $(document.createTextNode("(" + unread + ")"));
     }
-    else
-        $e.append($text);
+
+    var $t = $(document.createElement("span"));
+    $t.append($text);
+    $t.addClass("label");
+    $a.append($t);
+    $e.append($a);
 }
 
 function navFolder(folder) {
@@ -56,15 +125,10 @@ function navFolder(folder) {
     $li.addClass("feed-folder");
     $li.attr("id", "feed-folder-" + folder.id);
 
-    var $chevron = $(document.createElement("span"));
-    $chevron.addClass("folder-chevron");
-    $li.append($chevron);
-
-    var $icon = $(document.createElement("span"));
-    $icon.addClass("folder-icon");
-    $li.append($icon);
-
-    navTitle($li, folder.title, folder.unread);
+    navItem($li, folder.title, folder.unread, "folder-chevron", "folder-icon", function () {
+        showMixed(folder.title, folder.id);
+        ev.stopImmediatePropagation();
+    });
 
     //append menu
     $li.append(navList(folder));
@@ -76,11 +140,10 @@ function navFeed(feed, parent) {
     $li.addClass("feed-link");
     $li.attr("id", "feed-" + parent + "-" + feed.id);
 
-    var $icon = $(document.createElement("span"));
-    $icon.addClass("feed-icon");
-    $li.append($icon);
-
-    navTitle($li, feed.title, feed.unread);
+    navItem($li, feed.title, feed.unread, null, "feed-icon", function () {
+        showFeed(feed.title, feed.id);
+        ev.stopImmediatePropagation();
+    });
 
     //append menu
     return $li;
@@ -96,18 +159,6 @@ function navList(list) {
         $ul.append(navFeed(list.feeds[i], list.id));
     }
     return $ul;
-}
-
-function toggleChevron() {
-    $(this).css({ cursor: "pointer" });
-    $(this).click(function (ev) {
-        $(this).toggleClass("closed");
-        $("ul", $(this).parent()).each(function () {
-            $(this).toggleClass("closed");
-            return false;
-        });
-        ev.stopImmediatePropagation();
-    });
 }
 
 function toggleSection() {
@@ -172,63 +223,49 @@ function updateNavigation(data) {
         }
 
         $subscriptions.empty();
+        $allItems.empty();
+        navItem($subscriptions, LNG_VIEW_SUBSCRIPTIONS, 0, "section-chevron");
+
         if (rootId != -1) {
-            var $chevron = $(document.createElement("span"));
-            $chevron.addClass("section-chevron");
-            $subscriptions.append($chevron);
-
-            var $span = $(document.createElement("span"));
-            $span.addClass("title");
-            $span.append($(document.createTextNode(LNG_VIEW_SUBSCRIPTIONS)));
-            $subscriptions.append($span);
-            $subscriptions.append($(navList(data.folders[rootId])));
-            $allItems.empty();
-            navTitle($allItems, LNG_VIEW_ALL_ITEMS, data.folders[rootId].unread);
-
-            $(".section-chevron", $navigation).each(toggleChevron);
-            $(".folder-chevron", $navigation).each(toggleChevron);
-
-            $("span.title", $subscriptions).each(function () {
-                $(this).css({ cursor: "pointer" });
-                $(this).click(function () {
-                    $(".section-chevron", $(this).parent()).each(function () {
-                        $(this).toggleClass("closed");
-                        return false;
-                    });
-                    $("ul", $(this).parent()).each(function () {
-                        $(this).toggleClass("closed");
-                        return false;
-                    });
-                    ev.stopImmediatePropagation();
-                });
-                return false;
+            rootFolder = data.folders[rootId];
+            $subscriptions.append($(navList(rootFolder)));
+            navItem($allItems, LNG_VIEW_ALL_ITEMS, data.folders[rootId].unread, null, null, function () {
+                showMixed(LNG_VIEW_ALL_ITEMS, rootFolder.id);
+                ev.stopImmediatePropagation();
             });
         }
-        //alert(s);
+        else
+            navItem($allItems, LNG_VIEW_ALL_ITEMS, 0);
     } catch (e) { alert(e); }
 }
 
 $(function () {
     HEADER_HEIGHT = $("#topbar").height();
     $navigation = $("#navigation");
-    listingPane = $("#listing");
+    $listing = $("#listing");
 
+    $homeLink = $("#home", $navigation);
     $allItems = $("#all-items", $navigation);
     $subscriptions = $("#subscriptions", $navigation);
+    LNG_VIEW_HOME = $homeLink.text();
     LNG_VIEW_ALL_ITEMS = $allItems.text();
     LNG_VIEW_SUBSCRIPTIONS = $subscriptions.text();
 
     window.onresize = resizePanes;
     resizePanes();
+    $homeLink.empty();
+    navItem($homeLink, LNG_VIEW_HOME, 0, null, null, function () {
+    });
 
     $.ajax("/data/api?op=subscription").done(function (data, textStatus, xhr) {
         updateNavigation(data);
+        $("a", $homeLink).trigger("click");
         $("#startup").css({ display: "none" });
         $navigation.css({ display: "block" });
-        listingPane.css({ display: "block" });
+        $listing.css({ display: "block" });
     }).error(function (xhr, testStatus, error) {
         $("#startup").css({ display: "none" });
         $navigation.css({ display: "block" });
-        listingPane.css({ display: "block" });
+        $listing.css({ display: "block" });
     });
 });

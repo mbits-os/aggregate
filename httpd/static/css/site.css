@@ -6,22 +6,7 @@ body
     font:normal 14px/32px sans-serif;
 }
 
-#site-title { font-size: 48px; width: 600px; }
 #header { padding-top: 26px; height: 120px; }
-
-#site-title a { 
-	color: black;
-	text-decoration: none;
-	font-weight: 700;
-	font-family: FontinSmallCaps;
-}
-
-#site-description {
-	color: #e8d2a6;
-	font-family: Fontin;
-	font-size: 21px;
-	width: 268px;
-}
 
 #navigation {
     padding: 0px;
@@ -30,17 +15,17 @@ body
     width: 248px;
     height: 100px;
     display: none;
-    border-right: 2px solid #BBB;
-    background: #DDD;
+    background: #FFF;
+    overflow: auto;
 }
 
 #listing {
     min-width: 700px;
-    margin-left: 250px;
+    margin-left: 258px;
     height: 100px;
     display: none;
-    border-left: 2px solid #DDD;
-    background: #EEE;
+    background: #FFF;
+    overflow: auto;
 }
 
 #startup 
@@ -74,6 +59,68 @@ body
     list-style: none outside none;
 }
 
+.nav-link
+{
+    text-decoration: none;
+    color: black;
+    background: inherit;
+    width: 99%;
+    display: block;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    border-left: 2px solid white;
+}
+
+.nav-link:hover
+{
+    background: #EEF;
+    border-left: 2px solid black;
+}
+
+.selected > .nav-link
+{
+    color: #C00;
+    border-left: 2px solid #C00;
+}
+
+.nav-link .label
+{
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.label + .label
+{
+    margin-left: 0.3em;
+}
+
+#navigation > ul > li > .nav-link
+{
+    margin-left: -8px;
+    padding-left: 8px;
+}
+
+#navigation > ul > li > ul > li > .nav-link 
+{
+    margin-left: -24px;
+    padding-left: 24px;
+}
+
+#navigation > ul > li > ul > li > ul > li > .nav-link 
+{
+    margin-left: -40px;
+    padding-left: 40px;
+}
+
+#navigation > ul > li > ul > li > ul > li > ul > li > .nav-link 
+{
+    margin-left: -56px;
+    padding-left: 56px;
+}
+
 .section-chevron, .folder-chevron, .folder-icon, .feed-icon {
 	background-image: url("/css/images/view-sprites.png");
 	background-repeat: no-repeat;
@@ -98,7 +145,7 @@ body
 	background-position: 0px 0px;
 }
 
-.folder-icon.selected { 
+.selected > .nav-link > .folder-icon { 
 	background-position: 0px -24px;
 }
 
@@ -106,7 +153,7 @@ body
 	background-position: 0px -48px;
 }
 
-.feed-link:hover .feed-icon, .feed-link:selected .feed-icon, .feed-icon:hover, .feed-icon.selected { 
+.selected > .nav-link > .feed-icon { 
 	background-position: 0px -72px;
 }
 
