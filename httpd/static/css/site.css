@@ -3,7 +3,7 @@ body
     min-height: 100%;
     padding: 0px;
     margin: 0px;
-    font-family: sans-serif;
+    font:normal 14px/32px sans-serif;
 }
 
 #site-title { font-size: 48px; width: 600px; }
@@ -51,4 +51,82 @@ body
     width: 100%;
     height: 100%;
     background: url("../images/loader.gif") no-repeat 50% 33%;
+}
+
+#navigation ul
+{
+    padding-left: 16px;
+    margin: 0px;
+}
+
+#navigation > ul
+{
+    padding-left: 8px;
+}
+
+.section-link
+{
+    padding: 8px 0px;
+}
+
+#navigation li 
+{
+    list-style: none outside none;
+}
+
+.section-chevron, .folder-chevron, .folder-icon, .feed-icon {
+	background-image: url("/css/images/view-sprites.png");
+	background-repeat: no-repeat;
+	float: left;
+	position: relative;
+	height: 24px;
+	width: 24px;
+}
+
+.folder-chevron 
+{
+    width: 16px;
+}
+
+.section-link, .feed-folder, .feed-link
+{
+    line-height: 24px;
+    padding-top:4px;
+}
+
+.folder-icon { 
+	background-position: 0px 0px;
+}
+
+.folder-icon.selected { 
+	background-position: 0px -24px;
+}
+
+.feed-icon { 
+	background-position: 0px -48px;
+}
+
+.feed-link:hover .feed-icon, .feed-link:selected .feed-icon, .feed-icon:hover, .feed-icon.selected { 
+	background-position: 0px -72px;
+}
+
+.section-chevron { 
+	background-position: 0px -96px;
+}
+
+.section-chevron.closed { 
+	background-position: 0px -120px;
+}
+
+.folder-chevron { 
+	background-position: 0px -144px;
+}
+
+.folder-chevron.closed { 
+	background-position: 0px -168px;
+}
+
+ul.closed
+{
+    display: none;
 }

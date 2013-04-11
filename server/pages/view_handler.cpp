@@ -45,9 +45,15 @@ namespace FastCGI { namespace app { namespace reader {
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			request << 
-				"              <div id=\"navigation\"></div>\r\n"
-				"              <div id=\"listing\"></div>\r\n"
-				"              <div id=\"startup\"></div>";
+				"<div id=\"navigation\">"
+					"<ul>"
+						"<li id=\"home\" class=\"section-link\">" << tr(lng::LNG_VIEW_HOME) << "</li>"
+						"<li id=\"all-items\" class=\"section-link\">" << tr(lng::LNG_VIEW_ALL_ITEMS) << "</li>"
+						"<li id=\"subscriptions\" class=\"section-link\"><span class=\"section-chevron\"></span>" << tr(lng::LNG_VIEW_SUBSCRIPTIONS) << "</li>"
+					"</ul>"
+				"</div>"
+				"<div id=\"listing\"></div>"
+				"<div id=\"startup\"></div>";
 		}
 
 	};
