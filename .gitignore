@@ -114,3 +114,5 @@ httpd/reedr.log
 /3rd/openssl/crypto/x86cpuid.asm
 /3rd/openssl/ms/uptable.asm
 
+
+*.xcf
