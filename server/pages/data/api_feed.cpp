@@ -198,7 +198,7 @@ namespace FastCGI { namespace app { namespace api
 					db::get(headerCursor, answer);
 					request.onLastModified(answer.lastUpdate);
 
-					entries = db->prepare("SELECT _id, title, url, author, authorLink, date, description, contents FROM entry WHERE feed_id=? ORDER BY date DESC", answer.page * answer.pageLength, (answer.page + 1) * answer.pageLength);
+					entries = db->prepare("SELECT _id, title, url, author, authorLink, date, description, contents FROM entry WHERE feed_id=? ORDER BY _id DESC", answer.page * answer.pageLength, (answer.page + 1) * answer.pageLength);
 					if (!entries || !entries->bind(0, answer.feed))
 					{
 						FLOG << (entries ? entries->errorMessage() : db->errorMessage());
