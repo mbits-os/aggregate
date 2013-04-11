@@ -22,37 +22,35 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include <handlers.hpp>
+function setupPopup(name) {
+    try {
+        var $popup = $("li#" + name);
+        if ($popup.attr("id") != name) // auth page - no user popup
+            return;
+        var $link = null;
+        var $div = null;
+        $("a.bar-item", $popup).each(function (index, domElem) {
+            if ($link == null) {
+                $link = $(domElem);
+                return false;
+            }
+        });
+        $("div.tb-sub-wrapper", $popup).each(function (index, domElem) {
+            if ($div == null) {
+                $div = $(domElem);
+                return false;
+            }
+        });
 
-namespace FastCGI { namespace app { namespace reader {
 
-	class WebUIPageHandler: public PageHandler
-	{
-	public:
-
-		std::string name() const
-		{
-			return "Web UI";
-		}
-
-		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
-		{
-			PageHandler::headElement(session, request, tr);
-			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/view.js\"></script>\r\n";
-		}
-
-		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
-		{
-			request << 
-				"              <div id=\"navigation\"></div>\r\n"
-				"              <div id=\"listing\"></div>\r\n"
-				"              <div id=\"startup\"></div>";
-		}
-
-	};
-
-}}} // FastCGI::app::reader
-
-REGISTER_HANDLER("/view/", FastCGI::app::reader::WebUIPageHandler);
-REGISTER_REDIRECT("/view", "/view/");
+        $link.removeAttr("href");
+        $link.css({ cursor: "pointer" });
+        $link.click(function () {
+            $popup.toggleClass("visible-popup-item");
+            $div.toggleClass("visible-popup");
+        });
+    } catch (e) { alert(e); }
+}
+$(function () {
+    setupPopup("topbar-menu-user");
+});
