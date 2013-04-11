@@ -61,3 +61,7 @@ LNG_FEED_UNKNOWN = "Feed is unknown"
 LNG_VIEW_HOME = "Home"
 LNG_VIEW_ALL_ITEMS = "All items"
 LNG_VIEW_SUBSCRIPTIONS = "Subscriptions"
+LNG_VIEW_TITLE_MISSING = "(no title)"
+LNG_VIEW_BY = "by "
+LNG_VIEW_PUBLISHED_UNDER = "published under:"
+LNG_GENERIC_LIST_LAST = "and";

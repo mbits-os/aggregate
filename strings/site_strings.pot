@@ -88,6 +88,10 @@ msgctxt "LNG_FEED_UNKNOWN"
 msgid "Feed is unknown"
 msgstr ""
 
+msgctxt "LNG_GENERIC_LIST_LAST"
+msgid "and"
+msgstr ""
+
 msgctxt "LNG_GLOBAL_DESCRIPTION"
 msgid "stay up to date"
 msgstr ""
@@ -244,10 +248,22 @@ msgctxt "LNG_VIEW_ALL_ITEMS"
 msgid "All items"
 msgstr ""
 
+msgctxt "LNG_VIEW_BY"
+msgid "by "
+msgstr ""
+
 msgctxt "LNG_VIEW_HOME"
 msgid "Home"
 msgstr ""
 
+msgctxt "LNG_VIEW_PUBLISHED_UNDER"
+msgid "published under:"
+msgstr ""
+
 msgctxt "LNG_VIEW_SUBSCRIPTIONS"
 msgid "Subscriptions"
+msgstr ""
+
+msgctxt "LNG_VIEW_TITLE_MISSING"
+msgid "(no title)"
 msgstr ""
