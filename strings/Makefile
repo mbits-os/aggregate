@@ -1,5 +1,7 @@
 LANGS=pl-PL en
 DEFINES_FILE=../libenv/includes/site_strings.h
+CLIENT_FILES=../httpd/static/code/lang/
+EXPORTS=client.strings
 
 Q=@
 
@@ -12,6 +14,7 @@ MSGMERGE=msgmerge
 DEPLOY=python ./code/extract.py
 EXTRACT=python ./code/strings.py
 DEFINE=python ./code/defines.py
+EXPORT=python ./code/export.py
 MKDIR=mkdir -p
 CP=cp -f
 RM=rm -f
@@ -20,11 +23,12 @@ SAVE_LANGS = $(subst -,_,$(LANGS))
 POS = $(addsuffix /site_strings.po,$(SAVE_LANGS))
 MOS = $(addsuffix /site_strings.mo,$(SAVE_LANGS))
 LNGS = $(addprefix ../httpd/locales/, $(addsuffix /site_strings.lng,$(SAVE_LANGS)))
+EXPORTED = $(addprefix $(CLIENT_FILES), $(addsuffix .js, $(foreach file, $(patsubst %.strings,%-,$(EXPORTS)), $(foreach lang, $(SAVE_LANGS), $(file)$(lang)))))
 
 get-locale=$(subst _,-,$(word 1,$(subst /, ,$1)))
 get-locale-2=$(subst _,-,$(word 4,$(subst /, ,$1)))
 
-all: $(DEFINES_FILE) $(LNGS)
+all: $(DEFINES_FILE) $(LNGS) $(EXPORTED)
 
 help:
 	$(Q)$(ECHO) -e "Targets are:\n    all\n    clean\n    help\n    update - extract new strings and distribute them\n    msgs - compile .mo files"
@@ -34,7 +38,8 @@ update: site_strings.pot $(POS)
 clean:
 	$(Q)$(RM) $(MOS)
 	$(Q)$(RM) $(LNGS)
-	$(Q)$(RM) $(DEFINES_FILE) 
+	$(Q)$(RM) $(DEFINES_FILE)
+	$(Q)$(RM) $(EXPORTED)
 
 msgs: $(MOS)
 
@@ -62,6 +67,10 @@ $(LNGS): $(MOS)
 
 init-command=$(MSGINIT) $2 $(subst _,-,$(subst /site_strings.po,,$1)) > $1
 merge-command=$(MSGMERGE) -o $1 $1 $2 2>/dev/null
+
+$(EXPORTED): $(LNGS) $(EXPORTS)
+	$(Q)$(MKDIR) $(dir $@)
+	$(Q)$(EXPORT) site_strings.txt site_strings.mo $@
 
 $(POS): site_strings.pot
 	$(Q)$(ECHO) $(if $(wildcard $@),"Updating","Creating") $(call get-locale,$@)
