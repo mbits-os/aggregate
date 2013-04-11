@@ -42,7 +42,7 @@ function resizePanes() {
 }
 
 function makeHeader(title) {
-    $h = $(document.createElement("h6"));
+    $h = $(document.createElement("h3"));
     $h.append($(document.createTextNode(title)));
     $listing.append($h);
 }
@@ -125,7 +125,7 @@ function navFolder(folder) {
     $li.addClass("feed-folder");
     $li.attr("id", "feed-folder-" + folder.id);
 
-    navItem($li, folder.title, folder.unread, "folder-chevron", "folder-icon", function () {
+    navItem($li, folder.title, folder.unread, "folder-chevron", "folder-icon", function (ev) {
         showMixed(folder.title, folder.id);
         ev.stopImmediatePropagation();
     });
@@ -140,7 +140,7 @@ function navFeed(feed, parent) {
     $li.addClass("feed-link");
     $li.attr("id", "feed-" + parent + "-" + feed.id);
 
-    navItem($li, feed.title, feed.unread, null, "feed-icon", function () {
+    navItem($li, feed.title, feed.unread, null, "feed-icon", function (ev) {
         showFeed(feed.title, feed.id);
         ev.stopImmediatePropagation();
     });
@@ -229,7 +229,7 @@ function updateNavigation(data) {
         if (rootId != -1) {
             rootFolder = data.folders[rootId];
             $subscriptions.append($(navList(rootFolder)));
-            navItem($allItems, LNG_VIEW_ALL_ITEMS, data.folders[rootId].unread, null, null, function () {
+            navItem($allItems, LNG_VIEW_ALL_ITEMS, data.folders[rootId].unread, null, null, function (ev) {
                 showMixed(LNG_VIEW_ALL_ITEMS, rootFolder.id);
                 ev.stopImmediatePropagation();
             });

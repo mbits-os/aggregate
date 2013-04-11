@@ -40,7 +40,7 @@ body
 
 #navigation ul
 {
-    padding-left: 16px;
+    padding-left: 24px;
     margin: 0px;
 }
 
@@ -64,24 +64,24 @@ body
     text-decoration: none;
     color: black;
     background: inherit;
-    width: 99%;
+    width: 100%;
     display: block;
     position: relative;
     white-space: nowrap;
     overflow: hidden;
-    border-left: 2px solid white;
+    border-left: 5px solid white;
 }
 
 .nav-link:hover
 {
     background: #EEF;
-    border-left: 2px solid black;
+    border-left: 5px solid black;
 }
 
 .selected > .nav-link
 {
     color: #C00;
-    border-left: 2px solid #C00;
+    border-left: 5px solid #C00;
 }
 
 .nav-link .label
@@ -100,25 +100,25 @@ body
 #navigation > ul > li > .nav-link
 {
     margin-left: -8px;
-    padding-left: 8px;
+    padding-left: 3px;
 }
 
 #navigation > ul > li > ul > li > .nav-link 
 {
-    margin-left: -24px;
-    padding-left: 24px;
+    margin-left: -32px;
+    padding-left: 27px;
 }
 
 #navigation > ul > li > ul > li > ul > li > .nav-link 
 {
-    margin-left: -40px;
-    padding-left: 40px;
+    margin-left: -56px;
+    padding-left: 51px;
 }
 
 #navigation > ul > li > ul > li > ul > li > ul > li > .nav-link 
 {
-    margin-left: -56px;
-    padding-left: 56px;
+    margin-left: -80px;
+    padding-left: 75px;
 }
 
 .section-chevron, .folder-chevron, .folder-icon, .feed-icon {
