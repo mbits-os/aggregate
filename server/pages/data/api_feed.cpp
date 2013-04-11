@@ -61,9 +61,26 @@ namespace FastCGI { namespace app { namespace api
 
 namespace json
 {
+	struct Category: CursorJson<Category>
+	{
+		Category(const db::CursorPtr& c);
+		bool entryIsScalar() const { return true; }
+	};
+	Category::Category(const db::CursorPtr& c): CursorJson<Category>(c)
+	{
+		JSON_CURSOR_TEXT(value, 0);
+	};
+
+	JSON_CURSOR_RULE(Enclosure)
+	{
+		JSON_CURSOR_TEXT(url, 0);
+		JSON_CURSOR_TEXT(mime, 1);
+		JSON_CURSOR_LL(length, 2);
+	};
+
 	JSON_CURSOR_RULE(FeedEntries)
 	{
-		JSON_CURSOR_LL(_id, 0);
+		JSON_CURSOR_LL(id, 0);
 		JSON_CURSOR_TEXT(title, 1);
 		JSON_CURSOR_TEXT(url, 2);
 		JSON_CURSOR_TEXT(author, 3);
@@ -71,6 +88,8 @@ namespace json
 		JSON_CURSOR_TIME(date, 5);
 		JSON_CURSOR_TEXT(description, 6);
 		JSON_CURSOR_TEXT(contents, 7);
+		JSON_CURSOR_SUBQUERY(categories, Category, "SELECT cat FROM categories WHERE entry_id=?");
+		JSON_CURSOR_SUBQUERY(enclosures, Enclosure, "SELECT url, mime, length FROM enclosure WHERE entry_id=?");
 	}
 
 	JSON_RULE(FastCGI::app::api::FeedError)
@@ -179,7 +198,7 @@ namespace FastCGI { namespace app { namespace api
 					db::get(headerCursor, answer);
 					request.onLastModified(answer.lastUpdate);
 
-					entries = db->prepare("SELECT _id, title, url, author, authorLink, date, description, contents FROM entry WHERE feed_id=?", answer.page * answer.pageLength, (answer.page + 1) * answer.pageLength);
+					entries = db->prepare("SELECT _id, title, url, author, authorLink, date, description, contents FROM entry WHERE feed_id=? ORDER BY date DESC", answer.page * answer.pageLength, (answer.page + 1) * answer.pageLength);
 					if (!entries || !entries->bind(0, answer.feed))
 					{
 						FLOG << (entries ? entries->errorMessage() : db->errorMessage());
