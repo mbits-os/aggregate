@@ -132,6 +132,17 @@ namespace db
 					"LEFT JOIN feed ON (subscription.feed_id = feed._id) "
 					"LEFT JOIN state_stats ON (state_stats.feed_id = feed._id AND state_stats.user_id = folder.user_id) "
 					"ORDER BY folder_id, type, ord");
+
+				sd.view("trending",
+					"SELECT feed_id, count(*) AS popularity "
+					"FROM subscription "
+					"GROUP BY feed_id");
+
+				sd.view("feed_update",
+					"SELECT _id, feed, etag, last_modified, last_update, popularity "
+					"FROM feed "
+					"LEFT JOIN trending ON (trending.feed_id = feed._id) "
+					"ORDER BY popularity DESC, last_update ASC");
 			}
 		};
 
