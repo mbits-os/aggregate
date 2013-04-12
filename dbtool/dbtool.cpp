@@ -82,7 +82,7 @@ int status(int, char*[], const db::ConnectionPtr&);
 int install(int, char*[], const db::ConnectionPtr&);
 int backup(int, char*[], const db::ConnectionPtr&);
 int restore(int, char*[], const db::ConnectionPtr&);
-int refresh(int, char*[], const db::ConnectionPtr&);
+int refresh(int, char*[], const db::ConnectionPtr&); // in refresh.cpp
 int fetch(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int opml_cmd(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int user(int, char*[], const db::ConnectionPtr&);
@@ -159,12 +159,6 @@ int backup(int, char*[], const db::ConnectionPtr&)
 }
 
 int restore(int, char*[], const db::ConnectionPtr&)
-{
-	printf("dbtool: %s: not implemented\n", __FUNCTION__);
-	return 0;
-}
-
-int refresh(int, char*[], const db::ConnectionPtr&)
 {
 	printf("dbtool: %s: not implemented\n", __FUNCTION__);
 	return 0;
