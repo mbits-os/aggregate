@@ -66,6 +66,7 @@ namespace Refresh
 
 			auto status = xhr->getStatus();
 
+#if 0
 			//<debug>
 			printf("%d (%s)\n", status, xhr->getStatusText().c_str());
 			auto headers = xhr->getResponseHeaders();
@@ -88,6 +89,7 @@ namespace Refresh
 			});
 			printf("\n");
 			//</debug>
+#endif
 
 			if (status / 100 != 2)
 			{
