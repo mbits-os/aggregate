@@ -54,7 +54,7 @@ def main():
                 if line in gtt:
                     value = gtt[line]
                 else:
-                    value = locales.warped(strings[line])
+                    value = locales.warped(strings[line].content)
                 print >>o, "var", line, "=", "\"" + locales.escape(value) + "\";"
     #print "\n".join(keys)
     f.close()
