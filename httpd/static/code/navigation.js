@@ -150,6 +150,7 @@ function toggleSection() {
 function updateNavigation(data) {
     try {
         var rootId = -1;
+        var i;
 
         for (i in data.folders) {
             data.folders[i].unread = 0;
@@ -161,6 +162,7 @@ function updateNavigation(data) {
             if (parent == 0) {
                 rootId = i;
             } else {
+                var j;
                 for (j in data.folders) {
                     if (data.folders[j].id == parent) {
                         data.folders[i].parent = j;
@@ -172,19 +174,14 @@ function updateNavigation(data) {
         for (i in data.feeds) {
             var parent = data.feeds[i].parent;
             data.feeds[i].parent = rootId;
+            var j;
             for (j in data.folders) {
                 if (data.folders[j].id == parent) {
                     data.feeds[i].parent = j;
+                    data.folders[j].feeds.push(data.feeds[i]);
+                    data.folders[j].unread += data.feeds[i].unread;
                     break;
                 }
-            }
-        }
-
-        for (i in data.feeds) {
-            var parent = data.feeds[i].parent;
-            if (parent != -1) {
-                data.folders[parent].feeds.push(data.feeds[i]);
-                data.folders[parent].unread += data.feeds[i].unread;
             }
         }
 

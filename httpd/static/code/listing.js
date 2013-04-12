@@ -119,6 +119,14 @@ function presentFeed(data) {
         if (entry.enclosures.length > 0) {
             var $enc = $e("div");
             $enc.addClass("enclosures");
+
+            var $title = $e("span");
+            if (entry.enclosures.length == 1)
+                $title.append($t(LNG_VIEW_ENCLOSURE));
+            else
+                $title.append($t(LNG_VIEW_ENCLOSURES));
+            $enc.append($title);
+
             var $ul = $e("ul");
             for (x = 0; x < entry.enclosures.length; ++x) {
                 var enclosure = entry.enclosures[x];
@@ -128,7 +136,7 @@ function presentFeed(data) {
                 $a.append($t(enclosure.url));
                 $li.append($a);
                 $ul.append($li);
-                if (enclosure.mime.substr(0, 6) == "video/") {
+                /*if (enclosure.mime.substr(0, 6) == "video/") {
                     var v = document.createElement("video");
                     if (typeof v != "undefined") {
                         if (v.canPlayType(enclosure.mime) != "") {
@@ -146,7 +154,7 @@ function presentFeed(data) {
                             $enc.append($v);
                         }
                     }
-                }
+                }*/
             }
             $enc.append($ul);
             $entry.append($enc);
