@@ -13,7 +13,6 @@ body
     margin: 0px;
     float: left;
     width: 248px;
-    height: 100px;
     display: none;
     background: #FFF;
     overflow: auto;
@@ -21,8 +20,7 @@ body
 
 #listing {
     min-width: 700px;
-    margin-left: 258px;
-    height: 100px;
+    margin-left: 248px;
     display: none;
     background: #FFF;
     overflow: auto;
@@ -204,4 +202,60 @@ ul.closed
     height: 16px;
     margin: 0.1em 0.4em;
     background: url("../images/ajax-loader.gif") no-repeat;
+}
+
+.entry-container
+{
+    margin: 1em;
+    padding: 1em;
+    border: 1px solid #ccc;
+    -webkit-box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.2);
+}
+
+.entry-title
+{
+    margin: -1em -1em 0px;
+    padding: 0.5em 1em;
+    background: #eee;
+}
+
+.entry-title h2
+{
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 8px;
+}
+
+.entry-title h2 a
+{
+    color: #444;
+    text-decoration: none;
+}
+
+.author, .categories
+{
+    margin: 0.4em;
+}
+
+.author + .categories
+{
+    margin-left: -0.2em;
+    border-left: 2px solid #aaa;
+    padding-left: 0.2em;
+}
+
+.term
+{
+    color: white;
+    background: #444;
+    padding: 2px 4px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.content
+{
+    max-width: 1000px;
 }

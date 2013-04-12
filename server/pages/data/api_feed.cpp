@@ -31,7 +31,7 @@
 #include "api_handler.hpp"
 #include "json.hpp"
 
-#define PAGE_SIZE 40
+#define PAGE_SIZE 15
 
 namespace FastCGI { namespace app { namespace api
 {

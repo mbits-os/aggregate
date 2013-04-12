@@ -26,7 +26,7 @@ var $listing;
 var feedXHR = null;
 
 function makeHeader(title, href) {
-    var $h = $e("h3");
+    var $h = $e("h1");
     $h.addClass("feed-title");
     var $s = $e("span");
     $h.append($s);
@@ -68,7 +68,7 @@ function presentFeed(data) {
             title = LNG_VIEW_TITLE_MISSING;
         }
 
-        $h = $e("h4");
+        $h = $e("h2");
         if (entry.url != null) {
             $a = $e("a");
             $a.attr("href", entry.url);
@@ -86,7 +86,7 @@ function presentFeed(data) {
         }
 
         if (author) {
-            var $author = $e("div");
+            var $author = $e("span");
             $author.addClass("author");
             $author.append($t(LNG_VIEW_BY));
             $author.append($t(author));
@@ -94,7 +94,7 @@ function presentFeed(data) {
         }
 
         if (entry.categories.length > 0) {
-            var $cats = $e("div");
+            var $cats = $e("span");
             $cats.addClass("categories");
             $cats.append($t(LNG_VIEW_PUBLISHED_UNDER));
             for (x = 0; x < entry.categories.length; x++) {
@@ -170,7 +170,7 @@ function showFeed(title, id) {
     makeHeader(title);
     var $loader = $e("span");
     $loader.addClass("loader");
-    $("h3", $listing).append($loader);
+    $("h1", $listing).append($loader);
 
     if (feedXHR != null) {
         feedXHR.abort();
