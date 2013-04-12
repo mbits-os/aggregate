@@ -56,12 +56,11 @@ namespace Refresh
 				return false;
 			}
 
+			xhr->open(http::HTTP_GET, feed, false);
 			if (!etag.empty())
 				xhr->setRequestHeader("If-None-Match", etag);
 			if (!lastModified.empty())
 				xhr->setRequestHeader("If-Modified-Since", lastModified);
-
-			xhr->open(http::HTTP_GET, feed, false);
 			xhr->send();
 
 			auto status = xhr->getStatus();
