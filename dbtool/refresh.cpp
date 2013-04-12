@@ -191,24 +191,34 @@ namespace Refresh
 			tyme::time_t date = entry.m_dateTime == -1 ? tyme::now() : entry.m_dateTime;
 
 			if (!update->bind(0, feed_id)) return false;
-			if (!update->bind(2, nullifier(entry.m_entry.m_title))) return false;
-			if (!update->bind(3, nullifier(entry.m_entry.m_url))) return false;
-			if (!update->bindTime(4, date)) return false;
-			if (!update->bind(5, nullifier(entry.m_author.m_name))) return false;
-			if (!update->bind(6, nullifier(entry.m_author.m_email))) return false;
-			if (!update->bind(7, nullifier(entry.m_description))) return false;
-			if (!update->bind(8, nullifier(entry.m_content))) return false;
-			if (!update->bind(9, entry_id)) return false;
+			if (!update->bind(1, nullifier(entry.m_entry.m_title))) return false;
+			if (!update->bind(2, nullifier(entry.m_entry.m_url))) return false;
+			if (!update->bindTime(3, date)) return false;
+			if (!update->bind(4, nullifier(entry.m_author.m_name))) return false;
+			if (!update->bind(5, nullifier(entry.m_author.m_email))) return false;
+			if (!update->bind(6, nullifier(entry.m_description))) return false;
+			if (!update->bind(7, nullifier(entry.m_content))) return false;
+			if (!update->bind(8, entry_id)) return false;
 
 			if (!update->execute()) return false;
 
-			auto del = db->prepare("DELETE FROM categories WHERE feed_id=?");
-			if (!del || !del->bind(0, feed_id) || !del->execute())
+			auto del = db->prepare("DELETE FROM categories WHERE entry_id=?");
+			if (!del || !del->bind(0, entry_id) || !del->execute())
+			{
+				const char* msg = del ? del->errorMessage() : db->errorMessage();
+				if (msg && *msg)
+					fprintf(stderr, "DB error: %s\n", msg);
 				return false;
+			}
 
-			del = db->prepare("DELETE FROM enclosures WHERE feed_id=?");
-			if (!del || !del->bind(0, feed_id) || !del->execute())
+			del = db->prepare("DELETE FROM enclosure WHERE entry_id=?");
+			if (!del || !del->bind(0, entry_id) || !del->execute())
+			{
+				const char* msg = del ? del->errorMessage() : db->errorMessage();
+				if (msg && *msg)
+					fprintf(stderr, "DB error: %s\n", msg);
 				return false;
+			}
 
 			return installCatsAndEncl(db, entry.m_entryUniqueId.c_str(), entry);
 		}
@@ -472,6 +482,7 @@ namespace Refresh
 			fprintf(stderr, "!");
 			if (!updateEntry(db, feed_id, _entry.id, entry)) return false;
 			markAsUnread(db, feed_id, _entry.id);
+			return true;
 		}
 
 		fprintf(stderr, "#");
