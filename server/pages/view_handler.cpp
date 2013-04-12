@@ -43,6 +43,8 @@ namespace FastCGI { namespace app { namespace reader {
 
 			PageHandler::headElement(session, request, tr);
 			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/lang/client-" << culture << ".js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/navigation.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/listing.js\"></script>\r\n";
 			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/view.js\"></script>\r\n";
 		}
 
@@ -53,7 +55,7 @@ namespace FastCGI { namespace app { namespace reader {
 					"<ul>"
 						"<li id=\"home\" class=\"section-link\"></li>"
 						"<li id=\"all-items\" class=\"section-link\"></li>"
-						"<li id=\"subscriptions\" class=\"section-link\"><span class=\"section-chevron\"></span></li>"
+						"<li id=\"subscriptions\" class=\"section-link\"></li>"
 					"</ul>"
 				"</div>"
 				"<div id=\"listing\"></div>"
