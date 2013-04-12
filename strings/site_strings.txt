@@ -64,4 +64,6 @@ LNG_VIEW_SUBSCRIPTIONS = "Subscriptions"
 LNG_VIEW_TITLE_MISSING = "(no title)"
 LNG_VIEW_BY = "by "
 LNG_VIEW_PUBLISHED_UNDER = "published under:"
+LNG_VIEW_ENCLOSURE = "Attachement:"
+LNG_VIEW_ENCLOSURES = "Attachements:"
 LNG_GENERIC_LIST_LAST = "and";

@@ -28,4 +28,6 @@ var LNG_VIEW_SUBSCRIPTIONS = "Subskrypcje";
 var LNG_VIEW_TITLE_MISSING = "(brak tytułu)";
 var LNG_VIEW_BY = "wg ";
 var LNG_VIEW_PUBLISHED_UNDER = "opublikowano w:";
+var LNG_VIEW_ENCLOSURE = "Załącznik:";
+var LNG_VIEW_ENCLOSURES = "Załączniki:";
 var LNG_GENERIC_LIST_LAST = "oraz";

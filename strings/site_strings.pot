@@ -252,6 +252,14 @@ msgctxt "LNG_VIEW_BY"
 msgid "by "
 msgstr ""
 
+msgctxt "LNG_VIEW_ENCLOSURE"
+msgid "Attachment:"
+msgstr ""
+
+msgctxt "LNG_VIEW_ENCLOSURES"
+msgid "Attachments:"
+msgstr ""
+
 msgctxt "LNG_VIEW_HOME"
 msgid "Home"
 msgstr ""

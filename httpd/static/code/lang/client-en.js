@@ -28,4 +28,6 @@ var LNG_VIEW_SUBSCRIPTIONS = "Subscriptions";
 var LNG_VIEW_TITLE_MISSING = "(no title)";
 var LNG_VIEW_BY = "by ";
 var LNG_VIEW_PUBLISHED_UNDER = "published under:";
+var LNG_VIEW_ENCLOSURE = "Attachment:";
+var LNG_VIEW_ENCLOSURES = "Attachments:";
 var LNG_GENERIC_LIST_LAST = "and";
