@@ -23,18 +23,22 @@
  */
 
 var $listing;
+var feedXHR = null;
 
 function makeHeader(title, href) {
-    $h = $e("h3");
+    var $h = $e("h3");
     $h.addClass("feed-title");
-    if (href == null)
-        $h.append($t(title));
-    else {
+    var $s = $e("span");
+    $h.append($s);
+    if (href == null) {
+        $s.append($t(title));
+        $s.addClass("loading-title");
+    } else {
         $a = $e("a");
         $a.attr("href", href);
         $a.attr("target", "_blank");
         $a.append($t(title + " »"));
-        $h.append($a);
+        $s.append($a);
     }
 
     $listing.append($h);
@@ -164,14 +168,25 @@ function presentFeed(data) {
 
 function showFeed(title, id) {
     makeHeader(title);
-    $listing.append($t("/data/api?" + $.param({ op: "feed", feed: id })));
-    $.getJSON("/data/api?" + $.param({ op: "feed", feed: id }))
-        .done(function (data, textStatus, xhr) {
-            presentFeed(data);
-            $p = $e("p");
-            $p.append($t(xhr.responseText));
-            $listing.append($p);
-        })
-        .error(function (xhr, testStatus, error) {
-        });
+    var $loader = $e("span");
+    $loader.addClass("loader");
+    $("h3", $listing).append($loader);
+
+    if (feedXHR != null) {
+        feedXHR.abort();
+        feedXHR = null;
+    }
+
+    feedXHR = $.ajax({
+        url: "/data/api",
+        data: { op: "feed", feed: id },
+        dataType: "json",
+    }).done(function (data) {
+        feedXHR = null;
+        presentFeed(data);
+    }).error(function (xhr) {
+        feedXHR = null;
+        $listing.empty();
+        makeHeader(title);
+    });
 }
