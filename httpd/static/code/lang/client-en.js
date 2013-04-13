@@ -31,3 +31,4 @@ var LNG_VIEW_PUBLISHED_UNDER = "published under:";
 var LNG_VIEW_ENCLOSURE = "Attachment:";
 var LNG_VIEW_ENCLOSURES = "Attachments:";
 var LNG_GENERIC_LIST_LAST = "and";
+var LNG_SUBSCRIBE_ERROR = "There was a communication error with the server. Please try again later.";
