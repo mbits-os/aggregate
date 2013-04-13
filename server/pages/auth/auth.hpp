@@ -53,6 +53,10 @@ namespace FastCGI { namespace app { namespace reader {
 		{
 			menu.left().home("home", 0, tr(lng::LNG_GLOBAL_PRODUCT), tr(lng::LNG_GLOBAL_DESCRIPTION));
 		}
+
+		void topbarUI(SessionPtr session, Request& request, PageTranslation& tr)
+		{
+		}
 	};
 
 	class Message: public Control
