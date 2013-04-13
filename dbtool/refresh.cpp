@@ -41,14 +41,20 @@ namespace Refresh
 	struct Feed
 	{
 		long long _id;
+		std::string title;
 		std::string feed;
 		std::string etag;
 		std::string lastModified;
 		tyme::time_t lastUpdated;
 
-		bool update(const db::ConnectionPtr& db) const
+		bool update(const db::ConnectionPtr& db, size_t counter, int digits) const
 		{
-			printf("Fetching %s\n", feed.c_str());
+			if (title.empty())
+				printf("[%0*u] Fetching %s\n   %*c", digits, (unsigned long)counter, feed.c_str(), digits, ' ');
+			else
+				printf("[%0*u] Fetching %s <%s>\n   %*c", digits, (unsigned long)counter, title.c_str(), feed.c_str(), digits, ' ');
+			fflush(stdout);
+
 			auto xhr = http::XmlHttpRequest::Create();
 			if (!xhr)
 			{
@@ -92,7 +98,8 @@ namespace Refresh
 
 			if (status / 100 != 2)
 			{
-				fprintf(stderr, "%d (%s)\n", status, xhr->getStatusText().c_str());
+				printf("%d (%s)\n", status, xhr->getStatusText().c_str());
+				fflush(stdout);
 				return true; // only internal errors should stop the refreshing
 			}
 
@@ -207,7 +214,7 @@ namespace Refresh
 			{
 				const char* msg = del ? del->errorMessage() : db->errorMessage();
 				if (msg && *msg)
-					fprintf(stderr, "DB error: %s\n", msg);
+					printf("DB error: %s\n", msg);
 				return false;
 			}
 
@@ -216,7 +223,7 @@ namespace Refresh
 			{
 				const char* msg = del ? del->errorMessage() : db->errorMessage();
 				if (msg && *msg)
-					fprintf(stderr, "DB error: %s\n", msg);
+					printf("DB error: %s\n", msg);
 				return false;
 			}
 
@@ -258,7 +265,8 @@ namespace Refresh
 
 			if (!updateEntries(db, feed_id, feed.m_entry)) return false;
 			if (!updateFeed(db, feed_id, feed)) return false;
-			fprintf(stderr, "\n");
+			printf("\n");
+			fflush(stdout);
 
 			return transaction.commit();
 		}
@@ -306,10 +314,11 @@ namespace db
 	CURSOR_RULE(Refresh::Feed)
 	{
 		CURSOR_ADD(0, _id);
-		CURSOR_ADD(1, feed);
-		CURSOR_ADD(2, etag);
-		CURSOR_ADD(3, lastModified);
-		CURSOR_TIME(4, lastUpdated);
+		CURSOR_ADD(1, title);
+		CURSOR_ADD(2, feed);
+		CURSOR_ADD(3, etag);
+		CURSOR_ADD(4, lastModified);
+		CURSOR_TIME(5, lastUpdated);
 	};
 
 	CURSOR_RULE(Refresh::Category)
@@ -476,16 +485,19 @@ namespace Refresh
 		{
 			if (same(db, entry, _entry))
 			{
-				fprintf(stderr, ".");
+				printf(".");
+				fflush(stdout);
 				return true;
 			}
-			fprintf(stderr, "!");
+			printf("!");
+			fflush(stdout);
 			if (!updateEntry(db, feed_id, _entry.id, entry)) return false;
 			markAsUnread(db, feed_id, _entry.id);
 			return true;
 		}
 
-		fprintf(stderr, "#");
+		printf("#");
+		fflush(stdout);
 		if (!createEntry(db, feed_id, entryUniqueId, entry)) return false;
 		markAsUnread(db, feed_id, entryUniqueId);
 		return true;
@@ -503,6 +515,21 @@ int refresh(int, char*[], const db::ConnectionPtr& db)
 	if (!db::get(c, feeds))
 		return 1;
 
-	auto it = std::find_if(feeds.begin(), feeds.end(), [&db](const Refresh::Feed& feed) { return !feed.update(db); });
+	size_t counter = 0;
+	size_t length = feeds.size();
+
+	printf("Refreshing %llu feeds\n\n", (unsigned long long)length);
+	fflush(stdout);
+
+	int digits = 0;
+	while (length > 0)
+	{
+		length /= 10;
+		digits++;
+	}
+	if (!digits)
+		digits = 1;
+
+	auto it = std::find_if(feeds.begin(), feeds.end(), [&db, &counter, digits](const Refresh::Feed& feed) { return !feed.update(db, ++counter, digits); });
 	return it == feeds.end() ? 0 : 1;
 }

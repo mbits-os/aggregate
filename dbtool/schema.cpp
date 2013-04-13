@@ -139,7 +139,7 @@ namespace db
 					"GROUP BY feed_id");
 
 				sd.view("feed_update",
-					"SELECT _id, feed, etag, last_modified, last_update, popularity "
+					"SELECT _id, title, feed, etag, last_modified, last_update, popularity "
 					"FROM feed "
 					"LEFT JOIN trending ON (trending.feed_id = feed._id) "
 					"ORDER BY popularity DESC, last_update ASC");
