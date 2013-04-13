@@ -86,9 +86,16 @@ function Dimmer() {
 };
 
 function setupDialog(id, callbacks) {
-    $("form", $("#" + id)).submit(callbacks, function (ev) {
-        if (ev.data[ev.relatedTarget.name])
-            ev.data[ev.relatedTarget.name]();
+    var $form = $("form", $("#" + id));
+    try { $("input:submit", $form).bind("click keypress", function () { $form.data("callerid", this.name); }); } catch (e) { alert(e); }
+
+    $form.submit(callbacks, function (ev) {
+        try {
+            var callerId = $(this).data("callerid");
+            if (callerId && ev.data[callerId])
+                ev.data[callerId]();
+            ev.preventDefault();
+        } catch (e) { alert(e); }
         return false;
     });
 }
