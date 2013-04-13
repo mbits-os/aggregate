@@ -38,6 +38,12 @@ namespace Refresh
 		return s.empty() ? nullptr : s.c_str();
 	}
 
+	struct Stats
+	{
+		unsigned long long knownEntries, newEntries, changedEntries;
+		Stats(): knownEntries(0), newEntries(0), changedEntries(0) {}
+	};
+
 	struct Feed
 	{
 		long long _id;
@@ -50,9 +56,9 @@ namespace Refresh
 		bool update(const db::ConnectionPtr& db, size_t counter, int digits) const
 		{
 			if (title.empty())
-				printf("[%0*u] Fetching %s\n   %*c", digits, (unsigned long)counter, feed.c_str(), digits, ' ');
+				printf("[%0*u] Fetching %s\n     %*c", digits, (unsigned long)counter, feed.c_str(), digits, ' ');
 			else
-				printf("[%0*u] Fetching %s <%s>\n   %*c", digits, (unsigned long)counter, title.c_str(), feed.c_str(), digits, ' ');
+				printf("[%0*u] Fetching %s <%s>\n     %*c", digits, (unsigned long)counter, title.c_str(), feed.c_str(), digits, ' ');
 			fflush(stdout);
 
 			auto xhr = http::XmlHttpRequest::Create();
@@ -230,10 +236,10 @@ namespace Refresh
 			return installCatsAndEncl(db, entry.m_entryUniqueId.c_str(), entry);
 		}
 
-		static bool updateOrCreateEntry(const db::ConnectionPtr& db, long long feed_id, const feed::Entry& entry);
-		static bool updateEntries(const db::ConnectionPtr& db, long long feed_id, const feed::Entries& entries)
+		static bool updateOrCreateEntry(const db::ConnectionPtr& db, long long feed_id, const feed::Entry& entry, Stats& stats);
+		static bool updateEntries(const db::ConnectionPtr& db, long long feed_id, const feed::Entries& entries, Stats& stats)
 		{
-			auto it = std::find_if(entries.rbegin(), entries.rend(), [&](const feed::Entry& entry) { return !updateOrCreateEntry(db, feed_id, entry); });
+			auto it = std::find_if(entries.rbegin(), entries.rend(), [&](const feed::Entry& entry) { return !updateOrCreateEntry(db, feed_id, entry, stats); });
 			return it == entries.rend();
 		}
 
@@ -263,9 +269,12 @@ namespace Refresh
 			if (!transaction.begin())
 				return false;
 
-			if (!updateEntries(db, feed_id, feed.m_entry)) return false;
+			Stats stats;
+
+			if (!updateEntries(db, feed_id, feed.m_entry, stats)) return false;
 			if (!updateFeed(db, feed_id, feed)) return false;
-			printf("\n");
+			fprintf(stderr, "\n      ");
+			printf("entries: %llu/%llu/%llu\n", stats.knownEntries, stats.newEntries, stats.changedEntries);
 			fflush(stdout);
 
 			return transaction.commit();
@@ -469,7 +478,7 @@ namespace Refresh
 		return markAsUnread(db, feed_id, entry_id);
 	}
 
-	bool Feed::updateOrCreateEntry(const db::ConnectionPtr& db, long long feed_id, const feed::Entry& entry)
+	bool Feed::updateOrCreateEntry(const db::ConnectionPtr& db, long long feed_id, const feed::Entry& entry, Stats& stats)
 	{
 		const char* entryUniqueId = nullifier(entry.m_entryUniqueId);
 		if (!entryUniqueId)
@@ -485,19 +494,25 @@ namespace Refresh
 		{
 			if (same(db, entry, _entry))
 			{
-				printf(".");
+				stats.knownEntries++;
 				fflush(stdout);
+				fprintf(stderr, ".");
+				fflush(stderr);
 				return true;
 			}
-			printf("!");
+			stats.changedEntries++;
 			fflush(stdout);
+			fprintf(stderr, "!");
+			fflush(stderr);
 			if (!updateEntry(db, feed_id, _entry.id, entry)) return false;
 			markAsUnread(db, feed_id, _entry.id);
 			return true;
 		}
 
-		printf("#");
+		stats.newEntries++;
 		fflush(stdout);
+		fprintf(stderr, "#");
+		fflush(stderr);
 		if (!createEntry(db, feed_id, entryUniqueId, entry)) return false;
 		markAsUnread(db, feed_id, entryUniqueId);
 		return true;
