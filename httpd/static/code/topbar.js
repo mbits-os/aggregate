@@ -105,6 +105,7 @@ function subscribe() {
     var $dlg = $("#subscribe");
     var $input = $("#subscribe-url");
     var $btn = $("input[type='submit']:first", $dlg);
+    var $btns = $btn.parent();
     $input.attr("disabled", "disabled");
     $btn.attr("disabled", "disabled");
 
@@ -112,6 +113,11 @@ function subscribe() {
         subscribeXHR.abort();
         subscribeXHR = null;
     }
+
+    var $loader = $e("span");
+    $loader.addClass("loader");
+    $loader.attr("id", "subscribe-spinner");
+    $btns.prepend($loader);
 
     subscribeXHR = $.ajax({
         url: "/data/api",
@@ -137,6 +143,7 @@ function subscribe() {
         if (!data.error) {
             data.error = LNG_SUBSCRIBE_ERROR;
         }
+        $loader.remove();
         $(".subscribe-error", $dlg).text(data.error);
         $input.removeAttr("disabled");
         $input.focus();
@@ -151,6 +158,7 @@ $(function () {
         var $dlg = $("#subscribe");
         var $input = $("#subscribe-url");
         var $btn = $("input[type='submit']:first", $dlg);
+        $("#subscribe-spinner").remove();
         $(".subscribe-error", $dlg).text("");
         $input.val("");
         dimmer.show($dlg);
