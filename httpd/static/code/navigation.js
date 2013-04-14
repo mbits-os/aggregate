@@ -31,7 +31,7 @@ var $selected = null;
 function selectItem(anchor) {
     $next = $(anchor).parent();
 
-    if ($selected == $next)
+    if ($selected != null && $selected.attr("id") == $next.attr("id"))
         return;
 
     if ($selected != null)
@@ -147,60 +147,65 @@ function toggleSection() {
     });
 }
 
-function updateNavigation(data) {
-    try {
-        var rootId = -1;
-        var i;
+function buildNavigation(data) {
+    var rootId = -1;
+    var i;
 
-        for (i in data.folders) {
-            data.folders[i].unread = 0;
-            data.folders[i].subs = new Array();
-            data.folders[i].feeds = new Array();
+    for (i in data.folders) {
+        data.folders[i].unread = 0;
+        data.folders[i].subs = new Array();
+        data.folders[i].feeds = new Array();
 
-            var parent = data.folders[i].parent;
-            data.folders[i].parent = -1;
-            if (parent == 0) {
-                rootId = i;
-            } else {
-                var j;
-                for (j in data.folders) {
-                    if (data.folders[j].id == parent) {
-                        data.folders[i].parent = j;
-                        break;
-                    }
-                }
-            }
-        }
-        for (i in data.feeds) {
-            var parent = data.feeds[i].parent;
-            data.feeds[i].parent = rootId;
+        var parent = data.folders[i].parent;
+        data.folders[i].parent = -1;
+        if (parent == 0) {
+            rootId = i;
+        } else {
             var j;
             for (j in data.folders) {
                 if (data.folders[j].id == parent) {
-                    data.feeds[i].parent = j;
-                    data.folders[j].feeds.push(data.feeds[i]);
-                    data.folders[j].unread += data.feeds[i].unread;
+                    data.folders[i].parent = j;
                     break;
                 }
             }
         }
-
-        for (i in data.folders) {
-            var parent = data.folders[i].parent;
-            if (parent != -1) {
-                data.folders[parent].subs.push(data.folders[i]);
-                data.folders[parent].unread += data.folders[i].unread;
+    }
+    for (i in data.feeds) {
+        var parent = data.feeds[i].parent;
+        data.feeds[i].parent = rootId;
+        var j;
+        for (j in data.folders) {
+            if (data.folders[j].id == parent) {
+                data.feeds[i].parent = j;
+                data.folders[j].feeds.push(data.feeds[i]);
+                data.folders[j].unread += data.feeds[i].unread;
+                break;
             }
         }
+    }
+
+    for (i in data.folders) {
+        var parent = data.folders[i].parent;
+        if (parent != -1) {
+            data.folders[parent].subs.push(data.folders[i]);
+            data.folders[parent].unread += data.folders[i].unread;
+        }
+    }
+
+    return (rootId != -1) ? data.folders[rootId] : null;
+}
+
+function createNavigation(data) {
+    try {
+        rootFolder = buildNavigation(data);
 
         $subscriptions.empty();
         $allItems.empty();
         navItem($subscriptions, LNG_VIEW_SUBSCRIPTIONS, 0, "section-chevron");
 
-        if (rootId != -1) {
-            rootFolder = data.folders[rootId];
+        if (rootFolder != null) {
             $subscriptions.append($(navList(rootFolder)));
-            navItem($allItems, LNG_VIEW_ALL_ITEMS, data.folders[rootId].unread, null, null, function (ev) {
+            navItem($allItems, LNG_VIEW_ALL_ITEMS, rootFolder.unread, null, null, function (ev) {
                 showMixed(LNG_VIEW_ALL_ITEMS, rootFolder.id);
                 ev.stopImmediatePropagation();
             });

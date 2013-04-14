@@ -51,7 +51,7 @@ $(function () {
     resizePanes();
 
     $.ajax("/data/api?op=subscription").done(function (data, textStatus, xhr) {
-        updateNavigation(data);
+        createNavigation(data);
         $("a", $homeLink).trigger("click");
         $("#startup").css({ display: "none" });
         $navigation.css({ display: "block" });
