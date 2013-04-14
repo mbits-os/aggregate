@@ -36,6 +36,8 @@
 extern char ** environ;
 #endif
 
+long long asctoll(const char* ptr, char** end);
+
 namespace FastCGI { namespace app { namespace reader {
 
 	class DebugPageHandler: public PageHandler
@@ -235,6 +237,20 @@ namespace FastCGI { namespace app { namespace reader {
 		const char* getPageTitle(Request&, PageTranslation& tr) { return "Debug"; }
 		void prerender(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			param_t loop = request.getVariable("loop");
+			if (loop)
+			{
+				if (!*loop)
+					request.redirect("/debug/?loop", false);
+				long long nloop = asctoll(loop, nullptr);
+				if (nloop > 0)
+				{
+					char buffer[100];
+					sprintf(buffer, "/debug/?loop=%lld", (nloop - 1));
+					request.redirect(buffer, false);
+				}
+			}
+
 			long long content_size = request.calcStreamSize();
 			if (content_size > -1)
 			{

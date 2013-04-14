@@ -73,6 +73,9 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 
 		if (state == http::XmlHttpRequest::HEADERS_RECEIVED)
 		{
+			if (xhr->wasRedirected())
+				printf("REDIRECTED TO: %s\n", xhr->getFinalLocation().c_str());
+
 			printf("HEADERS:\n");
 			auto headers = xhr->getResponseHeaders();
 			std::for_each(headers.begin(), headers.end(), [](const std::pair<std::string, std::string>& value)
