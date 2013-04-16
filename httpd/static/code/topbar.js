@@ -125,13 +125,14 @@ function subscribe() {
         dataType: "json"
     }).done(function (data) {
         $(".subscribe-error", $dlg).text("");
-        dimmer.toggle();
 
-        var $target = $("#feed-" + data.folder + "-" + data.feed);
+        var id = "#feed-" + data.folder + "-" + data.feed;
+        var $target = $(id);
         if ($target.length != 0) {
             $("a", $target).trigger("click");
+            dimmer.toggle();
         } else {
-            alert(subscribeXHR.responseText);
+            updateNavigation(id, function () { dimmer.toggle(); });
         }
         subscribeXHR = null;
     }).error(function (xhr) {
@@ -175,5 +176,8 @@ $(function () {
     setupDialog("subscribe", {
         add: subscribe,
         cancel: function () { dimmer.toggle(); }
+    });
+    setupCommand("topbar-menu-refesh", function () {
+        updateNavigation();
     });
 });

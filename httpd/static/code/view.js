@@ -41,22 +41,17 @@ $(function () {
     $navigation = $("#navigation");
     $listing = $("#listing");
 
-    $homeLink = $("#home", $navigation);
-    $allItems = $("#all-items", $navigation);
-    $subscriptions = $("#subscriptions", $navigation);
-    $homeLink.empty();
-    navItem($homeLink, LNG_VIEW_HOME, 0, null, null, function () { });
+    var homeLink = new NavItem(null, "home", 0);
+    homeLink.setTitle(LNG_VIEW_HOME, 0).click(function () { });
 
     window.onresize = resizePanes;
     resizePanes();
 
-    $.ajax("/data/api?op=subscription").done(function (data, textStatus, xhr) {
-        createNavigation(data);
-        $("a", $homeLink).trigger("click");
-        $("#startup").css({ display: "none" });
-        $navigation.css({ display: "block" });
-        $listing.css({ display: "block" });
-    }).error(function (xhr, testStatus, error) {
+    getNavigation(function (data) {
+        if (data != null) {
+            createNavigation(data);
+            $("a", homeLink.item).trigger("click");
+        }
         $("#startup").css({ display: "none" });
         $navigation.css({ display: "block" });
         $listing.css({ display: "block" });
