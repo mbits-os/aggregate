@@ -91,13 +91,23 @@ body
     white-space: nowrap;
 }
 
-.unreads { 
+.unreads
+{ 
     color: #666666;
     display: inline-block;
     font-size: 85%;
     margin-right: 16px;
     padding: 0px 0px 0px 4px;
     vertical-align: top;
+}
+
+#nav-refresh 
+{
+    display: none;
+    width: 28px;
+    height: 9px;
+    margin: 0px 8px;
+    background: url("../images/cylon-mini.gif") no-repeat;
 }
 
 .label + .label

@@ -233,7 +233,22 @@
     this.RootItem = function (src) {
         NavItem.call(this, null, "all-items", src.id, "big-chevron");
         this.subscriptions = new NavItem(null, "subscriptions", 0, "big-chevron");
-        this.subscriptions.setTitle(LNG_VIEW_SUBSCRIPTIONS, null, 0);
+        this.subscriptions.setTitle(LNG_VIEW_SUBSCRIPTIONS, null, 0).click(function () { });
+
+        var a = $("a", this.subscriptions.item);
+        var loader = $e("span");
+        loader.attr("id", "nav-refresh");
+        a.append(loader);
+
+        a.unbind("click");
+        a.toggleClass("nav-link");
+        a.click(function (ev) {
+            loader.css({ display: "inline-block" });
+            updateNavigation(null, function () { loader.css({ display: "none" }); });
+            ev.stopImmediatePropagation();
+            return false;
+        });
+
         this.children = $e("ul");
         this.subs = Array();
         this.feeds = Array();
@@ -243,6 +258,7 @@
             .click(function (ev) {
                 showMixed(item.title, item.id);
                 ev.stopImmediatePropagation();
+                return false;
             });
 
         this.subscriptions.item.append(this.children);
