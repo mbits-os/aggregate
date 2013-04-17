@@ -47,8 +47,9 @@ namespace json
 	{
 		JSON_CURSOR_LL(id, 0);
 		JSON_CURSOR_TEXT(title, 1);
-		JSON_CURSOR_LL(parent, 2);
-		JSON_CURSOR_LL(unread, 3);
+		JSON_CURSOR_TEXT(url, 2);
+		JSON_CURSOR_LL(parent, 3);
+		JSON_CURSOR_LL(unread, 4);
 	}
 
 	JSON_RULE(Subscriptions)
@@ -74,7 +75,7 @@ namespace FastCGI { namespace app { namespace api {
 				request.on500();
 			}
 
-			auto feeds = db->prepare("SELECT feed_id, feed, folder_id, count FROM ordered_stats WHERE user_id=? AND type=0");
+			auto feeds = db->prepare("SELECT feed_id, feed, feed_url, folder_id, count FROM ordered_stats WHERE user_id=? AND type=0");
 			if (!feeds || !feeds->bind(0, session->getId()))
 			{
 				FLOG << (feeds ? feeds->errorMessage() : db->errorMessage());

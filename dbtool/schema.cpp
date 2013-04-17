@@ -126,7 +126,7 @@ namespace db
 					"GROUP BY state.type, entry.feed_id, state.user_id");
 
 				sd.view("ordered_stats",
-					"SELECT state_stats.user_id AS user_id, subscription.folder_id AS folder_id, subscription.ord AS ord, feed._id AS feed_id, feed.title AS feed, type, count "
+					"SELECT state_stats.user_id AS user_id, subscription.folder_id AS folder_id, subscription.ord AS ord, feed._id AS feed_id, feed.title AS feed, feed.site AS feed_url, type, count "
 					"FROM subscription "
 					"LEFT JOIN folder ON (subscription.folder_id = folder._id) "
 					"LEFT JOIN feed ON (subscription.feed_id = feed._id) "
