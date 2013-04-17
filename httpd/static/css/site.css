@@ -225,14 +225,15 @@ ul.closed
  *
  **********************************************/
 
+.feed-title
+{
+    margin: 0.5em;
+}
+
 .feed-title a 
 {
     color: black;
     text-decoration: none;
-}
-
-.loading-title
-{
 }
 
 .loader
@@ -259,17 +260,42 @@ ul.closed
     background: #eee;
 }
 
+.star-icon
+{
+	display: inline-block;
+	height: 22px;
+	width: 18px;
+	background: url("/css/images/view-sprites.png") -27px -3px no-repeat;
+	vertical-align: middle;
+	margin-right: 0.3em;
+	cursor: pointer;
+}
+
+.star-icon.starred
+{
+    background-position: -27px -27px;
+}
+
 .entry-title h2
 {
-    margin: 0px;
+    margin: 8px 0px;
     padding: 0px;
-    margin-bottom: 8px;
 }
 
 .entry-title h2 a
 {
     color: #444;
     text-decoration: none;
+}
+
+.entry-title-jump
+{
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	background: url("/css/images/view-sprites.png") -28px -52px no-repeat;
+	vertical-align: middle;
+	margin-left: 0.15em;
 }
 
 .author, .categories
@@ -297,4 +323,5 @@ ul.closed
 .content
 {
     max-width: 1000px;
+    margin-top: 1em;
 }

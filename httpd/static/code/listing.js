@@ -73,11 +73,22 @@ function presentFeed(data) {
         }
 
         $h = $e("h2");
+        var star = $e("div");
+        star.addClass("star-icon");
+        star.click(function () { $(this).toggleClass("starred"); }); // does nothing more...
+        star.attr("title", "Not implemented yet...");
+        $h.append(star);
+
         if (entry.url != null) {
             $a = $e("a");
             $a.attr("href", entry.url);
             $a.attr("target", "_blank");
             $a.append($t(title));
+
+            var after = $e("div");
+            after.addClass("entry-title-jump");
+            $a.append(after);
+
             $h.append($a);
         } else $h.append($t(title));
         $title.append($h);
@@ -121,7 +132,7 @@ function presentFeed(data) {
             content += entry.contents;
         else if (entry.description != null)
             content += entry.description;
-        content += "</div>";
+        content += "</div><div style='clear:both'></div>";
         $entry.append($(content));
 
         if (entry.enclosures.length > 0) {
