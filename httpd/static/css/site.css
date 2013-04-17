@@ -119,16 +119,19 @@ body
     padding-left: 75px;
 }
 
-.section-chevron, .folder-chevron, .folder-icon, .feed-icon {
-	background-image: url("/css/images/view-sprites.png");
-	background-repeat: no-repeat;
+.big-chevron-off, .big-chevron, .small-chevron-off, .small-chevron, .folder-icon, .feed-icon {
 	float: left;
 	position: relative;
 	height: 24px;
 	width: 24px;
 }
 
-.folder-chevron 
+.big-chevron, .small-chevron, .folder-icon, .feed-icon {
+	background-image: url("/css/images/view-sprites.png");
+	background-repeat: no-repeat;
+}
+
+.small-chevron, .small-chevron-off 
 {
     width: 16px;
 }
@@ -155,19 +158,19 @@ body
 	background-position: 0px -72px;
 }
 
-.section-chevron { 
+.big-chevron { 
 	background-position: 0px -96px;
 }
 
-.section-chevron.closed { 
+.big-chevron.closed { 
 	background-position: 0px -120px;
 }
 
-.folder-chevron { 
+.small-chevron { 
 	background-position: 0px -144px;
 }
 
-.folder-chevron.closed { 
+.small-chevron.closed { 
 	background-position: 0px -168px;
 }
 

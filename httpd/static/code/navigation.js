@@ -54,12 +54,40 @@
         return elem;
     }
 
+    function NavChevron(klass) {
+        this.item = spanWithClass(klass + "-off");
+        this.klass = klass;
+        this.active = false;
+    }
+
+    NavChevron.prototype.toggle = function () {
+        this.active = !this.active;
+        if (this.active) {
+            this.item.attr("class", this.klass);
+            this.item.css({ cursor: "pointer" });
+            this.item.click(function (ev) {
+                $(this).toggleClass("closed");
+                //one for "a", second for "li"
+                $("ul", $(this).parent().parent()).each(function () {
+                    $(this).toggleClass("closed");
+                    return false;
+                });
+                ev.stopImmediatePropagation();
+                return false;
+            });
+        } else {
+            this.item.attr("class", this.klass + "-off");
+            this.item.css({ cursor: "inherit" });
+            this.item.unbind("click");
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////
     //
     // BASE CLASS
     //
 
-    this.NavItem = function (itemClass, idAttr, itemId, icon, chevron) {
+    this.NavItem = function (itemClass, idAttr, itemId, chevron, icon) {
         var test = $("#" + idAttr);
         if (test.length != 0) {
             this.item = test;
@@ -80,9 +108,8 @@
         this.label.addClass("label");
 
         this.item.append(this.href);
-
-        if (chevron != null)
-            this.href.append(createChevron(chevron));
+        this.chevron = new NavChevron(chevron);
+        this.href.append(this.chevron.item);
 
         if (icon != null)
             this.href.append(spanWithClass(icon));
@@ -143,7 +170,7 @@
     //
 
     this.FeedItem = function (id, parentId) {
-        NavItem.call(this, "feed-link", "feed-" + parentId + "-" + id, id, "feed-icon");
+        NavItem.call(this, "feed-link", "feed-" + parentId + "-" + id, id, "small-chevron", "feed-icon");
         var item = this;
         this.click(function (ev) {
             showFeed(item.title, item.id);
@@ -159,7 +186,7 @@
 
     this.FolderItem = function (src) {
         var id = src.id;
-        NavItem.call(this, "folder-link", "feed-folder-" + id, id, "folder-icon");
+        NavItem.call(this, "folder-link", "feed-folder-" + id, id, "small-chevron", "folder-icon");
         this.children = $e("ul");
         this.subs = Array();
         this.feeds = Array();
@@ -179,6 +206,9 @@
         feed.setTitle(remote.title, remote.unread);
         this.feeds[this.feeds.length] = feed;
         this.children.append(feed.item);
+
+        if (this.feeds.length + this.subs.length == 1)
+            this.chevron.toggle();
     }
 
     FolderItem.prototype.addFolder = function (remote) {
@@ -189,6 +219,9 @@
             this.children.prepend(folder.item);
         else
             this.subs[this.subs.length - 2].item.after(folder.item);
+
+        if (this.feeds.length + this.subs.length == 1)
+            this.toggleChevron();
     }
 
     FolderItem.prototype.merge = function (remote) {
@@ -199,14 +232,16 @@
         }
     }
 
+    FolderItem.prototype.toggleChevron = function () { this.chevron.toggle(); }
+
     ///////////////////////////////////////////////////////////////////////
     //
     // ROOT
     //
 
     this.RootItem = function (src) {
-        NavItem.call(this, null, "all-items", src.id);
-        this.subscriptions = new NavItem(null, "subscriptions", 0, null, "section-chevron");
+        NavItem.call(this, null, "all-items", src.id, "big-chevron");
+        this.subscriptions = new NavItem(null, "subscriptions", 0, "big-chevron");
         this.subscriptions.setTitle(LNG_VIEW_SUBSCRIPTIONS, 0);
         this.children = $e("ul");
         this.subs = Array();
@@ -222,6 +257,8 @@
         this.subscriptions.item.append(this.children);
     }
     inherit(FolderItem, RootItem);
+
+    RootItem.prototype.toggleChevron = function () { this.subscriptions.chevron.toggle(); }
 
     /*********************************************************************/
 
