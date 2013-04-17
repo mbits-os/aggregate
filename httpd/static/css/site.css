@@ -223,18 +223,14 @@ ul.closed
 
 .loading-title
 {
-    float: left;
 }
 
 .loader
 {
-    float: left;
-    left: 0px;
-    top: 0px;
-    width: 16px;
+    width: 40px;
     height: 16px;
-    margin: 0.1em 0.4em;
-    background: url("../images/ajax-loader.gif") no-repeat;
+    margin: 0.1em 1em;
+    background: url("../images/cylon.gif") no-repeat;
 }
 
 .entry-container
