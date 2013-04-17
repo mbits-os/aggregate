@@ -25,20 +25,24 @@
 var $listing;
 var feedXHR = null;
 
-function makeHeader(title, href) {
+function makeHeader(title, href, whileLoading) {
     var $h = $e("h1");
     $h.addClass("feed-title");
     var $s = $e("span");
     $h.append($s);
-    if (href == null) {
-        $s.append($t(title));
-        $s.addClass("loading-title");
-    } else {
+
+    if (href) {
         $a = $e("a");
         $a.attr("href", href);
         $a.attr("target", "_blank");
         $a.append($t(title + " »"));
         $s.append($a);
+    } else {
+        $s.append($t(title));
+    }
+
+    if (whileLoading) {
+        $s.addClass("loading-title");
     }
 
     $listing.append($h);
@@ -166,11 +170,12 @@ function presentFeed(data) {
     }
 }
 
-function showFeed(title, id) {
-    makeHeader(title);
-    var $loader = $e("span");
+function showFeed(title, url, id) {
+    makeHeader(title, url, true);
+
+    var $loader = $e("div");
     $loader.addClass("loader");
-    $("h1", $listing).append($loader);
+    $listing.append($loader);
 
     if (feedXHR != null) {
         feedXHR.abort();

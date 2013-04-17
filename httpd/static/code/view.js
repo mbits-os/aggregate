@@ -42,7 +42,7 @@ $(function () {
     $listing = $("#listing");
 
     var homeLink = new NavItem(null, "home", 0, "big-chevron");
-    homeLink.setTitle(LNG_VIEW_HOME, 0).click(function () { });
+    homeLink.setTitle(LNG_VIEW_HOME, null, 0).click(function () { });
 
     window.onresize = resizePanes;
     resizePanes();

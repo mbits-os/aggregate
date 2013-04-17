@@ -37,23 +37,6 @@
 
     function spanWithClass(klass) { return $e("span").addClass(klass); }
 
-    function createChevron(chevron) {
-        var elem = spanWithClass(chevron);
-
-        elem.css({ cursor: "pointer" });
-        elem.click(function (ev) {
-            $(this).toggleClass("closed");
-            //one for "a", second for "li"
-            $("ul", $(this).parent().parent()).each(function () {
-                $(this).toggleClass("closed");
-                return false;
-            });
-            ev.stopImmediatePropagation();
-            return false;
-        });
-        return elem;
-    }
-
     function NavChevron(klass) {
         this.item = spanWithClass(klass + "-off");
         this.klass = klass;
@@ -147,9 +130,10 @@
         return this;
     }
 
-    NavItem.prototype.setTitle = function (title, unread) {
+    NavItem.prototype.setTitle = function (title, url, unread) {
         this.label.empty();
         this.title = title;
+        this.url = url;
         this.unread = unread;
 
         var text = $t(title);
@@ -173,7 +157,7 @@
         NavItem.call(this, "feed-link", "feed-" + parentId + "-" + id, id, "small-chevron", "feed-icon");
         var item = this;
         this.click(function (ev) {
-            showFeed(item.title, item.id);
+            showFeed(item.title, item.url, item.id);
             ev.stopImmediatePropagation();
         });
     }
@@ -203,7 +187,7 @@
 
     FolderItem.prototype.addFeed = function (remote) {
         var feed = new FeedItem(remote.id, this.id);
-        feed.setTitle(remote.title, remote.unread);
+        feed.setTitle(remote.title, remote.url, remote.unread);
         this.feeds[this.feeds.length] = feed;
         this.children.append(feed.item);
 
@@ -213,7 +197,7 @@
 
     FolderItem.prototype.addFolder = function (remote) {
         var folder = new FolderItem(remote);
-        folder.setTitle(remote.title, remote.unread);
+        folder.setTitle(remote.title, null, remote.unread);
         this.subs[this.subs.length] = folder;
         if (this.subs.length == 1)
             this.children.prepend(folder.item);
@@ -242,13 +226,13 @@
     this.RootItem = function (src) {
         NavItem.call(this, null, "all-items", src.id, "big-chevron");
         this.subscriptions = new NavItem(null, "subscriptions", 0, "big-chevron");
-        this.subscriptions.setTitle(LNG_VIEW_SUBSCRIPTIONS, 0);
+        this.subscriptions.setTitle(LNG_VIEW_SUBSCRIPTIONS, null, 0);
         this.children = $e("ul");
         this.subs = Array();
         this.feeds = Array();
         var item = this;
         this
-            .setTitle(src.title, src.unread)
+            .setTitle(src.title, null, src.unread)
             .click(function (ev) {
                 showMixed(item.title, item.id);
                 ev.stopImmediatePropagation();
