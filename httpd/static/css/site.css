@@ -82,12 +82,22 @@ body
     border-left: 5px solid #C00;
 }
 
-.nav-link .label
+.nav-link .label-text
 {
     display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 135px;
     white-space: nowrap;
+}
+
+.unreads { 
+    color: #666666;
+    display: inline-block;
+    font-size: 85%;
+    margin-right: 16px;
+    padding: 0px 0px 0px 4px;
+    vertical-align: top;
 }
 
 .label + .label
@@ -117,6 +127,26 @@ body
 {
     margin-left: -80px;
     padding-left: 75px;
+}
+
+#navigation > ul > li > .nav-link .label-text
+{
+    max-width: 135px;
+}
+
+#navigation > ul > li > ul > li > .nav-link .label-text
+{
+    max-width: 111px;
+}
+
+#navigation > ul > li > ul > li > ul > li > .nav-link .label-text
+{
+    max-width: 87px;
+}
+
+#navigation > ul > li > ul > li > ul > li > ul > li > .nav-link .label-text
+{
+    max-width: 63px;
 }
 
 .big-chevron-off, .big-chevron, .small-chevron-off, .small-chevron, .folder-icon, .feed-icon {

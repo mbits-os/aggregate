@@ -139,11 +139,18 @@
         var text = $t(title);
         if (unread != 0) {
             var bold = $e("strong");
+            bold.addClass("label-text");
             bold.append(text);
             this.label.append(bold);
-            this.label.append($(document.createTextNode(" (" + unread + ")")));
+            count = $e("span");
+            count.addClass("unreads");
+            count.append($t("(" + unread + ")"));
+            this.label.append(count);
         } else {
-            this.label.append(text);
+            var span = $e("span");
+            span.addClass("label-text");
+            span.append(text);
+            this.label.append(span);
         }
         return this;
     }
