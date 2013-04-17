@@ -208,7 +208,7 @@
         this.children.append(feed.item);
 
         if (this.feeds.length + this.subs.length == 1)
-            this.chevron.toggle();
+            this.toggleChevron();
     }
 
     FolderItem.prototype.addFolder = function (remote) {
