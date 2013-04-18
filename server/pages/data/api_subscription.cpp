@@ -34,6 +34,8 @@ namespace json
 	{
 		db::CursorPtr folders;
 		db::CursorPtr feeds;
+		db::CursorPtr unread;
+		db::CursorPtr starred;
 	};
 
 	JSON_CURSOR_RULE(Folders)
@@ -52,12 +54,39 @@ namespace json
 		JSON_CURSOR_LL(unread, 4);
 	}
 
+	struct State: CursorJson<State>
+	{
+		State(const db::CursorPtr& c);
+		bool entryIsScalar() const { return true; }
+	};
+	State::State(const db::CursorPtr& c): CursorJson<State>(c)
+	{
+		JSON_CURSOR_LL(value, 0);
+	};
+
 	JSON_RULE(Subscriptions)
 	{
 		JSON_ADD_CURSOR(folders, Folders);
 		JSON_ADD_CURSOR(feeds, Feeds);
+		JSON_ADD_CURSOR(unread, State);
+		JSON_ADD_CURSOR(starred, State);
 	}
 };
+
+#define SELECT(stmt, QUERY) \
+	auto stmt = db->prepare(QUERY); \
+	if (!stmt || !stmt->bind(0, session->getId())) \
+	{ \
+		FLOG << (stmt ? stmt->errorMessage() : db->errorMessage()); \
+		request.on500(); \
+	} \
+	\
+	subs.stmt = stmt->query(); \
+	if (!subs.stmt) \
+	{ \
+		FLOG << stmt->errorMessage(); \
+		request.on500(); \
+	}
 
 namespace FastCGI { namespace app { namespace api {
 
@@ -67,35 +96,12 @@ namespace FastCGI { namespace app { namespace api {
 		void render(SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			db::ConnectionPtr db = request.dbConn();
-
-			auto folders = db->prepare("SELECT _id, name, parent FROM folder WHERE user_id=?");
-			if (!folders || !folders->bind(0, session->getId()))
-			{
-				FLOG << (folders ? folders->errorMessage() : db->errorMessage());
-				request.on500();
-			}
-
-			auto feeds = db->prepare("SELECT feed_id, feed, feed_url, folder_id, count FROM ordered_stats WHERE user_id=? AND type=0");
-			if (!feeds || !feeds->bind(0, session->getId()))
-			{
-				FLOG << (feeds ? feeds->errorMessage() : db->errorMessage());
-				request.on500();
-			}
-
 			json::Subscriptions subs;
-			subs.folders = folders->query();
-			if (!subs.folders)
-			{
-				FLOG << folders->errorMessage();
-				request.on500();
-			}
 
-			subs.feeds = feeds->query();
-			if (!subs.feeds)
-			{
-				FLOG << feeds->errorMessage();
-				request.on500();
-			}
+			SELECT(folders, "SELECT _id, name, parent FROM folder WHERE user_id=?");
+			SELECT(feeds,   "SELECT feed_id, feed, feed_url, folder_id, count FROM ordered_stats WHERE user_id=? AND type=0");
+			SELECT(unread,  "SELECT entry_id FROM state WHERE user_id=? AND type=0 ORDER BY entry_id ASC");
+			SELECT(starred, "SELECT entry_id FROM state WHERE user_id=? AND type=1 ORDER BY entry_id ASC");
 
 			request.setHeader("Content-Type", "application/json; charset=utf-8");
 			json::render(request, subs);
