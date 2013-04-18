@@ -49,6 +49,7 @@ httpd/libmysql.dll
 httpd/conn.ini
 httpd/error-*.log
 httpd/reedr.log
+httpd/locales/charset/
 
 /3rd/curl/config.log
 /3rd/curl/config.status
