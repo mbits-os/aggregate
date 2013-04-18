@@ -27,17 +27,20 @@
 #include <dbconn.hpp>
 #include <locale.hpp>
 #include <string.h>
+#include <http.hpp>
 
 #define THREAD_COUNT 1
 
 #ifdef _WIN32
 #define LOCALE_PATH "..\\locales\\"
+#define CHARSET_PATH "..\\locales\\charset\\"
 #define LOG_FILE "..\\reedr.log"
 #endif
 
 #ifdef POSIX
 #define LOCALE_PATH "../locales/"
 #define LOG_FILE "../reedr.log"
+#define CHARSET_PATH "../locales/charset/"
 #endif
 
 REGISTER_REDIRECT("/", "/view/");
@@ -71,6 +74,8 @@ int main (int argc, char* argv[])
 	db::environment env;
 	if (env.failed)
 		return 1;
+
+	http::init(CHARSET_PATH);
 
 	FastCGI::Application app;
 

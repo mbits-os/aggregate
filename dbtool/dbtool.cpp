@@ -33,12 +33,15 @@
 #include <dbconn.hpp>
 #include <utils.hpp>
 #include "schema.hpp"
+#include <http.hpp>
 
 #ifdef WIN32
 #include <windows.h>
+#define CHARSET_PATH ".\\locales\\charset\\"
 #else
 #include <termios.h>
 #include <unistd.h>
+#define CHARSET_PATH "./locales/charset/"
 #endif
 
 struct Command {
@@ -103,6 +106,8 @@ int main(int argc, char* argv[])
 	db::environment env;
 	if (env.failed)
 		return 1;
+
+	http::init(CHARSET_PATH);
 
 	char prog[] = "dbtool";
 	argv[0] = prog;
