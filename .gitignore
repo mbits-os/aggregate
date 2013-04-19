@@ -13,6 +13,7 @@
 *.a
 
 
+*.xcf
 *.user
 *.sdf
 *.suo
@@ -54,6 +55,7 @@ httpd/locales/charset.db
 *.lng
 *.pot
 client-*.js
+/libenv/includes/site_strings.h
 
 /3rd/curl/config.log
 /3rd/curl/config.status
@@ -118,6 +120,3 @@ client-*.js
 /3rd/openssl/crypto/x86_64cpuid.asm
 /3rd/openssl/crypto/x86cpuid.asm
 /3rd/openssl/ms/uptable.asm
-
-
-*.xcf

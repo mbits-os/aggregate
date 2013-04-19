@@ -11,7 +11,7 @@ def main():
         return -1
     path, iso = os.path.splitext(os.path.basename(sys.argv[3]))[0].split("-", 1)
     #print path+".strings", sys.argv[1], "./"+iso+"/"+sys.argv[2], sys.argv[3]
-    print "Exporting %s-%s.js" % (path, iso)
+    print "[ JS ] %s-%s.js" % (path, iso)
     strings = locales.openLocales(sys.argv[1])
     keys = strings.keys()
     keys.sort()
