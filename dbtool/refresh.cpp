@@ -44,6 +44,31 @@ namespace Refresh
 		Stats(): knownEntries(0), newEntries(0), changedEntries(0) {}
 	};
 
+	std::string encodeWord(const std::string& in)
+	{
+		static const char hex[] = "0123456789ABCDEF";
+		auto it = std::find_if(in.begin(), in.end(), [](char c) { return c < 0; });
+		if (it == in.end()) return in;
+		std::string out;
+		out.reserve(in.size() * 3/2);
+		out.append("=?UTF-8?Q?");
+		for (auto c : in)
+		{
+			if (c == ' ')
+				out.push_back('_');
+			else if (c >= 0 && c != '_' && c != '=')
+				out.push_back(c);
+			else
+			{
+				out.push_back('=');
+				out.push_back(hex[(((unsigned char)c)   >> 4) & 0x0F]);
+				out.push_back(hex[( (unsigned char)c        ) & 0x0F]);
+			}
+		}
+		out.append("?=");
+		return out;
+	}
+
 	struct Feed
 	{
 		long long _id;
@@ -53,12 +78,13 @@ namespace Refresh
 		std::string lastModified;
 		tyme::time_t lastUpdated;
 
-		bool update(const db::ConnectionPtr& db, size_t counter, int digits) const
+		bool update(const db::ConnectionPtr& db, size_t counter, int digits, bool mimeEncodedWord) const
 		{
 			if (title.empty())
 				printf("[%0*u] Fetching %s\n     %*c", digits, (unsigned long)counter, feed.c_str(), digits, ' ');
 			else
-				printf("[%0*u] Fetching %s <%s>\n     %*c", digits, (unsigned long)counter, title.c_str(), feed.c_str(), digits, ' ');
+				printf("[%0*u] Fetching %s <%s>\n     %*c", digits, (unsigned long)counter, 
+					mimeEncodedWord ? encodeWord(title).c_str() : title.c_str(), feed.c_str(), digits, ' ');
 			fflush(stdout);
 
 			auto xhr = http::XmlHttpRequest::Create();
@@ -545,6 +571,6 @@ int refresh(int, char*[], const db::ConnectionPtr& db)
 	if (!digits)
 		digits = 1;
 
-	auto it = std::find_if(feeds.begin(), feeds.end(), [&db, &counter, digits](const Refresh::Feed& feed) { return !feed.update(db, ++counter, digits); });
+	auto it = std::find_if(feeds.begin(), feeds.end(), [&db, &counter, digits](const Refresh::Feed& feed) { return !feed.update(db, ++counter, digits, false); });
 	return it == feeds.end() ? 0 : 1;
 }
