@@ -2,7 +2,41 @@ LANGS=pl-PL en
 DEFINES_FILE=../libenv/includes/site_strings.h
 CLIENT_FILES=../httpd/static/code/lang/
 EXPORTS=client.strings
-CPS_IN=iso-8859-5 koi8-r koi8-u windows-1251
+CPS_IN= \
+	iso-8859-1 \
+	iso-8859-2 \
+	iso-8859-3 \
+	iso-8859-4 \
+	iso-8859-5 \
+	iso-8859-6 \
+	iso-8859-8 \
+	iso-8859-9 \
+	iso-8859-15 \
+	koi8-r \
+	koi8-u \
+	windows-874 \
+	windows-1250 \
+	windows-1251 \
+	windows-1252 \
+	windows-1253 \
+	windows-1254 \
+	windows-1255 \
+	windows-1256 \
+	windows-1257 \
+	windows-1258 \
+	cp1258 \
+	cp437 \
+	cp720 \
+	cp737 \
+	cp775 \
+	cp850 \
+	cp852 \
+	cp855 \
+	cp857 \
+	cp858 \
+	cp862 \
+	cp866 \
+	cp874
 
 Q=@
 
@@ -16,6 +50,8 @@ DEPLOY=python ./code/extract.py
 EXTRACT=python ./code/strings.py
 DEFINE=python ./code/defines.py
 EXPORT=python ./code/export.py
+CPS_PY=python ./code/cp.py
+CHARSET_MERGE=python ./code/charsets.py
 MKDIR=mkdir -p
 CP=cp -f
 RM=rm -f
@@ -28,11 +64,12 @@ EXPORTED = $(addprefix $(CLIENT_FILES), $(addsuffix .js, $(foreach file, $(patsu
 SAFE_CPS = $(subst -,_,$(CPS_IN))
 CPS = $(addprefix ../httpd/locales/charset/,$(addsuffix .dat,$(SAFE_CPS)))
 CPS_TXT = $(addprefix ./charset/,$(addsuffix .txt,$(SAFE_CPS)))
+CHARSET_DB = ../httpd/locales/charset.db
 
 get-locale=$(subst _,-,$(word 1,$(subst /, ,$1)))
 get-locale-2=$(subst _,-,$(word 4,$(subst /, ,$1)))
 
-all: $(DEFINES_FILE) $(LNGS) $(EXPORTED) $(CPS)
+all: $(DEFINES_FILE) $(LNGS) $(EXPORTED) $(CHARSET_DB)
 
 help:
 	$(Q)$(ECHO) -e "Targets are:\n    all\n    clean\n    help\n    update - extract new strings and distribute them\n    msgs - compile .mo files"
@@ -44,6 +81,7 @@ clean:
 	$(Q)$(RM) $(LNGS)
 	$(Q)$(RM) $(DEFINES_FILE)
 	$(Q)$(RM) $(EXPORTED)
+	$(Q)$(RM) $(CHARSET_DB) $(CPS)
 
 msgs: $(MOS)
 
@@ -80,9 +118,14 @@ $(POS): site_strings.pot
 	$(Q)$(ECHO) $(if $(wildcard $@),"Updating","Creating") $(call get-locale,$@)
 	$(Q)$(MKDIR) $(dir $@)
 	$(Q)$(if $(wildcard $@),$(call merge-command,$@,$<),$(call init-command,$@,$<))
+
+$(CHARSET_DB): $(CPS)
+	@echo "[ DB ]" $@
+	@mkdir -p $(dir $@)
+	$(Q)$(CHARSET_MERGE) $@ $^
 	
 ../httpd/locales/charset/%.dat: ./charset/%.txt
 	@echo "[ CH ]" $(subst _,-,$(*F))
 	@mkdir -p $(dir $@)
-	@./code/cp.py $< $@ 
+	@$(CPS_PY) $< $@ 
 

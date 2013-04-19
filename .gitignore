@@ -50,6 +50,7 @@ httpd/conn.ini
 httpd/error-*.log
 httpd/reedr.log
 httpd/locales/charset/
+httpd/locales/charset.db
 
 /3rd/curl/config.log
 /3rd/curl/config.status
