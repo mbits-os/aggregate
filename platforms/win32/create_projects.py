@@ -55,7 +55,7 @@ def print_file(out, files, name, root, keys):
                 settings.append("<Outputs>%s.asm</Outputs>" % _p)
                 #ASM=ml64 /c /Cp /Cx /Zi
             if _e == ".asm":
-                settings.append("<Command Condition=\"'$(Platform)'=='Win32'\">ml /nologo /Cp /coff /c /Cx /Zi &quot;/Fo$(IntDir)%s.obj&quot; &quot;%s&quot;</Command>" % (path.split(_p)[1], p))
+                settings.append("<Command Condition=\"'$(Platform)'=='Win32'\">ml /nologo /safeseh /Cp /coff /c /Cx /Zi &quot;/Fo$(IntDir)%s.obj&quot; &quot;%s&quot;</Command>" % (path.split(_p)[1], p))
                 settings.append("<Command Condition=\"'$(Platform)'=='x64'\">ml64 /c /Cp /Cx /Zi &quot;/Fo$(IntDir)%s.obj&quot; &quot;%s&quot;</Command>" % (path.split(_p)[1], p))
                 settings.append("<Outputs>$(IntDir)%s.obj</Outputs>" % path.split(_p)[1])
 
@@ -193,6 +193,9 @@ def print_project(files, outname, root, bintype, basename, guid):
   <PropertyGroup Condition="'$(Configuration)'=='PGO Release'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>PGInstrument</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
