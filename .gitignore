@@ -51,6 +51,9 @@ httpd/error-*.log
 httpd/reedr.log
 httpd/locales/charset/
 httpd/locales/charset.db
+*.lng
+*.pot
+client-*.js
 
 /3rd/curl/config.log
 /3rd/curl/config.status
