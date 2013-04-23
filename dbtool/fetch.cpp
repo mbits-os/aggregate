@@ -121,16 +121,16 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 					{
 						std::cout << "categories:";
 						bool first = true;
-						std::for_each(feed.m_categories.begin(), feed.m_categories.end(), [&first](const std::string& category)
+						for (auto& category: feed.m_categories)
 						{
 							if (first) first = false;
 							else std::cout << ",";
 							std::cout << " " << category;
-						});
+						};
 						std::cout << std::endl;
 					}
 
-					std::for_each(feed.m_entry.begin(), feed.m_entry.end(), [](const feed::Entry& entry)
+					for (auto& entry: feed.m_entry)
 					{
 						std::cout << "    ------------------------------------------------------------\n\n";
 						if (!entry.m_entry.m_title.empty()) std::cout << "    \"" << stripws(entry.m_entry.m_title) << "\"" << std::endl;
@@ -155,12 +155,12 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 						{
 							std::cout << "    in:";
 							bool first = true;
-							std::for_each(entry.m_categories.begin(), entry.m_categories.end(), [&first](const std::string& category)
+							for (auto& category: entry.m_categories)
 							{
 								if (first) first = false;
 								else std::cout << ",";
 								std::cout << " " << category;
-							});
+							};
 							std::cout << std::endl;
 						}
 						if (!entry.m_description.empty() || !entry.m_content.empty() || entry.m_enclosures.size() > 0)
@@ -171,7 +171,7 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 						if (entry.m_enclosures.size() > 0)
 						{
 							std::cout << "    enclosures:" << std::endl;
-							std::for_each(entry.m_enclosures.begin(), entry.m_enclosures.end(), [](const feed::Enclosure& enclosure)
+							for (auto& enclosure : entry.m_enclosures)
 							{
 								std::cout << "        " << enclosure.m_type << ": " << enclosure.m_url << " ";
 
@@ -197,10 +197,11 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 								if (s % 10)
 									std::cout << "." << (s % 10);
 								std::cout << post << " (" << enclosure.m_size << ")" << std::endl;
-							});
+							};
 						}
 						std::cout << std::endl;
-					});
+					}
+
 				}
 				else
 					dom::Print(xml->documentElement(), true);

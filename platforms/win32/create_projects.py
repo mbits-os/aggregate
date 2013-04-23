@@ -164,41 +164,34 @@ def print_project(files, outname, root, bintype, basename, guid):
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="PGO Release|Win32">
-      <Configuration>PGO Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="PGO Release|x64">
-      <Configuration>PGO Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{%s}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>%s</RootNamespace>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Label="Configuration">
+  </PropertyGroup>""" % (guid, basename)
+    print >>out, """  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>%s</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
-    <UseDebugLibraries>true</UseDebugLibraries>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>%s</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='PGO Release'" Label="Configuration">
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>PGInstrument</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup>
     <PlatformToolset>v110</PlatformToolset>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>""" % (bintype, bintype)
+    print >>out, """  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\Aggregate.props" Condition="exists('$(SolutionDir)\Aggregate.props')" />
@@ -210,7 +203,9 @@ def print_project(files, outname, root, bintype, basename, guid):
     <Import Project="$(SolutionDir)\Aggregate.%s.$(Configuration).props" Condition="exists('$(SolutionDir)\Aggregate.%s.$(Configuration).props')" />
     <Import Project="$(SolutionDir)\Aggregate.%s.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\Aggregate.%s.$(Platform).$(Configuration).props')" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />""" % (guid, basename, bintype, basename, basename, basename, basename, basename, basename, basename, basename)
+  <PropertyGroup Label="UserMacros" />""" % (
+      basename, basename, basename, basename, basename, basename, basename, basename
+      )
     print_file(out, files, "None", root, files.datafiles)
     print_file(out, files, "ClCompile", root, files.cfiles + files.cppfiles)
     print_file(out, files, "ClInclude", root, files.includes)
