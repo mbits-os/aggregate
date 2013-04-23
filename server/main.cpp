@@ -33,14 +33,14 @@
 
 #ifdef _WIN32
 #define LOCALE_PATH "..\\locales\\"
-#define CHARSET_PATH "..\\locales\\charset\\"
+#define CHARSET_PATH "..\\locales\\charset.db"
 #define LOG_FILE "..\\reedr.log"
 #endif
 
 #ifdef POSIX
 #define LOCALE_PATH "../locales/"
 #define LOG_FILE "../reedr.log"
-#define CHARSET_PATH "../locales/charset/"
+#define CHARSET_PATH "../locales/charset.db"
 #endif
 
 REGISTER_REDIRECT("/", "/view/");

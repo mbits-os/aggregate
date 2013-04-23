@@ -37,11 +37,11 @@
 
 #ifdef WIN32
 #include <windows.h>
-#define CHARSET_PATH ".\\locales\\charset\\"
+#define CHARSET_PATH ".\\locales\\charset.db"
 #else
 #include <termios.h>
 #include <unistd.h>
-#define CHARSET_PATH "./locales/charset/"
+#define CHARSET_PATH "./locales/charset.db"
 #endif
 
 struct Command {
