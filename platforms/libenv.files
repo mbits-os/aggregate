@@ -24,6 +24,8 @@ libenv/includes/expat.hpp
 libenv/includes/dom.hpp
 libenv/includes/dom_xpath.hpp
 libenv/includes/mt.hpp
+libenv/includes/filter.hpp
+libenv/includes/mail.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -53,6 +55,9 @@ libenv/http/curl_http.cpp
 libenv/http/curl_http.hpp
 libenv/http/dom.cpp
 libenv/http/dom_xpath.cpp
+libenv/mail/mail.cpp
+libenv/mail/filter.cpp
+
 #ifdef POSIX
 libenv/utils/mt_posix.cpp
 #endif

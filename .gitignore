@@ -120,3 +120,4 @@ client-*.js
 /3rd/openssl/crypto/x86_64cpuid.asm
 /3rd/openssl/crypto/x86cpuid.asm
 /3rd/openssl/ms/uptable.asm
+Thumbs.db
