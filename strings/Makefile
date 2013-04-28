@@ -117,10 +117,10 @@ $(POS): site_strings.pot
 	$(Q)$(MKDIR) $(dir $@)
 	$(Q)$(if $(wildcard $@),$(call merge-command,$@,$<),$(call init-command,$@,$<))
 
-$(CHARSET_DB): $(CPS)
+$(CHARSET_DB): ./charset/aliases.txt $(CPS)
 	@echo "[ DB ]" $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CHARSET_MERGE) $@ $^
+	@$(CHARSET_MERGE) $@ $^
 	
 ../int/strings/charset/%.dat: ./charset/%.txt
 	@echo "[ CH ]" $(subst _,-,$(*F))
