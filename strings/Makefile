@@ -14,6 +14,17 @@ CPS_IN= \
 	iso-8859-15 \
 	koi8-r \
 	koi8-u \
+	windows-437 \
+	windows-720 \
+	windows-737 \
+	windows-775 \
+	windows-850 \
+	windows-852 \
+	windows-855 \
+	windows-857 \
+	windows-858 \
+	windows-862 \
+	windows-866 \
 	windows-874 \
 	windows-1250 \
 	windows-1251 \
@@ -23,20 +34,7 @@ CPS_IN= \
 	windows-1255 \
 	windows-1256 \
 	windows-1257 \
-	windows-1258 \
-	cp1258 \
-	cp437 \
-	cp720 \
-	cp737 \
-	cp775 \
-	cp850 \
-	cp852 \
-	cp855 \
-	cp857 \
-	cp858 \
-	cp862 \
-	cp866 \
-	cp874
+	windows-1258
 
 Q=@
 
@@ -119,10 +117,10 @@ $(POS): site_strings.pot
 	$(Q)$(MKDIR) $(dir $@)
 	$(Q)$(if $(wildcard $@),$(call merge-command,$@,$<),$(call init-command,$@,$<))
 
-$(CHARSET_DB): $(CPS)
+$(CHARSET_DB): ./charset/aliases.txt $(CPS)
 	@echo "[ DB ]" $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CHARSET_MERGE) $@ $^
+	@$(CHARSET_MERGE) $@ $^
 	
 ../int/strings/charset/%.dat: ./charset/%.txt
 	@echo "[ CH ]" $(subst _,-,$(*F))
