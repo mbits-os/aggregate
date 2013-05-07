@@ -138,7 +138,11 @@ namespace Refresh
 			feed::Feed newFeed;
 			dom::XmlDocumentPtr doc = xhr->getResponseXml();
 			if (!doc || !feed::parse(doc, newFeed))
-				return false;
+			{
+				printf("Error while parsing the data [%d (%s)]\n", status, xhr->getStatusText().c_str());
+				fflush(stdout);
+				return true;
+			}
 
 			newFeed.m_self = feed;
 			newFeed.m_etag = xhr->getResponseHeader("Etag");
