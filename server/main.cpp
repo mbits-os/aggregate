@@ -28,6 +28,7 @@
 #include <locale.hpp>
 #include <string.h>
 #include <http.hpp>
+#include "args.hpp"
 
 #define THREAD_COUNT 1
 
@@ -35,12 +36,14 @@
 #define LOCALE_PATH "..\\locales\\"
 #define CHARSET_PATH "..\\locales\\charset.db"
 #define LOG_FILE "..\\reedr.log"
+#define PID_FILE "..\\reedr.pid"
 #endif
 
 #ifdef POSIX
-#define LOCALE_PATH "../locales/"
-#define LOG_FILE "../reedr.log"
-#define CHARSET_PATH "../locales/charset.db"
+#define LOCALE_PATH "/usr/share/reedr/locales/"
+#define LOG_FILE "/usr/share/reedr/reedr.log"
+#define CHARSET_PATH "/usr/share/reedr/locales/charset.db"
+#define PID_FILE "/usr/share/reedr/reedr.pid"
 #endif
 
 REGISTER_REDIRECT("/", "/view/");
@@ -66,31 +69,33 @@ public:
 	}
 };
 
+#define RETURN_IF_ERROR(cmd) do { auto ret = (cmd); if (ret) return ret; } while (0)
+
 int main (int argc, char* argv[])
 {
+	Args args;
+	RETURN_IF_ERROR(args.read(argc, argv));
+
+	if (args.command != ECommands::NONE)
+	{
+		std::cerr << "-k not yet supported\n";
+		return 1;
+	}
+
 	FastCGI::FLogSource log(LOG_FILE);
 	FLOG << "Application started";
 
 	db::environment env;
-	if (env.failed)
-		return 1;
+	if (env.failed) return 1;
 
 	http::init(CHARSET_PATH);
 
 	FastCGI::Application app;
+	RETURN_IF_ERROR(app.init(LOCALE_PATH));
 
-	int ret = app.init(LOCALE_PATH);
-	if (ret != 0)
+	if (!args.uri.empty())
 	{
-		//FLOG << "app.init(" << LOCALE_PATH << ") failed: " << ret;
-		return ret;
-	}
-
-	//FLOG << "app.init(" << LOCALE_PATH << ");";
-
-	if (argc > 2 && !strcmp(argv[1], "-uri"))
-	{
-		Thread local(argv[2]);
+		Thread local(args.uri.c_str());
 		local.setApplication(app);
 
 		app.addStlSession();
