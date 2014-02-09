@@ -26,6 +26,7 @@ libenv/includes/dom_xpath.hpp
 libenv/includes/mt.hpp
 libenv/includes/filter.hpp
 libenv/includes/mail.hpp
+libenv/includes/getopt.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
