@@ -1,0 +1,4 @@
+spawn-fcgi/spawn.cpp
+spawn-fcgi/stdafx.cpp=pch:1
+spawn-fcgi/stdafx.h
+spawn-fcgi/targetver.h

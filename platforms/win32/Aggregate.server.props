@@ -22,7 +22,7 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>call elevated.cmd copy_index.cmd "$(TargetPath)" "..\..\httpd\www"</Command>
+      <Command>copy "$(TargetPath)" "..\..\httpd\www"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying to the developement</Message>
