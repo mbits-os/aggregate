@@ -44,7 +44,7 @@ namespace FastCGI { namespace app { namespace reader {
 			if (request.getVariable("reset") != nullptr)
 				request.redirect("/auth/reset");
 
-			FormPtr content(new (std::nothrow) Form(tr(lng::LNG_LOGIN_TITLE)));
+			auto content = std::make_shared<Form>(tr(lng::LNG_LOGIN_TITLE));
 			request.setContent(content);
 
 			content->hidden("continue");

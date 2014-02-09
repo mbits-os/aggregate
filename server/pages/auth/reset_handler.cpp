@@ -44,7 +44,7 @@ namespace FastCGI { namespace app { namespace reader {
 			if (request.getVariable("cancel"))
 				request.redirect("/");
 
-			FormPtr content(new (std::nothrow) Form(tr(lng::LNG_RESET_TITLE)));
+			auto content = std::make_shared<Form>(tr(lng::LNG_RESET_TITLE));
 			request.setContent(content);
 
 			content->hidden("continue");

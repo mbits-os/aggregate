@@ -254,13 +254,13 @@ namespace FastCGI { namespace app { namespace reader {
 			long long content_size = request.calcStreamSize();
 			if (content_size > -1)
 			{
-				DebugRequestState* state = new (std::nothrow) DebugRequestState();
+				auto state = std::make_shared<DebugRequestState>();
 				if (state)
 				{
 					if (state->alloc(content_size))
 						state->m_read = request.read(state->m_buffer, state->m_contentSize);
 
-					request.setRequestState(FastCGI::RequestStatePtr(state));
+					request.setRequestState(state);
 				}
 			}
 		}
