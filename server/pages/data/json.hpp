@@ -304,13 +304,11 @@ namespace json
 
 			request << "{";
 			bool first = true;
-			auto cur = m_selectors.begin(), end = m_selectors.end();
-			for (; cur != end; ++cur)
+			for (auto&& selector : m_selectors)
 			{
 				if (first) first = false;
 				else request << ",";
 
-				ColumnSelectorBasePtr& selector = *cur;
 				request << escape(selector->name()) << ":";
 				if (!selector->render(request, c))
 					return false;
@@ -419,13 +417,11 @@ namespace json
 		{
 			request << "{";
 			bool first = true;
-			auto cur = m_selectors.begin(), end = m_selectors.end();
-			for (; cur != end; ++cur)
+			for (auto&& selector : m_selectors)
 			{
 				if (first) first = false;
 				else request << ",";
 
-				MemberSelectorBasePtr& selector = *cur;
 				request << escape(selector->name()) << ":";
 				if (!selector->render(request, m_ctx))
 					return false;

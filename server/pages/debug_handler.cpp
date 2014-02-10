@@ -116,34 +116,30 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "</table>\n";
 		}
 
-		static void handlers(FastCGI::Request& request,
-			HandlerMap::const_iterator begin,
-			HandlerMap::const_iterator end)
+		static void handlers(FastCGI::Request& request, const HandlerMap& map)
 		{
 			request << "<table class='handlers'>\n";
 			request << "<thead><tr><th>URL</th><th>Action</th><th>File</th></tr><thead><tbody>\n";
 			size_t counter = 0;
-			for ( ; begin != end; ++begin)
+			for (auto&& item : map)
 			{
 				request << "<tr";
 				if (counter++ % 2)
 					request << " class='even'";
 				request
-					<< "><td><nobr><a href='" << begin->first << "'>" << begin->first << "</a></nobr></td>"
-					<< "<td><nobr>" << begin->second.ptr->name() << "</nobr></td><td>" << begin->second.file << ":"
-					<< begin->second.line << "</td></tr>\n";
+					<< "><td><nobr><a href='" << item.first << "'>" << item.first << "</a></nobr></td>"
+					<< "<td><nobr>" << item.second.ptr->name() << "</nobr></td><td>" << item.second.file << ":"
+					<< item.second.line << "</td></tr>\n";
 			}
 			request << "</tbody></table>\n";
 		}
 
-		static void handlers(FastCGI::Request& request,
-			api::OperationMap::const_iterator begin,
-			api::OperationMap::const_iterator end)
+		static void handlers(FastCGI::Request& request, const api::OperationMap& map)
 		{
 			request << "<table class='operations'>\n";
 			request << "<thead><tr><th>Name</th><th>Query</th><th>File</th></tr><thead><tbody>\n";
 			size_t counter = 0;
-			for ( ; begin != end; ++begin)
+			for (auto&& item : map)
 			{
 				request << "<tr";
 				if (counter++ % 2)
@@ -151,11 +147,11 @@ namespace FastCGI { namespace app { namespace reader {
 				const char* ellipsis = "=<span style='color:silver'>\xE2\x80\xA6</span>";
 				const char* join = "&amp;";
 				request
-					<< "><td><nobr>" << begin->first << "</a></nobr></td>"
+					<< "><td><nobr>" << item.first << "</a></nobr></td>"
 					<< "<td><nobr>";
 
 				bool first = true;
-				const char** vars = begin->second.ptr->getVariables();
+				const char** vars = item.second.ptr->getVariables();
 				while (*vars)
 				{
 					if (first) first = false;
@@ -165,8 +161,8 @@ namespace FastCGI { namespace app { namespace reader {
 				}
 
 				request
-					<< "</nobr></td><td>" << begin->second.file << ":"
-					<< begin->second.line << "</td></tr>\n";
+					<< "</nobr></td><td>" << item.second.file << ":"
+					<< item.second.line << "</td></tr>\n";
 			}
 			request << "</tbody></table>\n";
 		}
@@ -176,14 +172,13 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "<table class='requests'>\n";
 			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th></tr><thead><tbody>\n";
 
-			auto _cur = list.begin(), _end = list.end();
 			size_t counter = 0;
-			for ( ; _cur != _end; ++_cur)
+			for (auto&& item : list)
 			{
-				if (_cur->resource == "/debug/?all")
+				if (item.resource == "/debug/?all")
 					continue;
 
-				tyme::tm_t gmt = tyme::gmtime(_cur->now);
+				tyme::tm_t gmt = tyme::gmtime(item.now);
 				char timebuf[100];
 				tyme::strftime(timebuf, "%a, %d-%b-%Y %H:%M:%S GMT", gmt );
 
@@ -191,8 +186,8 @@ namespace FastCGI { namespace app { namespace reader {
 				if (counter++ % 2)
 					request << " class='even'";
 				request
-					<< "><td><nobr><a href='http://" << _cur->server << _cur->resource << "'>" << _cur->resource << "</a></nobr></td>"
-					<< "<td><nobr>" << _cur->remote_addr << ":" << _cur->remote_port << "</nobr></td><td>" << timebuf << "</td></tr>\n";
+					<< "><td><nobr><a href='http://" << item.server << item.resource << "'>" << item.resource << "</a></nobr></td>"
+					<< "<td><nobr>" << item.remote_addr << ":" << item.remote_port << "</nobr></td><td>" << timebuf << "</td></tr>\n";
 			}
 			request << "</tbody></table>\n";
 		}
@@ -202,7 +197,7 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "<table class='threads'>\n";
 			request << "<thead><tr><th>Thread ID</th><th>Requests</th><thead><tbody>\n";
 			size_t counter = 0;
-			std::for_each(threadList.begin(), threadList.end(), [&request, &counter](FastCGI::ThreadPtr thread)
+			for (auto&& thread : threadList)
 			{
 				request << "<tr";
 				if (counter++ % 2)
@@ -210,7 +205,7 @@ namespace FastCGI { namespace app { namespace reader {
 				request
 					<< "><td><nobr>0x" << std::hex << thread->threadId() << std::dec << "</nobr></td>"
 					<< "<td>" << thread->getLoad() << "</td></tr>\n";
-			});
+			};
 			request << "</tbody></table>\n";
 		}
 
@@ -219,16 +214,15 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "<table class='cookies'>\n";
 			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
 
-			auto _cur = list.begin(), _end = list.end();
 			size_t counter = 0;
-			for ( ; _cur != _end; ++_cur)
+			for (auto&& pair : list)
 			{
 				request << "<tr";
 				if (counter++ % 2)
 					request << " class='even'";
 				request
-					<< "><td><nobr>" << _cur->first << "</nobr></td>"
-					<< "<td>" << _cur->second << "</td></tr>\n";
+					<< "><td><nobr>" << pair.first << "</nobr></td>"
+					<< "<td>" << pair.second << "</td></tr>\n";
 			}
 			request << "</tbody></table>\n";
 		}
@@ -315,10 +309,10 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 
 			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
-			handlers(request, app::Handlers::begin(), app::Handlers::end());
+			handlers(request, app::Handlers::handlers());
 
 			request << "<h2 class='head'><a name='operations'></a>Operation Handlers</h2>\n";
-			handlers(request, api::Operations::begin(), api::Operations::end());
+			handlers(request, api::Operations::operations());
 
 			request << "<h2 class='head'><a name='requests'></a>Requests</h2>\n";
 			requests(request, request.app().requs());

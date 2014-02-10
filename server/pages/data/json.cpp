@@ -102,7 +102,7 @@ namespace json
 		std::string out;
 		out.reserve(in.length() * 110 / 100);
 		out.push_back('"');
-		std::for_each(in.begin(), in.end(), [&out](char c)
+		for (auto& c: in)
 		{
 			switch(c)
 			{
@@ -118,7 +118,7 @@ namespace json
 				//unicode charcters...
 				out.push_back(c);
 			}
-		});
+		};
 		out.push_back('"');
 		return out;
 	}

@@ -107,7 +107,7 @@ namespace Refresh
 			//<debug>
 			printf("%d (%s)\n", status, xhr->getStatusText().c_str());
 			auto headers = xhr->getResponseHeaders();
-			std::for_each(headers.begin(), headers.end(), [](const std::pair<std::string, std::string>& value)
+			for (auto&& value: headers)
 			{
 				bool upcase = true;
 				std::string head = value.first;
@@ -123,7 +123,7 @@ namespace Refresh
 					return c;
 				});
 				printf("%s: %s\n", head.c_str(), value.second.c_str());
-			});
+			};
 			printf("\n");
 			//</debug>
 #endif

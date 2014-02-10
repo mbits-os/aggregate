@@ -131,12 +131,11 @@ namespace FastCGI { namespace app { namespace api
 	void for_each(Request& request, const Container& cont, const std::string& join, Pred pred)
 	{
 		bool first = true;
-		auto from = cont.begin(), to = cont.end();
-		for (; from != to; ++from)
+		for (auto&& item: cont)
 		{
 			if (first) first = false;
 			else request << join;
-			pred(request, *from);
+			pred(request, item);
 		}
 	}
 

@@ -99,8 +99,7 @@ namespace FastCGI { namespace app { namespace api
 		}
 
 #if DEBUG_CGI
-		static OperationMap::const_iterator begin() { return get().m_handlers.begin(); }
-		static OperationMap::const_iterator end() { return get().m_handlers.end(); }
+		static const OperationMap& operations() { return get().m_handlers; }
 #endif
 
 	};

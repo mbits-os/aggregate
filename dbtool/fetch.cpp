@@ -78,7 +78,7 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 
 			printf("HEADERS:\n");
 			auto headers = xhr->getResponseHeaders();
-			std::for_each(headers.begin(), headers.end(), [](const std::pair<std::string, std::string>& value)
+			for (auto&& value: headers)
 			{
 				bool upcase = true;
 				std::string head = value.first;
@@ -94,7 +94,7 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 					return c;
 				});
 				printf("%s: %s\n", head.c_str(), value.second.c_str());
-			});
+			};
 			printf("\n");
 		}
 
@@ -250,10 +250,9 @@ void printOutline(const opml::Outline& outline, size_t depth = 0)
 	}
 	std::cout << std::endl;
 
-	auto cur = outline.m_children.begin(), end = outline.m_children.end();
 	++depth;
-	for (; cur != end; ++cur)
-		printOutline(*cur, depth);
+	for (auto&& child: outline.m_children)
+		printOutline(child, depth);
 }
 
 int opml_cmd(int argc, char* argv[], const db::ConnectionPtr&)

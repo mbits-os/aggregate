@@ -147,28 +147,40 @@ namespace db
 				return m_views.back();
 			}
 
-			template <typename Iter, typename T>
-			static void each(std::list<std::string>& out, Iter from, Iter to, std::string (T::*op)() const)
+			template <typename Cont, typename T>
+			static void each(std::list<std::string>& out, const Cont& cont, std::string (T::*op)() const)
 			{
-				for (; from != to; ++from)
+				for (const T& item : cont)
 				{
-					const T& item = *from;
 					out.push_back((item.*op)());
 				}
 			}
 
+			template <typename Cont>
+			struct reverse_t
+			{
+				const Cont& ref;
+			public:
+				reverse_t(const Cont& ref) : ref(ref) {}
+				typename Cont::const_reverse_iterator begin() const { return ref.rbegin(); }
+				typename Cont::const_reverse_iterator end() const { return ref.rend(); }
+			};
+
+			template <typename Cont>
+			static reverse_t<Cont> reverse(const Cont& cont) { return reverse_t<Cont>(cont); }
+
 			std::list<std::string> drop() const
 			{
 				std::list<std::string> out;
-				each(out, m_views.rbegin(), m_views.rend(), &View::drop);
-				each(out, m_tables.rbegin(), m_tables.rend(), &Table::drop);
+				each(out, reverse(m_views), &View::drop);
+				each(out, reverse(m_tables), &Table::drop);
 				return out;
 			}
 			std::list<std::string> create() const
 			{
 				std::list<std::string> out;
-				each(out, m_tables.begin(), m_tables.end(), &Table::create);
-				each(out, m_views.begin(), m_views.end(), &View::create);
+				each(out, m_tables, &Table::create);
+				each(out, m_views, &View::create);
 				return out;
 			}
 
