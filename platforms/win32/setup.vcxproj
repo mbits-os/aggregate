@@ -29,6 +29,7 @@
     <None Include="..\3rdparty.files" />
     <None Include="..\dbtool.files" />
     <None Include="..\libenv.files" />
+    <None Include="..\libremote.files" />
     <None Include="..\server.files" />
     <CustomBuild Include="projects.cmd">
       <FileType>Document</FileType>

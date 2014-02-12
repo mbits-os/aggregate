@@ -13,7 +13,7 @@ predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
 libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt"]
-common_incl = [root+"3rd/libfcgi/inc", root+"libenv/includes"]
+common_incl = [root+"3rd/libfcgi/inc", root+"libenv/includes", root+"libremote/includes"]
 
 _3rd = Project("3rdparty",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN", "HAVE_MEMMOVE"],
@@ -22,6 +22,10 @@ _3rd = Project("3rdparty",
 libenv = Project("libenv",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
                [], [root+"libenv"] + common_incl, kStaticLibrary, predef)
+
+libremote = Project("libremote",
+               ["POSIX"],
+               [], [root+"libremote"] + common_incl, kStaticLibrary, predef)
 
 dbtool = Project("dbtool", 
                  ["POSIX"],
@@ -32,15 +36,17 @@ server = Project("server",
                  libs, [root+"server"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
+libremote.out = "remote"
 server.out = "index.app"
 
 libenv.depends_on(_3rd)
 dbtool.depends_on(libenv)
 dbtool.depends_on(_3rd)
+server.depends_on(libremote)
 server.depends_on(libenv)
 server.depends_on(_3rd)
 
-projects = [_3rd, libenv, dbtool, server]
+projects = [_3rd, libenv, libremote, dbtool, server]
 
 print "include common.mak"
 print

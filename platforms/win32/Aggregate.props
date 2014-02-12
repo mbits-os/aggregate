@@ -5,12 +5,8 @@
     <_PropertySheetDisplayName>Aggregate Base Property Sheet</_PropertySheetDisplayName>
     <OutDir>$(SolutionDir)..\..\bin\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\int\$(PlatformName)\$(Configuration)\$(TargetName)$(TargetExt)\</IntDir>
+    <LibraryPath>$(SolutionDir)..\..\bin\$(PlatformName)\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" />
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\..\bin\$(PlatformName)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

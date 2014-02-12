@@ -2,6 +2,7 @@ FILES = \
 	../3rdparty.files \
 	../dbtool.files \
 	../libenv.files \
+	../libremote.files \
 	../server.files
 
 all clean install: Makefile.gen

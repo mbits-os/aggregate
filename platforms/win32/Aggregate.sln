@@ -31,6 +31,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dbtool", "dbtool.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "spawn-fcgi", "spawn-fcgi.vcxproj", "{0C5C2102-0739-4C8B-96DD-8BB9ED6E189B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libremote", "libremote.vcxproj", "{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -85,6 +87,14 @@ Global
 		{0C5C2102-0739-4C8B-96DD-8BB9ED6E189B}.Release|Win32.Build.0 = Release|Win32
 		{0C5C2102-0739-4C8B-96DD-8BB9ED6E189B}.Release|x64.ActiveCfg = Release|x64
 		{0C5C2102-0739-4C8B-96DD-8BB9ED6E189B}.Release|x64.Build.0 = Release|x64
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Debug|Win32.Build.0 = Debug|Win32
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Debug|x64.ActiveCfg = Debug|x64
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Debug|x64.Build.0 = Debug|x64
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Release|Win32.ActiveCfg = Release|Win32
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Release|Win32.Build.0 = Release|Win32
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Release|x64.ActiveCfg = Release|x64
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

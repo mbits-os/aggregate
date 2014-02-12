@@ -8,6 +8,7 @@
     <None Include="..\libenv.files" />
     <None Include="..\..\strings\site_strings.txt" />
     <None Include="..\..\strings\client.strings" />
+    <None Include="..\libremote.files" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="projects.cmd" />
