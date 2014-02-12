@@ -93,7 +93,7 @@ namespace remote
 
 	pid::pid(const std::string& path) : m_path{ path }
 	{
-		FD fd{ open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL | O_TEXT) };
+		FD fd{ open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0640) };
 		if (!fd)
 		{
 			int err = errno;
@@ -118,7 +118,7 @@ namespace remote
 
 	bool pid::read(const std::string& path, int& _pid)
 	{
-		FD fd{ open(path.c_str(), O_RDONLY | O_TEXT) };
+		FD fd{ open(path.c_str(), O_RDONLY) };
 		if (!fd)
 		{
 			int err = errno;

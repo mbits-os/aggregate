@@ -35,7 +35,6 @@
 #include <thread>
 #include <vector>
 
-#include <io.h>
 #include <fcntl.h>
 #include <memory.h>
 #include <signal.h>
@@ -48,6 +47,7 @@
 
 #ifdef _WIN32
 #include <process.h>
+#include <io.h>
 #else
 #include <unistd.h>
 #define _getpid getpid
