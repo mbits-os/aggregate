@@ -68,3 +68,4 @@ libenv/utils/mt_posix.cpp
 libenv/utils/mt_posix.cpp=exclude:*|*
 libenv/utils/mt_win32.cpp
 #endif
+libenv/utils/mt.cpp
