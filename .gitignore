@@ -50,6 +50,7 @@ httpd/libmysql.dll
 httpd/conn.ini
 httpd/error-*.log
 httpd/reedr.log
+httpd/reedr.pid
 httpd/locales/charset/
 httpd/locales/charset.db
 *.lng
@@ -121,3 +122,5 @@ client-*.js
 /3rd/openssl/crypto/x86cpuid.asm
 /3rd/openssl/ms/uptable.asm
 Thumbs.db
+
+/3rd/curl-7.30.0-devel-mingw32

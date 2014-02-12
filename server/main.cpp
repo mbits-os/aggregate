@@ -112,6 +112,7 @@ public:
 
 int main (int argc, char* argv[])
 {
+	FastCGI::FLogSource log(LOG_FILE);
 	remote::signals signals{ std::make_shared<RemoteLogger>() };
 
 	Args args;
@@ -126,7 +127,6 @@ int main (int argc, char* argv[])
 	if (!args.command.empty())
 		return send_command(args.command, signals);
 
-	FastCGI::FLogSource log(LOG_FILE);
 	try
 	{
 		FLOG << "Application started";
