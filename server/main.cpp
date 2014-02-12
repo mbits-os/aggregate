@@ -31,6 +31,8 @@
 #include "args.hpp"
 #include <exception>
 #include <stdexcept>
+#include <remote/signals.hpp>
+#include <remote/pid.hpp>
 
 #define THREAD_COUNT 1
 
@@ -73,8 +75,29 @@ public:
 
 #define RETURN_IF_ERROR(cmd) do { auto ret = (cmd); if (ret) return ret; } while (0)
 
+class RemoteLogger : public remote::logger
+{
+	class StreamLogger : public remote::stream_logger
+	{
+		FastCGI::ApplicationLog m_log;
+	public:
+		StreamLogger(const char* path, int line)
+			: m_log{ path, line }
+		{}
+
+		std::ostream& out() override { return m_log.log(); }
+	};
+public:
+	remote::stream_logger_ptr line(const char* path, int line) override
+	{
+		return std::make_shared<StreamLogger>(path, line);
+	}
+};
+
 int main (int argc, char* argv[])
 {
+	remote::signals signals{ std::make_shared<RemoteLogger>() };
+
 	Args args;
 	RETURN_IF_ERROR(args.read(argc, argv));
 
@@ -89,6 +112,8 @@ int main (int argc, char* argv[])
 	{
 		FLOG << "Application started";
 
+		remote::pid guard(PID_FILE);
+
 		db::environment env;
 		if (env.failed) return 1;
 
@@ -96,6 +121,8 @@ int main (int argc, char* argv[])
 
 		FastCGI::Application app;
 		RETURN_IF_ERROR(app.init(LOCALE_PATH));
+
+		signals.set("stop", [&app](){ app.shutdown(); });
 
 		if (!args.uri.empty())
 		{
