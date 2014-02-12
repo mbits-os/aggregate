@@ -75,6 +75,22 @@ public:
 
 #define RETURN_IF_ERROR(cmd) do { auto ret = (cmd); if (ret) return ret; } while (0)
 
+static int send_command(std::string& cmd, remote::signals& signals)
+{
+	int pid = -1;
+	if (!remote::pid::read(PID_FILE, pid))
+	{
+		std::cerr << PID_FILE << " not found.\n";
+		return 1;
+	}
+
+	for (auto& c : cmd)
+		c = ::tolower((unsigned char)c);
+
+	signals.signal(cmd.c_str(), pid);
+	return 0;
+}
+
 class RemoteLogger : public remote::logger
 {
 	class StreamLogger : public remote::stream_logger
@@ -101,11 +117,8 @@ int main (int argc, char* argv[])
 	Args args;
 	RETURN_IF_ERROR(args.read(argc, argv));
 
-	if (args.command != ECommands::NONE)
-	{
-		std::cerr << "-k not yet supported\n";
-		return 1;
-	}
+	if (!args.command.empty())
+		return send_command(args.command, signals);
 
 	FastCGI::FLogSource log(LOG_FILE);
 	try

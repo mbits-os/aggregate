@@ -29,31 +29,10 @@
 #include <cctype>
 #include <iostream>
 
-enum class ECommands
-{
-	NONE,
-	START,
-	STOP
-};
-
-inline std::istream& operator >> (std::istream& i, ECommands& cmd)
-{
-	std::string s;
-	i >> s;
-	for (auto& c : s)
-		c = std::tolower((unsigned char)c);
-
-	if (s == "start") cmd = ECommands::START;
-	else if (s == "stop") cmd = ECommands::STOP;
-	else cmd = ECommands::NONE;
-
-	return i;
-}
-
 struct Args
 {
 	std::string uri;
-	ECommands command = ECommands::NONE;
+	std::string command;
 
 	int read(int argc, char* argv[])
 	{
