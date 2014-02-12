@@ -1,0 +1,15 @@
+libremote/pch.h
+libremote/pch.cpp=pch:1
+
+libremote/includes/remote/signals.hpp
+libremote/includes/remote/pid.hpp
+
+#ifdef POSIX
+libremote/src/signals_posix.cpp
+#endif
+#ifdef WIN32
+libremote/src/signals_posix.cpp=exclude:*|*
+libremote/src/signals_win32.cpp
+#endif
+libremote/src/signals.cpp
+libremote/src/pid.cpp
