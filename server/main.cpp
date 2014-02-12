@@ -29,6 +29,8 @@
 #include <string.h>
 #include <http.hpp>
 #include "args.hpp"
+#include <exception>
+#include <stdexcept>
 
 #define THREAD_COUNT 1
 
@@ -83,30 +85,47 @@ int main (int argc, char* argv[])
 	}
 
 	FastCGI::FLogSource log(LOG_FILE);
-	FLOG << "Application started";
-
-	db::environment env;
-	if (env.failed) return 1;
-
-	http::init(CHARSET_PATH);
-
-	FastCGI::Application app;
-	RETURN_IF_ERROR(app.init(LOCALE_PATH));
-
-	if (!args.uri.empty())
+	try
 	{
-		Thread local(args.uri.c_str());
-		local.setApplication(app);
+		FLOG << "Application started";
 
-		app.addStlSession();
+		db::environment env;
+		if (env.failed) return 1;
 
-		local.handleRequest();
+		http::init(CHARSET_PATH);
+
+		FastCGI::Application app;
+		RETURN_IF_ERROR(app.init(LOCALE_PATH));
+
+		if (!args.uri.empty())
+		{
+			Thread local(args.uri.c_str());
+			local.setApplication(app);
+
+			app.addStlSession();
+
+			local.handleRequest();
+			return 0;
+		}
+
+		if (!app.addThreads<Thread>(THREAD_COUNT))
+			return 1;
+
+		app.run();
+
+		FLOG << "Application stopped";
 		return 0;
 	}
-
-	if (!app.addThreads<Thread>(THREAD_COUNT))
+	catch (std::exception& ex)
+	{
+		std::cout << "error:" << ex.what() << std::endl;
+		FLOG << "error: " << ex.what();
 		return 1;
-
-	app.run();
-	return 0;
+	}
+	catch (...)
+	{
+		std::cout << "unknown error." << std::endl;
+		FLOG << "unknown error";
+		return 1;
+	}
 }
