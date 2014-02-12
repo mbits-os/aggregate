@@ -33,12 +33,13 @@ struct Args
 {
 	std::string uri;
 	std::string command;
+	bool version = false;
 
 	int read(int argc, char* argv[])
 	{
 		getopt::options opts;
 
-		if (!opts.add_arg("u", uri).add_arg("k", command).read(argc, argv))
+		if (!opts.add_arg("u", uri).add_arg("k", command).add("v", version).read(argc, argv))
 		{
 			switch (opts.cause())
 			{

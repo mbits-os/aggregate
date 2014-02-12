@@ -117,6 +117,12 @@ int main (int argc, char* argv[])
 	Args args;
 	RETURN_IF_ERROR(args.read(argc, argv));
 
+	if (args.version)
+	{
+		std::cout << http::getUserAgent() << std::endl;
+		return 0;
+	}
+
 	if (!args.command.empty())
 		return send_command(args.command, signals);
 
