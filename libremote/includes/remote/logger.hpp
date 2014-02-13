@@ -22,40 +22,47 @@
  * SOFTWARE.
  */
 
-#ifndef __LIBREMOTE_SIGNALS_HPP__
-#define __LIBREMOTE_SIGNALS_HPP__
+#ifndef __LIBREMOTE_LOGGER_HPP__
+#define __LIBREMOTE_LOGGER_HPP__
 
 #include <memory>
-#include <functional>
-#include "logger.hpp"
+#include <stdarg.h>
 
 namespace remote
 {
-	using signal_t = std::function<void()>;
-
-	namespace os
+	struct stream_logger
 	{
-		struct signals;
-		using signals_ptr = std::shared_ptr<signals>;
-		struct signals
-		{
-			static signals_ptr create(const logger_ptr& log);
-			virtual ~signals() {}
-			virtual bool set(const char* sig, const signal_t& fn) = 0;
-			virtual bool signal(const char* sig, int pid) = 0;
-			virtual void cleanup() {}
-		};
-	}
+		virtual ~stream_logger() {}
+		virtual std::ostream& out() = 0;
+	};
 
-	class signals
+	using stream_logger_ptr = std::shared_ptr<stream_logger>;
+
+	struct logger
 	{
-		os::signals_ptr os_sig;
+		virtual ~logger() {}
+		virtual stream_logger_ptr line(const char* path, int line) = 0;
+	};
+
+	using logger_ptr = std::shared_ptr<logger>;
+
+	class line_logger
+	{
+		stream_logger_ptr m_line;
 	public:
-		explicit signals(const logger_ptr& log) : os_sig{ os::signals::create(log) } {}
-		~signals() { os_sig->cleanup(); }
-		bool set(const char* sig, const signal_t& fn) { return os_sig->set(sig, fn); }
-		bool signal(const char* sig, int pid) { return os_sig->signal(sig, pid); }
+		line_logger(const logger_ptr& logger, const char* path, int line) : m_line(logger->line(path, line))
+		{
+		}
+
+		template <typename T>
+		line_logger& operator << (const T& t)
+		{
+			m_line->out() << t;
+			return *this;
+		}
 	};
 }
 
-#endif // __LIBREMOTE_SIGNALS_HPP__
+#define LOG(logger) remote::line_logger{ logger, __FILE__, __LINE__ }
+
+#endif // __LIBREMOTE_LOGGER_HPP__

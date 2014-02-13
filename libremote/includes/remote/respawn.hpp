@@ -22,40 +22,46 @@
  * SOFTWARE.
  */
 
-#ifndef __LIBREMOTE_SIGNALS_HPP__
-#define __LIBREMOTE_SIGNALS_HPP__
+#ifndef __LIBREMOTE_RESPAWN_HPP__
+#define __LIBREMOTE_RESPAWN_HPP__
 
 #include <memory>
 #include <functional>
+#include <string>
+#include <vector>
+
 #include "logger.hpp"
 
 namespace remote
 {
-	using signal_t = std::function<void()>;
-
 	namespace os
 	{
-		struct signals;
-		using signals_ptr = std::shared_ptr<signals>;
-		struct signals
+		struct socklib
 		{
-			static signals_ptr create(const logger_ptr& log);
-			virtual ~signals() {}
-			virtual bool set(const char* sig, const signal_t& fn) = 0;
-			virtual bool signal(const char* sig, int pid) = 0;
-			virtual void cleanup() {}
+			socklib();
+			~socklib();
 		};
+
+		void close(int socket);
+		int fcgi(int stdIn, const std::vector<std::string>& args);
 	}
 
-	class signals
+	class spawn_error : public std::runtime_error
 	{
-		os::signals_ptr os_sig;
+		int retVal;
 	public:
-		explicit signals(const logger_ptr& log) : os_sig{ os::signals::create(log) } {}
-		~signals() { os_sig->cleanup(); }
-		bool set(const char* sig, const signal_t& fn) { return os_sig->set(sig, fn); }
-		bool signal(const char* sig, int pid) { return os_sig->signal(sig, pid); }
+		spawn_error(int retVal, const std::string& msg)
+			: std::runtime_error(msg)
+			, retVal(retVal)
+		{}
+
+		int returnValue() const { return retVal; }
+	};
+
+	struct respawn
+	{
+		static int fcgi(const logger_ptr& log, const std::string& ip, unsigned int port, const std::vector<std::string>& args);
 	};
 }
 
-#endif // __LIBREMOTE_SIGNALS_HPP__
+#endif // __LIBREMOTE_RESPAWN_HPP__
