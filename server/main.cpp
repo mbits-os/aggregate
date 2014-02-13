@@ -37,18 +37,17 @@
 #define THREAD_COUNT 1
 
 #ifdef _WIN32
-#define LOCALE_PATH "..\\locales\\"
-#define CHARSET_PATH "..\\locales\\charset.db"
-#define LOG_FILE "..\\reedr.log"
-#define PID_FILE "..\\reedr.pid"
+#	define SEP_S "\\"
+#	define APP_PATH "..\\"
+#else
+#	define SEP_S "/"
+#	define APP_PATH "/usr/share/reedr/"
 #endif
 
-#ifdef POSIX
-#define LOCALE_PATH "/usr/share/reedr/locales/"
-#define LOG_FILE "/usr/share/reedr/reedr.log"
-#define CHARSET_PATH "/usr/share/reedr/locales/charset.db"
-#define PID_FILE "/usr/share/reedr/reedr.pid"
-#endif
+#define LOCALE_PATH  APP_PATH "locales" SEP_S
+#define CHARSET_PATH APP_PATH "locales" SEP_S "charset.db"
+#define LOG_FILE     APP_PATH "reedr.log"
+#define PID_FILE     APP_PATH "reedr.pid"
 
 REGISTER_REDIRECT("/", "/view/");
 
@@ -75,22 +74,6 @@ public:
 
 #define RETURN_IF_ERROR(cmd) do { auto ret = (cmd); if (ret) return ret; } while (0)
 
-static int send_command(std::string& cmd, remote::signals& signals)
-{
-	int pid = -1;
-	if (!remote::pid::read(PID_FILE, pid))
-	{
-		std::cerr << PID_FILE << " not found.\n";
-		return 1;
-	}
-
-	for (auto& c : cmd)
-		c = ::tolower((unsigned char)c);
-
-	signals.signal(cmd.c_str(), pid);
-	return 0;
-}
-
 class RemoteLogger : public remote::logger
 {
 	class StreamLogger : public remote::stream_logger
@@ -110,68 +93,124 @@ public:
 	}
 };
 
-int main (int argc, char* argv[])
+struct Main
 {
-	FastCGI::FLogSource log(LOG_FILE);
-	remote::signals signals{ std::make_shared<RemoteLogger>() };
-
+	FastCGI::FLogSource log;
+	remote::signals signals;
 	Args args;
-	RETURN_IF_ERROR(args.read(argc, argv));
 
-	if (args.version)
+	Main()
+		: log{ LOG_FILE }
+		, signals{ std::make_shared<RemoteLogger>() }
+	{
+	}
+
+	int run(int argc, char* argv[])
+	{
+		RETURN_IF_ERROR(args.read(argc, argv));
+
+		if (args.version)
+			return version();
+
+		if (!args.command.empty())
+			return commands();
+
+		if (!args.uri.empty())
+			return run<Debug>();
+
+		return run<FCGI>();
+	}
+
+	int version()
 	{
 		std::cout << http::getUserAgent() << std::endl;
 		return 0;
 	}
 
-	if (!args.command.empty())
-		return send_command(args.command, signals);
-
-	try
+	int commands()
 	{
-		FLOG << "Application started";
+		for (auto& c : args.command)
+			c = ::tolower((unsigned char)c);
 
-		remote::pid guard(PID_FILE);
-
-		db::environment env;
-		if (env.failed) return 1;
-
-		http::init(CHARSET_PATH);
-
-		FastCGI::Application app;
-		RETURN_IF_ERROR(app.init(LOCALE_PATH));
-
-		signals.set("stop", [&app](){ app.shutdown(); });
-
-		if (!args.uri.empty())
+		int pid = -1;
+		if (!remote::pid::read(PID_FILE, pid))
 		{
-			Thread local(args.uri.c_str());
+			std::cerr << PID_FILE << " not found.\n";
+			return 1;
+		}
+
+		signals.signal(args.command.c_str(), pid);
+		return 0;
+	}
+
+	template <typename Runtime>
+	int run()
+	{
+		try
+		{
+			remote::pid guard(PID_FILE);
+
+			db::environment env;
+			if (env.failed) return 1;
+
+			http::init(CHARSET_PATH);
+
+			FastCGI::Application app;
+			RETURN_IF_ERROR(app.init(LOCALE_PATH));
+
+			signals.set("stop", [&app](){ app.shutdown(); });
+
+			return Runtime::run(*this, app);
+		}
+		catch (std::exception& ex)
+		{
+			std::cout << "error:" << ex.what() << std::endl;
+			FLOG << "error: " << ex.what();
+			return 1;
+		}
+		catch (...)
+		{
+			std::cout << "unknown error." << std::endl;
+			FLOG << "unknown error";
+			return 1;
+		}
+	}
+
+	struct Debug
+	{
+		static int run(Main& service, FastCGI::Application& app)
+		{
+			Thread local(service.args.uri.c_str());
 			local.setApplication(app);
 
 			app.addStlSession();
 
+			std::cout << "Enter the input stream and finish with ^Z:" << std::endl;
 			local.handleRequest();
 			return 0;
 		}
+	};
 
-		if (!app.addThreads<Thread>(THREAD_COUNT))
-			return 1;
-
-		app.run();
-
-		FLOG << "Application stopped";
-		return 0;
-	}
-	catch (std::exception& ex)
+	struct FCGI
 	{
-		std::cout << "error:" << ex.what() << std::endl;
-		FLOG << "error: " << ex.what();
-		return 1;
-	}
-	catch (...)
-	{
-		std::cout << "unknown error." << std::endl;
-		FLOG << "unknown error";
-		return 1;
-	}
+		static int run(Main& service, FastCGI::Application& app)
+		{
+			if (!app.addThreads<Thread>(THREAD_COUNT))
+				return 1;
+
+			FLOG << "Application started";
+
+			app.run();
+
+			FLOG << "Application stopped";
+			return 0;
+		}
+	};
+};
+
+int main (int argc, char* argv[])
+{
+	Main service;
+
+	return service.run(argc, argv);
 }
