@@ -2,6 +2,7 @@ server/pch.h
 server/pch.cpp=pch:1
 server/main.cpp
 server/args.hpp
+server/server_config.hpp
 server/pages/debug_handler.cpp
 server/pages/view_handler.cpp
 server/pages/auth/login_handler.cpp
