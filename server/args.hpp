@@ -75,7 +75,7 @@ struct Args
 		int ret = args(getopt::options::sieve(argc, argv, moved, "kv"));
 		if (ret)
 			return ret;
-		remote::respawn::fcgi(logger, addr, port, moved);
+		return remote::respawn::fcgi(logger, addr, port, moved);
 	}
 };
 
