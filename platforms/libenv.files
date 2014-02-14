@@ -27,6 +27,7 @@ libenv/includes/mt.hpp
 libenv/includes/filter.hpp
 libenv/includes/mail.hpp
 libenv/includes/getopt.hpp
+libenv/includes/config.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -35,6 +36,7 @@ libenv/model/model.cpp
 libenv/crypt/crypt.cpp
 libenv/utils/url_utils.cpp
 libenv/utils/time_utils.cpp
+libenv/utils/config.cpp
 libenv/fast_cgi/application.cpp
 libenv/fast_cgi/backends.cpp
 libenv/fast_cgi/request.cpp

@@ -47,9 +47,10 @@ httpd/dbtool.exe
 httpd/dbtool
 httpd/libmysql.dll
 # removing a file with a password from a public repo
-httpd/conn.ini
+httpd/confs/conn.ini
+httpd/confs/smtp.ini
 httpd/error-*.log
-httpd/reedr.log
+httpd/logs/reedr.log
 httpd/reedr.pid
 httpd/locales/charset/
 httpd/locales/charset.db
