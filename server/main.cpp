@@ -29,6 +29,7 @@
 #include <string.h>
 #include <http.hpp>
 #include "args.hpp"
+#include "server_config.hpp"
 #include <exception>
 #include <stdexcept>
 #include <remote/signals.hpp>
@@ -44,10 +45,7 @@
 #	define APP_PATH "/usr/share/reedr/"
 #endif
 
-#define LOCALE_PATH  APP_PATH "locales" SEP_S
-#define CHARSET_PATH APP_PATH "locales" SEP_S "charset.db"
-#define LOG_FILE     APP_PATH "reedr.log"
-#define PID_FILE     APP_PATH "reedr.pid"
+#define CONFIG_FILE  APP_PATH "confs" SEP_S "reedr.ini"
 
 REGISTER_REDIRECT("/", "/view/");
 
@@ -98,10 +96,12 @@ struct Main
 	FastCGI::FLogSource log;
 	remote::signals signals;
 	Args args;
+	std::shared_ptr<ProxyConfig> config_file;
+	Config config{ config_file };
 
 	Main()
-		: log{ LOG_FILE }
-		, signals{ std::make_shared<RemoteLogger>() }
+		: signals{ std::make_shared<RemoteLogger>() }
+		, config_file{ std::make_shared<ProxyConfig>() }
 	{
 	}
 
@@ -111,6 +111,37 @@ struct Main
 
 		if (args.version)
 			return version();
+
+		bool cfg_needed = true;
+		if (args.config.empty())
+		{
+			cfg_needed = false;
+			args.config = CONFIG_FILE;
+		}
+
+		config_file->m_proxy = config::base::file_config(args.config, cfg_needed);
+		if (!config_file->m_proxy)
+		{
+			FLOG << "Could not open " << args.config;
+			std::cerr << "Could not open " << args.config << std::endl;
+			return 1;
+		}
+
+		log.open(debug_log());
+
+#if 0
+		std::cout
+			<< "config.server.address: " << config.server.address
+			<< "\nconfig.server.static_web: " << config.server.static_web
+			<< "\nconfig.server.pidfile: " << path(config.server.pidfile)
+			<< "\nconfig.connection.database: " << path(config.connection.database)
+			<< "\nconfig.connection.smtp: " << path(config.connection.smtp)
+			<< "\nconfig.locale.dir: " << path(config.locale.dir)
+			<< "\nconfig.locale.charset: " << path(config.locale.charset)
+			<< "\nconfig.logs.access: " << path(config.logs.access)
+			<< "\nconfig.logs.debug: " << path(config.logs.debug)
+			<< std::endl;
+#endif
 
 		if (!args.command.empty())
 			return commands(argc, argv);
@@ -127,6 +158,17 @@ struct Main
 		return 0;
 	}
 
+	std::string path(std::string file)
+	{
+		return file;
+	}
+
+	std::string pidfile() { return path(config.server.pidfile); }
+	std::string charset() { return path(config.locale.charset); }
+	std::string locale() { return path(config.locale.dir); }
+	std::string debug_log() { return path(config.logs.debug); }
+	std::string access_log() { return path(config.logs.access); }
+
 	int commands(int argc, char* argv[])
 	{
 		for (auto& c : args.command)
@@ -136,9 +178,9 @@ struct Main
 			return args.respawn(std::make_shared<RemoteLogger>(), "127.0.0.1", 1337, argc, argv);
 
 		int pid = -1;
-		if (!remote::pid::read(PID_FILE, pid))
+		if (!remote::pid::read(pidfile(), pid))
 		{
-			std::cerr << PID_FILE << " not found.\n";
+			std::cerr << pidfile() << " not found.\n";
 			return 1;
 		}
 
@@ -151,15 +193,15 @@ struct Main
 	{
 		try
 		{
-			remote::pid guard(PID_FILE);
+			remote::pid guard(pidfile());
 
 			db::environment env;
 			if (env.failed) return 1;
 
-			http::init(CHARSET_PATH);
+			http::init(charset().c_str());
 
 			FastCGI::Application app;
-			RETURN_IF_ERROR(app.init(LOCALE_PATH));
+			RETURN_IF_ERROR(app.init(locale().c_str()));
 
 			signals.set("stop", [&app](){ app.shutdown(); });
 

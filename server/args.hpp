@@ -34,15 +34,14 @@ struct Args
 {
 	std::string uri;
 	std::string command;
-	std::string address;
-	unsigned short port;
+	std::string config;
 
 	bool version = false;
 
 	template <typename Action>
 	int args(getopt::options::active_options<Action> action)
 	{
-		if (!action.add_arg("u", uri).add_arg("k", command).add("v", version).add_arg("a", address).add_arg("p", port).act())
+		if (!action.add_arg("u", uri).add_arg("k", command).add("v", version).add_arg("c", config).act())
 		{
 			switch (action.cause())
 			{
