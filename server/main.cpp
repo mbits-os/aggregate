@@ -33,7 +33,6 @@
 #include <stdexcept>
 #include <remote/signals.hpp>
 #include <remote/pid.hpp>
-#include <remote/respawn.hpp>
 
 #define THREAD_COUNT 1
 
@@ -114,7 +113,7 @@ struct Main
 			return version();
 
 		if (!args.command.empty())
-			return commands(argv[0]);
+			return commands(argc, argv);
 
 		if (!args.uri.empty())
 			return run<Debug>();
@@ -128,16 +127,13 @@ struct Main
 		return 0;
 	}
 
-	int commands(char* appname)
+	int commands(int argc, char* argv[])
 	{
 		for (auto& c : args.command)
 			c = ::tolower((unsigned char)c);
 
 		if (args.command == "start")
-		{
-			std::vector<std::string> args = { appname };
-			remote::respawn::fcgi(std::make_shared<RemoteLogger>(), "127.0.0.1", 1337, args);
-		}
+			return args.respawn(std::make_shared<RemoteLogger>(), "127.0.0.1", 1337, argc, argv);
 
 		int pid = -1;
 		if (!remote::pid::read(PID_FILE, pid))

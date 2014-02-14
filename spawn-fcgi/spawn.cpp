@@ -249,12 +249,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	int child_count = 1;
 	bool version = false, help = false;
 
-	getopt::toptions opts;
+	auto opts = getopt::toptions::read(argc, argv);
 	opts
 		.add_arg(_T("f"), app).add_arg(_T("d"), dir).add_arg(_T("a"), addr).add_arg(_T("p"), port).add_arg(_T("C"), child_count)
 		.add(_T("v"), version).add(_T("h"), help);
 
-	if (!opts.read(argc, argv))
+	if (!opts.act())
 	{
 		auto arg = getopt::conv_impl<TCHAR, std::string>::convert(opts.cause_arg().c_str());
 		switch (opts.cause())

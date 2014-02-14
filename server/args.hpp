@@ -28,37 +28,54 @@
 #include <getopt.hpp>
 #include <cctype>
 #include <iostream>
+#include <remote/respawn.hpp>
 
 struct Args
 {
 	std::string uri;
 	std::string command;
+	std::string address;
+	unsigned short port;
+
 	bool version = false;
 
-	int read(int argc, char* argv[])
+	template <typename Action>
+	int args(getopt::options::active_options<Action> action)
 	{
-		getopt::options opts;
-
-		if (!opts.add_arg("u", uri).add_arg("k", command).add("v", version).read(argc, argv))
+		if (!action.add_arg("u", uri).add_arg("k", command).add("v", version).add_arg("a", address).add_arg("p", port).act())
 		{
-			switch (opts.cause())
+			switch (action.cause())
 			{
 			default:
-				std::cerr << "Internal error (" << opts.cause() << ")";
+				std::cerr << "Internal error (" << action.cause() << ")";
 				break;
 			case getopt::NO_ARGUMENT:
-				std::cerr << "Argument missing for " << opts.cause_arg();
+				std::cerr << "Argument missing for " << action.cause_arg();
 				break;
 			case getopt::UNKNOWN:
-				std::cerr << "Argument " << opts.cause_arg() << " is unknown";
+				std::cerr << "Argument " << action.cause_arg() << " is unknown";
 				break;
 			}
 
 			std::cerr << std::endl;
-			return opts.cause();
+			return action.cause();
 		};
 
 		return 0;
+	}
+
+	int read(int argc, char* argv[])
+	{
+		return args(getopt::options::read(argc, argv));
+	}
+
+	int respawn(const remote::logger_ptr& logger, const std::string& addr, unsigned short port, int argc, char* argv[])
+	{
+		std::vector<std::string> moved{ argv[0] };
+		int ret = args(getopt::options::sieve(argc, argv, moved, "kv"));
+		if (ret)
+			return ret;
+		remote::respawn::fcgi(logger, addr, port, moved);
 	}
 };
 

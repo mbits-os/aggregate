@@ -143,6 +143,8 @@ namespace remote
 			printf("Process %d spawned successfully\n", pi.dwProcessId);
 
 			CloseHandle(pi.hProcess);
+
+			return 0;
 		}
 	}
 }
