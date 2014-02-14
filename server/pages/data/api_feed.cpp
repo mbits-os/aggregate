@@ -177,13 +177,12 @@ namespace FastCGI { namespace app { namespace api
 				db::ConnectionPtr db = request.dbConn();
 				db::Transaction transaction(db);
 				if (!transaction.begin())
-					request.on500();
+					request.on500("No translation found for the Feed operation");
 
 				header = db->prepare("SELECT title, site, feed AS url, author, authorLink, last_update FROM feed WHERE _id=?");
 				if (!header || !header->bind(0, answer.feed))
 				{
-					FLOG << (header ? header->errorMessage() : db->errorMessage());
-					request.on500();
+					request.on500(header ? header->errorMessage() : db->errorMessage());
 				}
 
 				headerCursor = header->query();
@@ -200,8 +199,7 @@ namespace FastCGI { namespace app { namespace api
 					entries = db->prepare("SELECT _id, title, url, author, authorLink, date, description, contents FROM entry WHERE feed_id=? ORDER BY _id DESC", answer.page * answer.pageLength, (answer.page + 1) * answer.pageLength);
 					if (!entries || !entries->bind(0, answer.feed))
 					{
-						FLOG << (entries ? entries->errorMessage() : db->errorMessage());
-						request.on500();
+						request.on500(entries ? entries->errorMessage() : db->errorMessage());
 					}
 					answer.entries = entries->query();
 					if (!answer.entries)

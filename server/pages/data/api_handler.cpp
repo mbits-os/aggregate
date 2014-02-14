@@ -66,13 +66,14 @@ namespace FastCGI { namespace app { namespace reader {
 				request.setHeader("Content-Type", "application/json; charset=utf-8");
 				request.setHeader("Status", "404 Operation not recognized");
 				request << "{\"error\":\"Operation not recognized\",\"op\":" << json::escape(request.getVariable("op")) << "}";
+				FLOG << "Operation not recognized for " << request.getVariable("op");
 				request.die();
 			}
 
 			SessionPtr session = request.getSession();
 			PageTranslation tr;
 			if (!tr.init(session, request))
-				request.on500();
+				request.on500("No translation found for the ApiPageHandler");
 
 			ptr->render(session, request, tr);
 		}

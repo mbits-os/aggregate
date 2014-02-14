@@ -95,7 +95,7 @@ namespace FastCGI { namespace app { namespace api
 				{
 					switch(answer.feed)
 					{
-					case SERR_INTERNAL_ERROR: request.on500();
+					case SERR_INTERNAL_ERROR: request.on500(std::string("Could not subscribe to ") + url);
 					case SERR_4xx_ANSWER:   err.error = tr(lng::LNG_FEED_FAILED); break;
 					case SERR_5xx_ANSWER:   err.error = tr(lng::LNG_FEED_SERVER_FAILED); break;
 					case SERR_OTHER_ANSWER: err.error = tr(lng::LNG_FEED_ERROR); break;
@@ -108,12 +108,12 @@ namespace FastCGI { namespace app { namespace api
 			{
 				db::ConnectionPtr db = request.dbConn();
 				auto select = db->prepare("SELECT folder_id, ord FROM subscription WHERE feed_id=? AND folder_id IN (SELECT _id FROM folder WHERE user_id=?)");
-				if (!select) request.on500();
-				if (!select->bind(0, answer.feed)) request.on500();
-				if (!select->bind(1, session->getId())) request.on500();
+				if (!select) request.on500(db->errorMessage());
+				if (!select->bind(0, answer.feed)) request.on500(select->errorMessage());
+				if (!select->bind(1, session->getId())) request.on500(select->errorMessage());
 
 				auto c = select->query();
-				if (!c || !c->next()) request.on500();
+				if (!c || !c->next()) request.on500(select->errorMessage());
 
 				answer.folder = c->getLongLong(0);
 				answer.position = c->getLong(1);

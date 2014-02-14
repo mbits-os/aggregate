@@ -77,7 +77,7 @@ namespace FastCGI { namespace app { namespace reader {
 						if (session.get())
 							onAuthFinished(request);
 						else
-							request.on500();
+							request.on500("Session could not be started");
 					}
 				}
 			}

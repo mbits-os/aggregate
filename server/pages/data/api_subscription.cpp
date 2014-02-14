@@ -77,15 +77,13 @@ namespace json
 	auto stmt = db->prepare(QUERY); \
 	if (!stmt || !stmt->bind(0, session->getId())) \
 	{ \
-		FLOG << (stmt ? stmt->errorMessage() : db->errorMessage()); \
-		request.on500(); \
+		request.on500(stmt ? stmt->errorMessage() : db->errorMessage()); \
 	} \
 	\
 	subs.stmt = stmt->query(); \
 	if (!subs.stmt) \
 	{ \
-		FLOG << stmt->errorMessage(); \
-		request.on500(); \
+		request.on500(stmt->errorMessage()); \
 	}
 
 namespace FastCGI { namespace app { namespace api {
