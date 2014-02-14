@@ -203,6 +203,8 @@ struct Main
 			FastCGI::Application app;
 			RETURN_IF_ERROR(app.init(locale().c_str()));
 
+			app.setStaticResources(config.server.static_web);
+
 			signals.set("stop", [&app](){ app.shutdown(); });
 
 			return Runtime::run(*this, app);

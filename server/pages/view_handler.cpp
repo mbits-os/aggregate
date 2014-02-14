@@ -42,10 +42,10 @@ namespace FastCGI { namespace app { namespace reader {
 			std::transform(culture.begin(), culture.end(), culture.begin(), [](char c) { return c == '-' ? '_' : c; });
 
 			PageHandler::headElement(session, request, tr);
-			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/lang/client-" << culture << ".js\"></script>\r\n";
-			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/navigation.js\"></script>\r\n";
-			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/listing.js\"></script>\r\n";
-			request << "    <script type=\"text/javascript\" src=\"" STATIC_RESOURCES "/code/view.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" << static_web << "code/lang/client-" << culture << ".js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" << static_web << "code/navigation.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" << static_web << "code/listing.js\"></script>\r\n";
+			request << "    <script type=\"text/javascript\" src=\"" << static_web << "code/view.js\"></script>\r\n";
 		}
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
