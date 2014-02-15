@@ -54,11 +54,14 @@ print
 for pro in projects: pro.print_declaration()
 
 
+out_safe = " ".join([pro.safename + "_out" for pro in projects])
 all_safe = " ".join(["all_" + pro.safename for pro in projects])
-print ".PHONY: all clean install clean_strings strings %s" % all_safe
+print ".PHONY: all clean install clean_strings strings out_dirs out_dir %s %s" % (out_safe, all_safe)
 print
 
-sys.stdout.write("all: strings " + all_safe)
+sys.stdout.write("all: strings out_dirs " + all_safe)
+print
+sys.stdout.write("out_dirs: out_dir " + out_safe)
 print
 
 #sys.stdout.write("install:")
@@ -68,6 +71,8 @@ print
 print """
 clean: clean_strings
 \t@if [ -e $(TMP) ]; then { echo 'RM $(TMP)'; $(RM) -r $(TMP); }; fi
+
+out_dir: $(OUT)
 """
 
 for pro in projects: pro.print_makefile()

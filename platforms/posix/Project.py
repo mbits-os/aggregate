@@ -91,12 +91,18 @@ class Project:
         print
 
     def print_makefile(self):
+        out = "$(OUT)"
+        dirs = self.out.split("/")
+        if len(dirs) > 1:
+            dirs = "/".join(dirs[:len(dirs)-1])
+            out = "$(OUT)/" + dirs
+
         print "############################################"
         print "# %s" % self.name
         print "############################################"
         print
         print "all_" + self.safename + ": " + self.get_dest()
-        print ".PHONY: all_" + self.safename
+        print self.safename + "_out: " + out
         print 
         self.print_compile()
         self.print_link()
@@ -132,13 +138,8 @@ class Project:
         deps = arglist("-l", depends)
         deps2 = arglist("$(OUT)/", self.depends)
         if deps2 != "": deps2 = " " + deps2
-        out = "$(OUT)"
-        dirs = self.out.split("/")
-        if len(dirs) > 1:
-            dirs = "/".join(dirs[:len(dirs)-1])
-            out = "$(OUT)/" + dirs
         print "# link"
-        print "%s: $(%s_TMP) $(%s_OBJ) %s%s Makefile.gen" % (self.get_dest(), n, n, out, deps2)
+        print "%s: $(%s_TMP) $(%s_OBJ) %s Makefile.gen" % (self.get_dest(), n, n, deps2)
         if self.bintype == kApplication:
             print "\t@echo [LINK] $@; $(LINK) $(%s_OBJ) -o $@ %s %s\n" % (n, deps, libs)
         elif self.bintype == kDynamicLibrary:
