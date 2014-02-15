@@ -34,6 +34,9 @@
 #include <stdexcept>
 #include <remote/signals.hpp>
 #include <remote/pid.hpp>
+#include <filesystem.hpp>
+
+namespace fs = filesystem;
 
 #define THREAD_COUNT 1
 
@@ -119,7 +122,11 @@ struct Main
 			args.config = CONFIG_FILE;
 		}
 
-		config_file->m_proxy = config::base::file_config(args.config, cfg_needed);
+		fs::path cfg{ args.config };
+		if (cfg.is_relative())
+			cfg = fs::absolute(cfg);
+
+		config_file->m_proxy = config::base::file_config(cfg, cfg_needed);
 		if (!config_file->m_proxy)
 		{
 			FLOG << "Could not open " << args.config;
@@ -133,13 +140,13 @@ struct Main
 		std::cout
 			<< "config.server.address: " << config.server.address
 			<< "\nconfig.server.static_web: " << config.server.static_web
-			<< "\nconfig.server.pidfile: " << path(config.server.pidfile)
-			<< "\nconfig.connection.database: " << path(config.connection.database)
-			<< "\nconfig.connection.smtp: " << path(config.connection.smtp)
-			<< "\nconfig.locale.dir: " << path(config.locale.dir)
-			<< "\nconfig.locale.charset: " << path(config.locale.charset)
-			<< "\nconfig.logs.access: " << path(config.logs.access)
-			<< "\nconfig.logs.debug: " << path(config.logs.debug)
+			<< "\nconfig.server.pidfile: " << config.server.pidfile << " -> " << path(config.server.pidfile)
+			<< "\nconfig.connection.database: " << config.connection.database << " -> " << path(config.connection.database)
+			<< "\nconfig.connection.smtp: " << config.connection.smtp << " -> " << path(config.connection.smtp)
+			<< "\nconfig.locale.dir: " << config.locale.dir << " -> " << path(config.locale.dir)
+			<< "\nconfig.locale.charset: " << config.locale.charset << " -> " << path(config.locale.charset)
+			<< "\nconfig.logs.access: " << config.logs.access << " -> " << path(config.logs.access)
+			<< "\nconfig.logs.debug: " << config.logs.debug << " -> " << path(config.logs.debug)
 			<< std::endl;
 #endif
 
@@ -160,7 +167,7 @@ struct Main
 
 	std::string path(std::string file)
 	{
-		return file;
+		return fs::canonical(file, fs::path(args.config).parent_path()).native();
 	}
 
 	std::string pidfile() { return path(config.server.pidfile); }
