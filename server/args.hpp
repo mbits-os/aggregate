@@ -68,13 +68,13 @@ struct Args
 		return args(getopt::options::read(argc, argv));
 	}
 
-	int respawn(const remote::logger_ptr& logger, const std::string& addr, unsigned short port, int argc, char* argv[])
+	int respawn(const remote::logger_ptr& logger, const std::string& address, int argc, char* argv[])
 	{
 		std::vector<std::string> moved{ argv[0] };
 		int ret = args(getopt::options::sieve(argc, argv, moved, "kv"));
 		if (ret)
 			return ret;
-		return remote::respawn::fcgi(logger, addr, port, moved);
+		return remote::respawn::fcgi(logger, address, moved);
 	}
 };
 

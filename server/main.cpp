@@ -182,7 +182,7 @@ struct Main
 			c = ::tolower((unsigned char)c);
 
 		if (args.command == "start")
-			return args.respawn(std::make_shared<RemoteLogger>(), "127.0.0.1", 1337, argc, argv);
+			return args.respawn(std::make_shared<RemoteLogger>(), config.server.address, argc, argv);
 
 		int pid = -1;
 		if (!remote::pid::read(pidfile(), pid))

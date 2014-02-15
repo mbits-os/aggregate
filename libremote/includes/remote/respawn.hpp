@@ -60,7 +60,7 @@ namespace remote
 
 	struct respawn
 	{
-		static int fcgi(const logger_ptr& log, const std::string& ip, unsigned int port, const std::vector<std::string>& args);
+		static int fcgi(const logger_ptr& log, const std::string& address, const std::vector<std::string>& args);
 	};
 }
 

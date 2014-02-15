@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include <remote/respawn.hpp>
+#include <tuple>
 
 #ifdef POSIX
 #include <sys/socket.h>
@@ -75,7 +76,7 @@ namespace remote
 	sockaddr* set(sockaddr_in& fcgi_addr_in, const char* addr, unsigned short port)
 	{
 		fcgi_addr_in.sin_family = AF_INET;
-		if (addr != nullptr) {
+		if (addr && *addr) {
 			fcgi_addr_in.sin_addr.s_addr = inet_addr(addr);
 		}
 		else {
@@ -113,8 +114,30 @@ namespace remote
 		return fd.release();
 	}
 
-	int respawn::fcgi(const logger_ptr& log, const std::string& addr, unsigned int port, const std::vector<std::string>& args)
+	std::pair<std::string, unsigned short> break_addr(const std::string& address)
 	{
+		std::pair<std::string, unsigned short> out;
+
+		auto pos = address.find(':');
+		if (pos == std::string::npos)
+		{
+			std::get<0>(out) = address;
+			std::get<1>(out) = 8888;
+		}
+		else
+		{
+			std::get<0>(out) = address.substr(0, pos);
+			std::get<1>(out) = atoi(address.substr(pos + 1).c_str());
+		}
+		return out;
+	}
+
+	int respawn::fcgi(const logger_ptr& log, const std::string& address, const std::vector<std::string>& args)
+	{
+		std::string addr;
+		unsigned short port;
+		std::tie(addr, port) = break_addr(address);
+
 		try
 		{
 			os::socklib lib;
