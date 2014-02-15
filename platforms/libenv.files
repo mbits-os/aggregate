@@ -28,6 +28,7 @@ libenv/includes/filter.hpp
 libenv/includes/mail.hpp
 libenv/includes/getopt.hpp
 libenv/includes/config.hpp
+libenv/includes/filesystem.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -65,9 +66,13 @@ libenv/mail/wiki_parser.hpp
 
 #ifdef POSIX
 libenv/utils/mt_posix.cpp
+libenv/utils/filesystem_posix.cpp
 #endif
 #ifdef WIN32
 libenv/utils/mt_posix.cpp=exclude:*|*
 libenv/utils/mt_win32.cpp
+libenv/utils/filesystem_posix.cpp=exclude:*|*
+libenv/utils/filesystem_win32.cpp
 #endif
 libenv/utils/mt.cpp
+libenv/utils/filesystem.cpp
