@@ -42,18 +42,13 @@ build
 ipch
 output
 bin
-httpd/www/index.app
-httpd/dbtool.exe
-httpd/dbtool
 httpd/libmysql.dll
 # removing a file with a password from a public repo
-httpd/confs/conn.ini
-httpd/confs/smtp.ini
-httpd/error-*.log
+httpd/config/connection.ini
+httpd/config/smtp.ini
 httpd/logs/reedr.log
 httpd/reedr.pid
-httpd/locales/charset/
-httpd/locales/charset.db
+httpd/data/locales/charset.db
 *.lng
 *.pot
 client-*.js

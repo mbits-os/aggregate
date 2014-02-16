@@ -37,7 +37,6 @@ server = Project("server",
 
 libenv.out = "env"
 libremote.out = "remote"
-server.out = "index.app"
 
 libenv.depends_on(_3rd)
 dbtool.depends_on(libenv)
@@ -56,7 +55,7 @@ for pro in projects: pro.print_declaration()
 
 out_safe = " ".join([pro.safename + "_out" for pro in projects])
 all_safe = " ".join(["all_" + pro.safename for pro in projects])
-print ".PHONY: all clean install clean_strings strings out_dirs out_dir %s %s" % (out_safe, all_safe)
+print ".PHONY: $(PHONIES) %s %s" % (out_safe, all_safe)
 print
 
 sys.stdout.write("all: strings out_dirs " + all_safe)
@@ -81,7 +80,7 @@ print """############################################
 # DIRECTORIES
 ############################################
 """
-dirs = ["$(OUT)", "$(PREFIX)/www"]
+dirs = ["$(OUT)", "$(PREFIX)"]
 for pro in projects: dirs.append("$(%s_TMP)" % pro.safename.upper())
 print "DIRS =", " ".join(dirs)
 
@@ -92,13 +91,13 @@ print """$(DIRS):
 # INSTALL
 ############################################
 
-install: $(PREFIX)/www strings $(PREFIX)/dbtool $(PREFIX)/www/index.app
+install: $(PREFIX) strings $(PREFIX)/dbtool $(PREFIX)/server
 
 $(PREFIX)/dbtool: $(OUT)/dbtool
 \t@echo '[ CP ] $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
 
-$(PREFIX)/www/index.app: $(OUT)/index.app
-\t@echo '[ CP ] $@'; cp '$(OUT)/index.app' '$(PREFIX)/www'; chmod +s '$(PREFIX)/www/index.app'
+$(PREFIX)/server: $(OUT)/server
+\t@echo '[ CP ] $@'; cp '$(OUT)/server' '$(PREFIX)'; chmod +s '$(PREFIX)/server'
 
 clean_strings:
 \t@$(MAKE) -C '$(ROOT)/strings' clean

@@ -1,6 +1,7 @@
 LANGS=pl-PL en
 DEFINES_FILE=../libenv/includes/site_strings.h
-CLIENT_FILES=../httpd/static/code/lang/
+CLIENT_FILES=../httpd/www/code/lang/
+LOCALES_DIR=../httpd/data/locales
 EXPORTS=client.strings
 CPS_IN= \
 	iso-8859-1 \
@@ -57,15 +58,15 @@ RM=rm -f
 SAVE_LANGS = $(subst -,_,$(LANGS))
 POS = $(addsuffix /site_strings.po,$(SAVE_LANGS))
 MOS = $(addsuffix /site_strings.mo,$(SAVE_LANGS))
-LNGS = $(addprefix ../httpd/locales/, $(addsuffix /site_strings.lng,$(SAVE_LANGS)))
+LNGS = $(addprefix $(LOCALES_DIR)/, $(addsuffix /site_strings.lng,$(SAVE_LANGS)))
 EXPORTED = $(addprefix $(CLIENT_FILES), $(addsuffix .js, $(foreach file, $(patsubst %.strings,%-,$(EXPORTS)), $(foreach lang, $(SAVE_LANGS), $(file)$(lang)))))
 SAFE_CPS = $(subst -,_,$(CPS_IN))
 CPS = $(addprefix ../int/strings/charset/,$(addsuffix .dat,$(SAFE_CPS)))
 CPS_TXT = $(addprefix ./charset/,$(addsuffix .txt,$(SAFE_CPS)))
-CHARSET_DB = ../httpd/locales/charset.db
+CHARSET_DB = $(LOCALES_DIR)/charset.db
 
 get-locale=$(subst _,-,$(word 1,$(subst /, ,$1)))
-get-locale-2=$(subst _,-,$(word 4,$(subst /, ,$1)))
+get-locale-2=$(subst _,-,$(word 5,$(subst /, ,$1)))
 
 all: $(DEFINES_FILE) $(LNGS) $(EXPORTED) $(CHARSET_DB)
 
@@ -87,12 +88,12 @@ msgs: $(MOS)
 
 $(DEFINES_FILE): site_strings.txt
 	$(Q)$(ECHO) "[ENUM]" $(notdir $@)
-	$(Q)$(MKDIR) -p ../httpd/locales
+	$(Q)$(MKDIR) $(LOCALES_DIR)
 	$(Q)$(DEFINE) site_strings.txt $(DEFINES_FILE)
 
 site_strings.pot: site_strings.txt
 	$(Q)$(ECHO) "[LANG]" $@
-	$(Q)$(MKDIR) ../httpd/locales
+	$(Q)$(MKDIR) $(LOCALES_DIR)
 	$(Q)$(EXTRACT) site_strings.txt site_strings.pot
 
 %.mo: %.po
@@ -118,12 +119,12 @@ $(POS): site_strings.pot
 	$(Q)$(if $(wildcard $@),$(call merge-command,$@,$<),$(call init-command,$@,$<))
 
 $(CHARSET_DB): ./charset/aliases.txt $(CPS)
-	@echo "[ DB ]" $@
-	@mkdir -p $(dir $@)
-	@$(CHARSET_MERGE) $@ $^
-	
+	$(Q)$(ECHO) "[ DB ]" $@
+	$(Q)$(MKDIR) $(dir $@)
+	$(Q)$(CHARSET_MERGE) $@ $^
+
 ../int/strings/charset/%.dat: ./charset/%.txt
-	@echo "[ CH ]" $(subst _,-,$(*F))
-	@mkdir -p $(dir $@)
-	@$(CPS_PY) $< $@ 
+	$(Q)$(ECHO) "[ CH ]" $(subst _,-,$(*F))
+	$(Q)$(MKDIR) $(dir $@)
+	$(Q)$(CPS_PY) $< $@ 
 

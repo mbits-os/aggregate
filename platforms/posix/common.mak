@@ -29,7 +29,7 @@ OUT = $(OUT_)/release
 
 TMP = $(ROOT)/int/posix
 
-PREFIX = $(ROOT)/httpd
+PREFIX = $(ROOT)/httpd/bin
 
 
-PHONIES = all clean install clean_strings strings
+PHONIES = all clean install clean_strings strings out_dirs out_dir

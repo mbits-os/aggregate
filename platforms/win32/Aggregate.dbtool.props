@@ -18,7 +18,8 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "..\..\httpd"</Command>
+      <Command>pushd ..\..\httpd\bin &amp;&amp; popd || mkdir ..\..\httpd\bin
+copy "$(TargetPath)" ..\..\httpd\bin</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying to the developement</Message>

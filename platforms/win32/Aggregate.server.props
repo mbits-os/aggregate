@@ -6,8 +6,6 @@
   </ImportGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>Aggregate Server App</_PropertySheetDisplayName>
-    <TargetName>index</TargetName>
-    <TargetExt>.app</TargetExt>
     <LibraryPath>$(SolutionDir)..\..\3rd\mysql.bin\win32\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" />
@@ -26,7 +24,8 @@
       </AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "..\..\httpd\www"</Command>
+      <Command>pushd ..\..\httpd\bin &amp;&amp; popd || mkdir ..\..\httpd\bin
+copy "$(TargetPath)" ..\..\httpd\bin</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying to the developement</Message>
