@@ -25,3 +25,10 @@
 #include "pch.h"
 #include <remote/identity.hpp>
 
+namespace remote
+{
+	identity change_identity(const char* uname, const char* gname)
+	{
+		return identity::ok;
+	}
+}
