@@ -295,11 +295,13 @@ namespace remote
 		uid_t uid = 0;
 		gid_t gid = 0;
 
+#ifdef DEBUG_IDENT
 		auto test_uid = getuid();
 		auto test_gid = getgid();
 		auto test_euid = geteuid();
 		auto test_egid = getegid();
 		std::cerr << "\nBefore: real: " << test_uid << "/" << test_gid << "; effective: " << test_euid << "/" << test_egid << std::endl;
+#endif
 
 		RETURN_IF_ERROR(get_uid(uname, uid, gid));
 
@@ -309,11 +311,13 @@ namespace remote
 		RETURN_IF_ERROR(proxy(setgid(gid), "setgid"));
 		RETURN_IF_ERROR(proxy(setuid(uid), "setuid"));
 
+#ifdef DEBUG_IDENT
 		test_uid = getuid();
 		test_gid = getgid();
 		test_euid = geteuid();
 		test_egid = getegid();
 		std::cerr << "\nAfter: real: " << test_uid << "/" << test_gid << "; effective: " << test_euid << "/" << test_egid << std::endl;
+#endif
 
 		return identity::ok;
 	}
