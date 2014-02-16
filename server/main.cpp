@@ -34,6 +34,7 @@
 #include <stdexcept>
 #include <remote/signals.hpp>
 #include <remote/pid.hpp>
+#include <remote/identity.hpp>
 #include <filesystem.hpp>
 
 namespace fs = filesystem;
@@ -136,10 +137,12 @@ struct Main
 
 		log.open(debug_log());
 
-#if 0
+#if 1
 		std::cout
 			<< "config.server.address: " << config.server.address
 			<< "\nconfig.server.static_web: " << config.server.static_web
+			<< "\nconfig.server.user: " << config.server.user
+			<< "\nconfig.server.group: " << config.server.group
 			<< "\nconfig.server.pidfile: " << config.server.pidfile << " -> " << path(config.server.pidfile)
 			<< "\nconfig.connection.database: " << config.connection.database << " -> " << path(config.connection.database)
 			<< "\nconfig.connection.smtp: " << config.connection.smtp << " -> " << path(config.connection.smtp)
@@ -149,6 +152,9 @@ struct Main
 			<< "\nconfig.logs.debug: " << config.logs.debug << " -> " << path(config.logs.debug)
 			<< std::endl;
 #endif
+
+		if (!impersonate())
+			return 1;
 
 		if (!args.command.empty())
 			return commands(argc, argv);
@@ -193,6 +199,35 @@ struct Main
 
 		signals.signal(args.command.c_str(), pid);
 		return 0;
+	}
+
+	bool impersonate()
+	{
+		std::string name = config.server.user;
+		if (name.empty())
+			return true;
+
+		std::string group = config.server.group;
+
+		switch (remote::change_identity(name.c_str(), group.c_str()))
+		{
+		case remote::identity::ok:
+			return true;
+		case remote::identity::no_access:
+			std::cerr << "Could not impersonate " << name << "/" << group << std::endl;
+			break;
+		case remote::identity::name_unknown:
+			std::cerr << "User " << name << " unknown" << std::endl;
+			break;
+		case remote::identity::group_unknown:
+			std::cerr << "Group " << group << " unknown" << std::endl;
+			break;
+		case remote::identity::oom:
+			std::cerr << "Out of memory when trying to impersonate " << name << "/" << group << std::endl;
+			break;
+		}
+
+		return false;
 	}
 
 	template <typename Runtime>

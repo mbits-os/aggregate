@@ -27,15 +27,16 @@
 
 namespace remote
 {
-	enum EResult
+	enum class identity
 	{
 		ok,
 		name_unknown,
 		group_unknown,
-		no_access
+		no_access,
+		oom
 	};
 
-	EResult change_identity(const char* uname, const char* gname);
+	identity change_identity(const char* uname, const char* gname);
 }
 
 #endif // __LIBREMOTE_LOGGER_HPP__

@@ -47,12 +47,16 @@ struct Config
 		, address   (*this, "address",    "127.0.0.1:1337")
 		, static_web(*this, "static-web", "http://static.reedr.net/")
 		, pidfile   (*this, "pid",        "../reedr.pid")
+		, user      (*this, "user"        )
+		, group     (*this, "group"       )
 		{
 		}
 
 		config::wrapper::setting<std::string> address;
 		config::wrapper::setting<std::string> static_web;
 		config::wrapper::setting<std::string> pidfile;
+		config::wrapper::setting<std::string> user;
+		config::wrapper::setting<std::string> group;
 	};
 
 	struct locale_wrapper : config::wrapper::section
