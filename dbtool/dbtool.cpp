@@ -34,15 +34,17 @@
 #include <utils.hpp>
 #include "schema.hpp"
 #include <http.hpp>
+#include <fast_cgi/application.hpp>
+#include "../server/server_config.hpp"
 
 #ifdef WIN32
 #include <windows.h>
-#define CHARSET_PATH ".\\locales\\charset.db"
 #else
 #include <termios.h>
 #include <unistd.h>
-#define CHARSET_PATH "./locales/charset.db"
 #endif
+
+#define CONFIG_FILE  APP_PATH "/config/reedr.conf"
 
 struct Command {
 	const char* name;
@@ -101,13 +103,86 @@ Command commands[] = {
 	Command("user", user)
 };
 
+bool get_conn_ini(int& argc, char**& argv, std::string& cfg_path)
+{
+	if (argc >= 3)
+	{
+		if (!strcmp(argv[1], "-c"))
+		{
+			cfg_path = argv[2];
+			argc -= 2;
+			argv += 2;
+			return true;
+		}
+	}
+
+	if (argc >= 2)
+	{
+		if (!strncmp(argv[1], "-c", 2))
+		{
+			cfg_path = argv[1] + 2;
+			argc -= 1;
+			argv += 1;
+			return true;
+		}
+	}
+
+	cfg_path = CONFIG_FILE;
+	return false;
+}
+
+namespace fs = filesystem;
+bool open_cfg(int& argc, char**& argv, std::string& charset, std::string& dbConn, std::string& debug)
+{
+	std::string cfg_path;
+	bool cfg_needed = get_conn_ini(argc, argv, cfg_path);
+
+	fs::path cfg{ cfg_path };
+	if (cfg.is_relative())
+		cfg = fs::absolute(cfg);
+
+	auto config_file = config::base::file_config(cfg, cfg_needed);
+	if (!config_file)
+	{
+		std::cerr << "Could not open " << cfg_path << std::endl;
+		return false;
+	}
+	config_file->set_read_only(true);
+
+	Config config{ config_file };
+
+	cfg = cfg.parent_path();
+
+	auto database = fs::canonical(fs::path(config.connection.database), cfg);
+	auto data = fs::canonical(fs::path(config.data.dir), cfg);
+	auto charsetDB = fs::canonical(fs::path(config.data.charset), data);
+
+	auto logs = fs::canonical(fs::path(config.logs.dir), cfg);
+	auto debugLog = fs::canonical(fs::path(config.logs.debug), logs);
+
+	charset = charsetDB.native();
+	dbConn = database.native();
+	debug = debugLog.native();
+
+	return true;
+}
+
 int main(int argc, char* argv[])
 {
+	FastCGI::FLogSource log;
+
+	std::string charset, dbConn, debug;
+
+	if (!open_cfg(argc, argv, charset, dbConn, debug))
+		return false;
+
+	log.open(debug);
+
 	db::environment env;
 	if (env.failed)
 		return 1;
 
-	http::init(CHARSET_PATH);
+	http::init(charset.c_str());
 
 	char prog[] = "dbtool";
 	argv[0] = prog;
@@ -119,7 +194,7 @@ int main(int argc, char* argv[])
 
 	if (command->needsConnection)
 	{
-		conn = db::Connection::open("conn.ini");
+		conn = db::Connection::open(dbConn.c_str());
 		if (conn.get() == nullptr)
 		{
 			fprintf(stderr, "%s: error connecting to the database\n", argv[0]);
