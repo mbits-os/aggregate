@@ -127,7 +127,6 @@ struct Main
 		}
 		config_file->set_read_only(true);
 
-		log.open(debug_log());
 
 #if 0
 		std::cout
@@ -168,8 +167,7 @@ struct Main
 			<< std::endl;
 #endif
 
-		if (!impersonate())
-			return 1;
+		log.open(debug_log());
 
 		if (!args.command.empty())
 			return commands(argc, argv);
@@ -239,16 +237,16 @@ struct Main
 		case remote::identity::ok:
 			return true;
 		case remote::identity::no_access:
-			std::cerr << "Could not impersonate " << name << "/" << group << std::endl;
+			FLOG << "Could not impersonate " << name << "/" << group;
 			break;
 		case remote::identity::name_unknown:
-			std::cerr << "User " << name << " unknown" << std::endl;
+			FLOG << "User " << name << " unknown";
 			break;
 		case remote::identity::group_unknown:
-			std::cerr << "Group " << group << " unknown" << std::endl;
+			FLOG << "Group " << group << " unknown";
 			break;
 		case remote::identity::oom:
-			std::cerr << "Out of memory when trying to impersonate " << name << "/" << group << std::endl;
+			FLOG << "Out of memory when trying to impersonate " << name << "/" << group;
 			break;
 		}
 
@@ -262,6 +260,9 @@ struct Main
 		{
 			remote::pid guard(pidfile());
 
+			if (!impersonate())
+				return 1;
+
 			db::environment env;
 			if (env.failed) return 1;
 
@@ -271,6 +272,9 @@ struct Main
 			RETURN_IF_ERROR(app.init(locale().c_str()));
 
 			app.setStaticResources(config.server.static_web);
+			app.setDBConn(config.connection.database);
+			app.setSMTPConn(config.connection.smtp);
+			app.setAccessLog(config.logs.access);
 
 			signals.set("stop", [&app](){ app.shutdown(); });
 
