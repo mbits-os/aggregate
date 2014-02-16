@@ -98,7 +98,7 @@ $(PREFIX)/dbtool: $(OUT)/dbtool
 \t@echo '[ CP ] $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
 
 $(PREFIX)/www/index.app: $(OUT)/index.app
-\t@echo '[ CP ] $@'; cp '$(OUT)/index.app' '$(PREFIX)/www';
+\t@echo '[ CP ] $@'; cp '$(OUT)/index.app' '$(PREFIX)/www'; chmod +s '$(PREFIX)/www/index.app'
 
 clean_strings:
 \t@$(MAKE) -C '$(ROOT)/strings' clean
