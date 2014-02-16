@@ -27,6 +27,15 @@
 
 #include <string>
 #include <config.hpp>
+#include <filesystem.hpp>
+
+#ifdef _WIN32
+#	define SEP_S "\\"
+#	define APP_PATH (::filesystem::app_directory() / "..").string() + 
+#else
+#	define SEP_S "/"
+#	define APP_PATH "/usr/share/reedr"
+#endif
 
 using config::base::config_ptr;
 using config::base::section_ptr;
@@ -36,6 +45,7 @@ struct ProxyConfig : config::base::config
 	config_ptr m_proxy;
 
 	section_ptr get_section(const std::string& name) override { return m_proxy->get_section(name); }
+	void set_read_only(bool read_only) override { m_proxy->set_read_only(read_only); }
 };
 
 struct Config
@@ -59,15 +69,17 @@ struct Config
 		config::wrapper::setting<std::string> group;
 	};
 
-	struct locale_wrapper : config::wrapper::section
+	struct data_wrapper : config::wrapper::section
 	{
-		locale_wrapper(const config::base::config_ptr& impl)
-		: config::wrapper::section(impl, "Locale")
-		, dir    (*this, "dir",     "../locales")
-		, charset(*this, "charset", "../locales/charsets.db")
+		data_wrapper(const config::base::config_ptr& impl)
+		: config::wrapper::section(impl, "Data")
+		, dir    (*this, "dir",     APP_PATH "/data")
+		, locales(*this, "locales", "locales")
+		, charset(*this, "charset", "locales/charsets.db")
 		{
 		}
 		config::wrapper::setting<std::string> dir;
+		config::wrapper::setting<std::string> locales;
 		config::wrapper::setting<std::string> charset;
 	};
 
@@ -75,7 +87,7 @@ struct Config
 	{
 		connection_wrapper(const config::base::config_ptr& impl)
 		: config::wrapper::section(impl, "Connection")
-		, database(*this, "database", "conn.ini")
+		, database(*this, "database", "connection.ini")
 		, smtp    (*this, "SMTP",     "smtp.ini")
 		{
 		}
@@ -87,24 +99,26 @@ struct Config
 	{
 		logs_wrapper(const config::base::config_ptr& impl)
 		: config::wrapper::section(impl, "Logs")
-		, debug(*this,   "debug", "../logs/reedr.log")
-		, access(*this, "access", "../logs/access.log")
+		, dir   (*this, "dir",    APP_PATH "/logs")
+		, debug (*this, "debug",  "reedr.log")
+		, access(*this, "access", "access.log")
 		{
 		}
+		config::wrapper::setting<std::string> dir;
 		config::wrapper::setting<std::string> debug;
 		config::wrapper::setting<std::string> access;
 	};
 
 	Config(const config::base::config_ptr& impl)
 		: server(impl)
-		, locale(impl)
+		, data(impl)
 		, connection(impl)
 		, logs(impl)
 	{
 	}
 
 	server_wrapper server;
-	locale_wrapper locale;
+	data_wrapper data;
 	connection_wrapper connection;
 	logs_wrapper logs;
 };

@@ -35,21 +35,12 @@
 #include <remote/signals.hpp>
 #include <remote/pid.hpp>
 #include <remote/identity.hpp>
-#include <filesystem.hpp>
 
 namespace fs = filesystem;
 
 #define THREAD_COUNT 1
 
-#ifdef _WIN32
-#	define SEP_S "\\"
-#	define APP_PATH "..\\"
-#else
-#	define SEP_S "/"
-#	define APP_PATH "/usr/share/reedr/"
-#endif
-
-#define CONFIG_FILE  APP_PATH "confs" SEP_S "reedr.ini"
+#define CONFIG_FILE  APP_PATH "/config/reedr.conf"
 
 REGISTER_REDIRECT("/", "/view/");
 
@@ -134,10 +125,11 @@ struct Main
 			std::cerr << "Could not open " << args.config << std::endl;
 			return 1;
 		}
+		config_file->set_read_only(true);
 
 		log.open(debug_log());
 
-#if 1
+#if 0
 		std::cout
 			<< "config.server.address: " << config.server.address
 			<< "\nconfig.server.static_web: " << config.server.static_web
@@ -146,10 +138,33 @@ struct Main
 			<< "\nconfig.server.pidfile: " << config.server.pidfile << " -> " << path(config.server.pidfile)
 			<< "\nconfig.connection.database: " << config.connection.database << " -> " << path(config.connection.database)
 			<< "\nconfig.connection.smtp: " << config.connection.smtp << " -> " << path(config.connection.smtp)
-			<< "\nconfig.locale.dir: " << config.locale.dir << " -> " << path(config.locale.dir)
-			<< "\nconfig.locale.charset: " << config.locale.charset << " -> " << path(config.locale.charset)
-			<< "\nconfig.logs.access: " << config.logs.access << " -> " << path(config.logs.access)
-			<< "\nconfig.logs.debug: " << config.logs.debug << " -> " << path(config.logs.debug)
+			<< "\nconfig.data.dir: " << config.data.dir << " -> " << path(config.data.dir)
+			<< "\nconfig.data.locales: " << config.data.locales
+			<< "\nconfig.data.charset: " << config.data.charset
+			<< "\nconfig.logs.dir: " << config.logs.dir << " -> " << path(config.logs.dir)
+			<< "\nconfig.logs.access: " << config.logs.access
+			<< "\nconfig.logs.debug: " << config.logs.debug
+			<< std::endl;
+#endif
+
+		config.server.pidfile = path(config.server.pidfile);
+		config.connection.database = path(config.connection.database);
+		config.connection.smtp = path(config.connection.smtp);
+
+		config.data.dir = canonical(config.data.dir);
+		config.data.locales = path(config.data.locales, config.data.dir);
+		config.data.charset = path(config.data.charset, config.data.dir);
+
+		config.logs.dir = canonical(config.logs.dir);
+		config.logs.access = path(config.logs.access, config.logs.dir);
+		config.logs.debug = path(config.logs.debug, config.logs.dir);
+
+#if 0
+		std::cout
+			<< "\nconfig.data.locales: " << config.data.locales
+			<< "\nconfig.data.charset: " << config.data.charset
+			<< "\nconfig.logs.access: " << config.logs.access
+			<< "\nconfig.logs.debug: " << config.logs.debug
 			<< std::endl;
 #endif
 
@@ -171,16 +186,26 @@ struct Main
 		return 0;
 	}
 
-	std::string path(std::string file)
+	std::string path(const std::string& file)
 	{
 		return fs::canonical(file, fs::path(args.config).parent_path()).native();
 	}
 
-	std::string pidfile() { return path(config.server.pidfile); }
-	std::string charset() { return path(config.locale.charset); }
-	std::string locale() { return path(config.locale.dir); }
-	std::string debug_log() { return path(config.logs.debug); }
-	std::string access_log() { return path(config.logs.access); }
+	std::string canonical(const std::string& file)
+	{
+		return fs::canonical(file, fs::path(args.config).parent_path()).string();
+	}
+
+	std::string path(const std::string& file, const std::string& parent)
+	{
+		return fs::canonical(file, parent).native();
+	}
+
+	std::string pidfile() { return config.server.pidfile; }
+	std::string charset() { return config.data.charset; }
+	std::string locale() { return config.data.locales; }
+	std::string debug_log() { return config.logs.debug; }
+	std::string access_log() { return config.logs.access; }
 
 	int commands(int argc, char* argv[])
 	{
