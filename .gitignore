@@ -54,6 +54,7 @@ httpd/data/locales/charset.db
 *.pot
 client-*.js
 /libenv/includes/site_strings.h
+/libenv/includes/__file__.win32.hpp
 
 /3rd/curl/config.log
 /3rd/curl/config.status

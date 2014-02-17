@@ -26,6 +26,9 @@
 #define __API_HANDLER_H__
 
 #include <fast_cgi.hpp>
+#ifdef WIN32
+#include <__file__.win32.hpp>
+#endif
 
 namespace FastCGI { namespace app { namespace api
 {
@@ -71,7 +74,7 @@ namespace FastCGI { namespace app { namespace api
 #ifdef POSIX
 			info.file = file + 6; // skip "../../"
 #else
-			info.file = file;
+			info.file = file + BUILD_DIR_LEN;
 #endif
 			info.line = line;
 			m_handlers[command] = info;
