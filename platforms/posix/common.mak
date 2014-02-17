@@ -32,4 +32,4 @@ TMP = $(ROOT)/int/posix
 PREFIX = $(ROOT)/httpd/bin
 
 
-PHONIES = all clean install clean_strings strings out_dirs out_dir
+PHONIES = all clean install clean_strings strings out_dirs out_dir distro clean_distro

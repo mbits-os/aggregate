@@ -68,7 +68,7 @@ print
 #print
 
 print """
-clean: clean_strings
+clean: clean_strings clean_distro
 \t@if [ -e $(TMP) ]; then { echo 'RM $(TMP)'; $(RM) -r $(TMP); }; fi
 
 out_dir: $(OUT)
@@ -104,4 +104,10 @@ clean_strings:
 
 strings:
 \t@$(MAKE) -C '$(ROOT)/strings'
+
+############################################
+# DISTRO
+############################################
+
+include distro.mak
 """
