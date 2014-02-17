@@ -87,14 +87,14 @@ namespace FastCGI { namespace app { namespace reader {
 				request << "><td>";
 				if (eq == *envp) request << "&nbsp;";
 				else if (eq == nullptr) request << *envp;
-				else request << std::string(*envp, eq);
+				else request << url::htmlQuotes(*envp, eq - *envp);
 				request << "</td><td>";
 				if (eq == nullptr) request << "&nbsp;";
 				else if (strncmp("PATH=", *envp, 5))
 				{
 					++eq;
 					if (*eq)
-						request << eq;
+						request << url::htmlQuotes(eq);
 					else
 						request << "<em style=\"color: silver\">empty</em>";
 				}
@@ -105,7 +105,7 @@ namespace FastCGI { namespace app { namespace reader {
 					while (*c != 0)
 					{
 						while (*c != 0 && *c != SEP) ++c;
-						request << std::string(prev, c);
+						request << url::htmlQuotes(prev, c - prev);
 						if (*c != 0) request << "<br/>\n";
 						if (*c != 0) ++c;
 						prev = c;
@@ -170,12 +170,12 @@ namespace FastCGI { namespace app { namespace reader {
 		static void requests(FastCGI::Request& request, const FastCGI::Application::ReqList& list)
 		{
 			request << "<table class='requests'>\n";
-			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th></tr><thead><tbody>\n";
+			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th><th>Frozen</th></tr><thead><tbody>\n";
 
 			size_t counter = 0;
 			for (auto&& item : list)
 			{
-				if (item.resource == "/debug/?all")
+				if (item.resource.substr(0, 7) == "/debug/")
 					continue;
 
 				tyme::tm_t gmt = tyme::gmtime(item.now);
@@ -185,9 +185,21 @@ namespace FastCGI { namespace app { namespace reader {
 				request << "<tr";
 				if (counter++ % 2)
 					request << " class='even'";
+
+				auto short_res = item.resource;
+				if (short_res.length() > 26)
+					short_res = short_res.substr(0, 24) + "&#8230;";
+
 				request
-					<< "><td><nobr><a href='http://" << item.server << item.resource << "'>" << item.resource << "</a></nobr></td>"
-					<< "<td><nobr>" << item.remote_addr << ":" << item.remote_port << "</nobr></td><td>" << timebuf << "</td></tr>\n";
+					<< "><td><nobr><a href='http://" << item.server << item.resource << "' title='" << item.resource << "'>" << short_res << "</a></nobr></td>"
+					<< "<td><nobr>" << item.remote_addr << ":" << item.remote_port << "</nobr></td><td>" << timebuf << "</td><td>";
+
+				if (item.icicle.empty())
+					request << "<em style=\"color: silver\">empty</em>";
+				else
+					request << "<a href='/debug/?frozen=" + url::encode(item.icicle) + "'>Icicle</a>";
+				request
+					<< "</td></tr>\n";
 			}
 			request << "</tbody></table>\n";
 		}
@@ -217,12 +229,18 @@ namespace FastCGI { namespace app { namespace reader {
 			size_t counter = 0;
 			for (auto&& pair : list)
 			{
+				std::string value;
+				if (pair.second.empty())
+					value = "<em style=\"color: silver\">empty</em>";
+				else
+					value = url::htmlQuotes(pair.second);
+
 				request << "<tr";
 				if (counter++ % 2)
 					request << " class='even'";
 				request
-					<< "><td><nobr>" << pair.first << "</nobr></td>"
-					<< "<td>" << pair.second << "</td></tr>\n";
+					<< "><td><nobr>" << url::htmlQuotes(pair.first) << "</nobr></td>"
+					<< "<td>" << value << "</td></tr>\n";
 			}
 			request << "</tbody></table>\n";
 		}
@@ -260,6 +278,19 @@ namespace FastCGI { namespace app { namespace reader {
 		}
 
 		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
+		{
+			auto icicle = request.getVariable("frozen");
+			FrozenStatePtr ptr;
+			if (icicle)
+				ptr = request.app().frozen(url::decode(icicle));
+
+			if (ptr)
+				render_icicle(session, request, tr, ptr);
+			else
+				render_basic(session, request, tr);
+		}
+
+		void render_basic(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			bool all = request.getVariable("all") != nullptr;
 
@@ -342,6 +373,77 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 		}
 
+		void render_icicle(FastCGI::SessionPtr session, Request& request, PageTranslation& tr, const FrozenStatePtr& frozen)
+		{
+			auto item_now = frozen->now();
+			auto item_server = frozen->server();
+			auto item_resource = frozen->resource();
+			auto item_remote_addr = frozen->remote_addr();
+			auto item_remote_port = frozen->remote_port();
+
+			tyme::tm_t gmt = tyme::gmtime(item_now);
+			char timebuf[100];
+			tyme::strftime(timebuf, "%a, %d-%b-%Y %H:%M:%S GMT", gmt);
+
+			request << "<style type='text/css'>\n"
+				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
+				"div#content { width: 650px; margin: 0px auto }\n"
+				"th, td { text-align: left; vertical-align: top; padding: 0.2em 0.5em }\n"
+				".even td { background: #ddd }\n"
+				"th { font-weight: normal; color: white; background: #444; }\n"
+				"table { width: auto; max-width: 650px }\n"
+				"</style>\n"
+				"<title>Frozen debug page</title>\n<div id='content'>\n"
+				"<h1>Frozen debug page</h1>\n"
+				"<h2>Table of Contents</h2>\n"
+				"<ol>\n"
+				"<li><a href='#request'>Environment</a></li>\n"
+				"<li><a href='#variables'>Variables</a></li>\n"
+				"<li><a href='#cookies'>Cookies</a></li>\n"
+				"<li><a href='#session'>Session</a></li>\n"
+				"</ol>\n"
+				"<h2>Resource:</h2>\n"
+				"<p><a href='http://" << item_server << item_resource << "'>" << item_resource << "</a> called from " << item_remote_addr << ":" << item_remote_port << " on " << timebuf << "</p>\n"
+				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
+				"<h2>Thread: <em>" << mt::Thread::currentId() << "</em> (update!)</h2>\n"
+				"<h2>Request Number: <em>" << request.app().requs().size() << "</em> (update!)</h2>\n";
+#if 0
+			FastCGI::RequestStatePtr statePtr = request.getRequestState();
+			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
+			if (state && state->m_contentSize > 0)
+			{
+				request << "<h2>Data: <em>" << state->m_contentSize;
+				if (state->m_contentSize != state->m_read)
+					request << " (" << state->m_contentSize - state->m_read << " read)";
+				request << "</em></h2>\n<pre>";
+				for (long long i = 0; i < state->m_read; i++)
+					request << state->m_buffer[i];
+				request << "</pre>\n";
+			}
+#endif
+
+			request << "<h2 class='head'><a name='request'></a>Environment</h2>\n";
+			cookies(request, frozen->environment());
+
+			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\n";
+			cookies(request, frozen->get());
+
+			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\n";
+			cookies(request, frozen->cookies());
+
+			request << "<h2 class='head'><a name='session'></a>Session</h2>\n";
+
+			auto id = frozen->session_user();
+			if (!id.empty())
+			{
+				request
+					<< "<p>User logged in: " << id << "<br/>\n";
+			}
+			else
+			{
+				request << "<p>There was no session in progress at that time.</p>\n";
+			}
+		}
 	};
 }}} // FastCGI::app::reader
 
