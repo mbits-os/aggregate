@@ -69,7 +69,11 @@ namespace FastCGI { namespace app { namespace api
 			APIOperationDbgInfo info;
 			info.ptr = ptr;
 			info.file = file;
-			info.line = line;
+#ifdef POSIX
+			info.file = file + 6; // skip "../../"
+#else
+			info.file = file;
+#endif
 			m_handlers[command] = info;
 #else
 			m_handlers[command] = ptr;
