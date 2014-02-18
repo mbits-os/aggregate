@@ -1,4 +1,4 @@
-LANGS=pl-PL en
+LANGS=pl en
 DEFINES_FILE=../libenv/includes/site_strings.h
 CLIENT_FILES=../httpd/www/code/lang/
 LOCALES_DIR=../httpd/data/locales
