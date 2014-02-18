@@ -147,13 +147,13 @@ struct Main
 			<< "\nconfig.server.static_web: " << config.server.static_web
 			<< "\nconfig.server.user: " << config.server.user
 			<< "\nconfig.server.group: " << config.server.group
-			<< "\nconfig.server.pidfile: " << config.server.pidfile << " -> " << path(config.server.pidfile)
-			<< "\nconfig.connection.database: " << config.connection.database << " -> " << path(config.connection.database)
-			<< "\nconfig.connection.smtp: " << config.connection.smtp << " -> " << path(config.connection.smtp)
-			<< "\nconfig.data.dir: " << config.data.dir << " -> " << path(config.data.dir)
+			<< "\nconfig.server.pidfile: " << config.server.pidfile << " -> " << canonical(config.server.pidfile)
+			<< "\nconfig.connection.database: " << config.connection.database << " -> " << canonical(config.connection.database)
+			<< "\nconfig.connection.smtp: " << config.connection.smtp << " -> " << canonical(config.connection.smtp)
+			<< "\nconfig.data.dir: " << config.data.dir << " -> " << canonical(config.data.dir)
 			<< "\nconfig.data.locales: " << config.data.locales
 			<< "\nconfig.data.charset: " << config.data.charset
-			<< "\nconfig.logs.dir: " << config.logs.dir << " -> " << path(config.logs.dir)
+			<< "\nconfig.logs.dir: " << config.logs.dir << " -> " << canonical(config.logs.dir)
 			<< "\nconfig.logs.access: " << config.logs.access
 			<< "\nconfig.logs.debug: " << config.logs.debug
 			<< std::endl;
