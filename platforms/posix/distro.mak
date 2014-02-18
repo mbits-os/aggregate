@@ -60,19 +60,27 @@ $(EMPTY_DIRS):
 $(DISTRO)/usr/share/reedr/bin%:  $(ROOT)/httpd/bin%
 	@echo [ CP ] $(patsubst $(DISTRO)%, %, $@)
 	@mkdir -p $(dir $@)
+	@chmod 0755 $(dir $@)
 	@cp $< $@
+	@chmod 0755 $@
 
 $(DISTRO)/usr/share/reedr/data%:  $(ROOT)/httpd/data%
 	@echo [ CP ] $(patsubst $(DISTRO)%, %, $@)
 	@mkdir -p $(dir $@)
+	@chmod 0755 $(dir $@)
 	@cp $< $@
+	@chmod 0644 $@
 
 $(DISTRO)/usr/share/reedr/www%:  $(ROOT)/httpd/www%
 	@echo [ CP ] $(patsubst $(DISTRO)%, %, $@)
 	@mkdir -p $(dir $@)
+	@chmod 0755 $(dir $@)
 	@cp $< $@
+	@chmod 0644 $@
 
 $(DISTRO)/etc/reedr%:  $(ROOT)/httpd/config%
 	@echo [ CP ] $(patsubst $(DISTRO)%, %, $@)
 	@mkdir -p $(dir $@)
+	@chmod 0755 $(dir $@)
 	@cp $< $@
+	@chmod 0644 $@
