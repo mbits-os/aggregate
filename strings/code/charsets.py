@@ -51,7 +51,7 @@ def main():
     for alias in aliases:
         stringsize += len(alias.name) + 1
 
-    str_off = 12 + len(tables)*12
+    str_off = 12 + len(aliases)*12
     table_off_base = str_off + stringsize
     table_off = ((table_off_base + 3) / 4) * 4
     table_off_pad = table_off - table_off_base
@@ -68,7 +68,7 @@ def main():
 
     for alias in aliases:
         alias.str = str_off
-        str_off += len(table.name) + 1
+        str_off += len(alias.name) + 1
 
         alias.table = -1
         for table in tables:
@@ -81,7 +81,7 @@ def main():
 
     out = open(sys.argv[1], "wb")
     out.write("CSET")
-    out.write(struct.pack("ii", len(tables), stringsize))
+    out.write(struct.pack("ii", len(aliases), stringsize))
 
     for alias in aliases:
         out.write(struct.pack("iii", alias.str, alias.table, alias.size))
@@ -96,6 +96,14 @@ def main():
         f = open(table.path, "rb")
         out.write(f.read())
         f.close()
+
+        table_pad  = table.size
+        table_pad += 3
+        table_pad /= 4
+        table_pad *= 4
+        table_pad -= table.size
+        for i in range(table_pad):
+            out.write(struct.pack("c", chr(0)))
 
     out.close()
 
