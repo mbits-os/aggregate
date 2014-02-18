@@ -280,7 +280,7 @@ struct Main
 			http::init(charset().c_str());
 
 			FastCGI::Application app;
-			RETURN_IF_ERROR(app.init(locale().c_str()));
+			RETURN_IF_ERROR(app.init(locale()));
 
 			app.setStaticResources(config.server.static_web);
 			app.setDBConn(config.connection.database);
