@@ -31,14 +31,38 @@
 
 #ifdef _WIN32
 #	define SEP_S "\\"
-#	define APP_PATH (::filesystem::app_directory() / "..").string() + 
+#	define APP_PATH ::filesystem::app_directory() / ".." /
 #else
 #	define SEP_S "/"
-#	define APP_PATH "/usr/share/reedr"
+#	define APP_PATH ::filesystem::path{"/usr/share/reedr"} /
 #endif
 
 using config::base::config_ptr;
 using config::base::section_ptr;
+
+namespace config
+{
+	namespace wrapper
+	{
+		template <>
+		struct get_value<filesystem::path>
+		{
+			static filesystem::path helper(section& sec, const std::string& name, const filesystem::path& def_val)
+			{
+				return sec.get_string(name, def_val.string());
+			}
+		};
+
+		template <>
+		struct set_value<filesystem::path>
+		{
+			static void helper(section& sec, const std::string& name, const filesystem::path& val)
+			{
+				return sec.set_value(name, val.string());
+			}
+		};
+	}
+}
 
 struct ProxyConfig : config::base::config
 {
@@ -50,13 +74,15 @@ struct ProxyConfig : config::base::config
 
 struct Config
 {
+	using path = filesystem::path;
+
 	struct server_wrapper : config::wrapper::section
 	{
 		server_wrapper(const config::base::config_ptr& impl)
 		: config::wrapper::section(impl, "Server")
 		, address   (*this, "address",    "127.0.0.1:1337")
 		, static_web(*this, "static-web", "http://static.reedr.net/")
-		, pidfile   (*this, "pid",        APP_PATH "/reedr.pid")
+		, pidfile   (*this, "pid",        APP_PATH "reedr.pid")
 		, user      (*this, "user"        )
 		, group     (*this, "group"       )
 		{
@@ -64,7 +90,7 @@ struct Config
 
 		config::wrapper::setting<std::string> address;
 		config::wrapper::setting<std::string> static_web;
-		config::wrapper::setting<std::string> pidfile;
+		config::wrapper::setting<path>        pidfile;
 		config::wrapper::setting<std::string> user;
 		config::wrapper::setting<std::string> group;
 	};
@@ -73,14 +99,14 @@ struct Config
 	{
 		data_wrapper(const config::base::config_ptr& impl)
 		: config::wrapper::section(impl, "Data")
-		, dir    (*this, "dir",     APP_PATH "/data")
+		, dir    (*this, "dir",     APP_PATH "data")
 		, locales(*this, "locales", "locales")
 		, charset(*this, "charset", "locales/charsets.db")
 		{
 		}
-		config::wrapper::setting<std::string> dir;
-		config::wrapper::setting<std::string> locales;
-		config::wrapper::setting<std::string> charset;
+		config::wrapper::setting<path> dir;
+		config::wrapper::setting<path> locales;
+		config::wrapper::setting<path> charset;
 	};
 
 	struct connection_wrapper : config::wrapper::section
@@ -91,22 +117,22 @@ struct Config
 		, smtp    (*this, "SMTP",     "smtp.ini")
 		{
 		}
-		config::wrapper::setting<std::string> database;
-		config::wrapper::setting<std::string> smtp;
+		config::wrapper::setting<path> database;
+		config::wrapper::setting<path> smtp;
 	};
 
 	struct logs_wrapper : config::wrapper::section
 	{
 		logs_wrapper(const config::base::config_ptr& impl)
 		: config::wrapper::section(impl, "Logs")
-		, dir   (*this, "dir",    APP_PATH "/logs")
+		, dir   (*this, "dir",    APP_PATH "logs")
 		, debug (*this, "debug",  "reedr.log")
 		, access(*this, "access", "access.log")
 		{
 		}
-		config::wrapper::setting<std::string> dir;
-		config::wrapper::setting<std::string> debug;
-		config::wrapper::setting<std::string> access;
+		config::wrapper::setting<path> dir;
+		config::wrapper::setting<path> debug;
+		config::wrapper::setting<path> access;
 	};
 
 	Config(const config::base::config_ptr& impl)

@@ -41,7 +41,7 @@ namespace fs = filesystem;
 #define THREAD_COUNT 1
 
 #ifdef _WIN32
-#	define CONFIG_FILE  APP_PATH "/config/reedr.conf"
+#	define CONFIG_FILE  APP_PATH "config/reedr.conf"
 #else
 #	define CONFIG_FILE  "/etc/reedr/reedr.conf"
 #endif
@@ -97,6 +97,7 @@ struct Main
 	FastCGI::FLogSource log;
 	remote::signals signals;
 	Args args;
+	fs::path cfg_dir;
 	std::shared_ptr<ProxyConfig> config_file;
 	Config config{ config_file };
 
@@ -114,15 +115,17 @@ struct Main
 			return version();
 
 		bool cfg_needed = true;
-		if (args.config.empty())
+		fs::path cfg{ args.config };
+		if (cfg.empty())
 		{
 			cfg_needed = false;
-			args.config = CONFIG_FILE;
+			cfg = CONFIG_FILE;
 		}
 
-		fs::path cfg{ args.config };
 		if (cfg.is_relative())
 			cfg = fs::absolute(cfg);
+
+		cfg_dir = cfg.parent_path();
 
 #ifdef CONFIG_DBG
 		std::cout << "Config is: " << cfg << std::endl;
@@ -156,17 +159,17 @@ struct Main
 			<< std::endl;
 #endif
 
-		config.server.pidfile = path(config.server.pidfile);
-		config.connection.database = path(config.connection.database);
-		config.connection.smtp = path(config.connection.smtp);
+		config.server.pidfile = canonical(config.server.pidfile);
+		config.connection.database = canonical(config.connection.database);
+		config.connection.smtp = canonical(config.connection.smtp);
 
 		config.data.dir = canonical(config.data.dir);
-		config.data.locales = path(config.data.locales, config.data.dir);
-		config.data.charset = path(config.data.charset, config.data.dir);
+		config.data.locales = fs::canonical(config.data.locales, config.data.dir);
+		config.data.charset = fs::canonical(config.data.charset, config.data.dir);
 
 		config.logs.dir = canonical(config.logs.dir);
-		config.logs.access = path(config.logs.access, config.logs.dir);
-		config.logs.debug = path(config.logs.debug, config.logs.dir);
+		config.logs.access = fs::canonical(config.logs.access, config.logs.dir);
+		config.logs.debug = fs::canonical(config.logs.debug, config.logs.dir);
 
 #ifdef CONFIG_DBG
 		std::cout
@@ -195,26 +198,16 @@ struct Main
 		return 0;
 	}
 
-	std::string path(const std::string& file)
+	fs::path canonical(const fs::path& file)
 	{
-		return fs::canonical(file, fs::path(args.config).parent_path()).native();
+		return fs::canonical(file, cfg_dir);
 	}
 
-	std::string canonical(const std::string& file)
-	{
-		return fs::canonical(file, fs::path(args.config).parent_path()).string();
-	}
-
-	std::string path(const std::string& file, const std::string& parent)
-	{
-		return fs::canonical(file, parent).native();
-	}
-
-	std::string pidfile() { return config.server.pidfile; }
-	std::string charset() { return config.data.charset; }
-	std::string locale() { return config.data.locales; }
-	std::string debug_log() { return config.logs.debug; }
-	std::string access_log() { return config.logs.access; }
+	fs::path pidfile() { return config.server.pidfile; }
+	fs::path charset() { return config.data.charset; }
+	fs::path locale() { return config.data.locales; }
+	fs::path debug_log() { return config.logs.debug; }
+	fs::path access_log() { return config.logs.access; }
 
 	int commands(int argc, char* argv[])
 	{
@@ -225,7 +218,7 @@ struct Main
 			return args.respawn(std::make_shared<RemoteLogger>(), config.server.address, argc, argv);
 
 		int pid = -1;
-		if (!remote::pid::read(pidfile(), pid))
+		if (!remote::pid::read(pidfile().native(), pid))
 		{
 			std::cerr << pidfile() << " not found.\n";
 			return 1;
@@ -269,7 +262,7 @@ struct Main
 	{
 		try
 		{
-			remote::pid guard(pidfile());
+			remote::pid guard(pidfile().native());
 
 			if (!impersonate())
 				return 1;
@@ -277,7 +270,7 @@ struct Main
 			db::environment env;
 			if (env.failed) return 1;
 
-			http::init(charset().c_str());
+			http::init(charset());
 
 			FastCGI::Application app;
 			RETURN_IF_ERROR(app.init(locale()));
