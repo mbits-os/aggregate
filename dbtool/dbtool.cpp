@@ -44,7 +44,11 @@
 #include <unistd.h>
 #endif
 
-#define CONFIG_FILE  APP_PATH "/config/reedr.conf"
+#ifdef _WIN32
+#	define CONFIG_FILE  APP_PATH "config/reedr.conf"
+#else
+#	define CONFIG_FILE  "/etc/reedr/reedr.conf"
+#endif
 
 struct Command {
 	const char* name;
@@ -103,7 +107,7 @@ Command commands[] = {
 	Command("user", user)
 };
 
-bool get_conn_ini(int& argc, char**& argv, std::string& cfg_path)
+bool get_conn_ini(int& argc, char**& argv, filesystem::path& cfg_path)
 {
 	if (argc >= 3)
 	{
@@ -132,19 +136,18 @@ bool get_conn_ini(int& argc, char**& argv, std::string& cfg_path)
 }
 
 namespace fs = filesystem;
-bool open_cfg(int& argc, char**& argv, std::string& charset, std::string& dbConn, std::string& debug)
+bool open_cfg(int& argc, char**& argv, filesystem::path& charset, filesystem::path& dbConn, filesystem::path& debug)
 {
-	std::string cfg_path;
-	bool cfg_needed = get_conn_ini(argc, argv, cfg_path);
+	filesystem::path cfg;
+	bool cfg_needed = get_conn_ini(argc, argv, cfg);
 
-	fs::path cfg{ cfg_path };
 	if (cfg.is_relative())
 		cfg = fs::absolute(cfg);
 
 	auto config_file = config::base::file_config(cfg, cfg_needed);
 	if (!config_file)
 	{
-		std::cerr << "Could not open " << cfg_path << std::endl;
+		std::cerr << "Could not open " << cfg << std::endl;
 		return false;
 	}
 	config_file->set_read_only(true);
@@ -153,16 +156,13 @@ bool open_cfg(int& argc, char**& argv, std::string& charset, std::string& dbConn
 
 	cfg = cfg.parent_path();
 
-	auto database = fs::canonical(fs::path(config.connection.database), cfg);
+	dbConn = fs::canonical(fs::path(config.connection.database), cfg);
+
 	auto data = fs::canonical(fs::path(config.data.dir), cfg);
-	auto charsetDB = fs::canonical(fs::path(config.data.charset), data);
+	charset = fs::canonical(fs::path(config.data.charset), data);
 
 	auto logs = fs::canonical(fs::path(config.logs.dir), cfg);
-	auto debugLog = fs::canonical(fs::path(config.logs.debug), logs);
-
-	charset = charsetDB.native();
-	dbConn = database.native();
-	debug = debugLog.native();
+	debug = fs::canonical(fs::path(config.logs.debug), logs);
 
 	return true;
 }
@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 {
 	FastCGI::FLogSource log;
 
-	std::string charset, dbConn, debug;
+	filesystem::path charset, dbConn, debug;
 
 	if (!open_cfg(argc, argv, charset, dbConn, debug))
 		return false;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 	if (env.failed)
 		return 1;
 
-	http::init(charset.c_str());
+	http::init(charset);
 
 	char prog[] = "dbtool";
 	argv[0] = prog;
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
 
 	if (command->needsConnection)
 	{
-		conn = db::Connection::open(dbConn.c_str());
+		conn = db::Connection::open(dbConn);
 		if (conn.get() == nullptr)
 		{
 			fprintf(stderr, "%s: error connecting to the database\n", argv[0]);
