@@ -42,7 +42,7 @@ build
 ipch
 output
 bin
-distro
+package
 httpd/libmysql.dll
 # removing a file with a password from a public repo
 httpd/config/connection.ini

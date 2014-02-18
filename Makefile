@@ -1,3 +1,3 @@
-all clean install distro:
+all clean preinstall install:
 	@$(MAKE) -C platforms/posix $@
 	@echo [FINISHED]

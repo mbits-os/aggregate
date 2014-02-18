@@ -91,23 +91,19 @@ print """$(DIRS):
 # INSTALL
 ############################################
 
-install: $(PREFIX) strings $(PREFIX)/dbtool $(PREFIX)/server
+preinstall: $(PREFIX) strings $(PREFIX)/dbtool $(PREFIX)/server
 
 $(PREFIX)/dbtool: $(OUT)/dbtool
 \t@echo '[ CP ] $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
 
 $(PREFIX)/server: $(OUT)/server
-\t@echo '[ CP ] $@'; cp '$(OUT)/server' '$(PREFIX)'; chmod +s '$(PREFIX)/server'
+\t@echo '[ CP ] $@'; cp '$(OUT)/server' '$(PREFIX)';
 
 clean_strings:
 \t@$(MAKE) -C '$(ROOT)/strings' clean
 
 strings:
 \t@$(MAKE) -C '$(ROOT)/strings'
-
-############################################
-# DISTRO
-############################################
 
 include distro.mak
 """

@@ -5,7 +5,7 @@ FILES = \
 	../libremote.files \
 	../server.files
 
-all clean install clean_strings strings all_a3rdparty all_libenv all_libremote all_dbtool all_server distro clean_distro: Makefile.gen
+all clean preinstall install clean_strings strings all_a3rdparty all_libenv all_libremote all_dbtool all_server clean_distro: Makefile.gen
 	@$(MAKE) -C . -f Makefile.gen $@
 
 clean_gen:

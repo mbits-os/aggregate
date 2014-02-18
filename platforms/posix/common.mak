@@ -3,8 +3,8 @@ CXXFLAGS =
 CPPFLAGS = -std=c++11 $(CXXFLAGS)
 CORE_CFLAGS= -fvisibility=hidden
 
-CC = gcc
-LIBTOOL = g++
+CC = gcc-4.8
+LIBTOOL = g++-4.8
 LD_DIRS = -L/usr/lib -L$(OUT)
 
 LD_LIBRARY_PATH=.
@@ -32,4 +32,4 @@ TMP = $(ROOT)/int/posix
 PREFIX = $(ROOT)/httpd/bin
 
 
-PHONIES = all clean install clean_strings strings out_dirs out_dir distro clean_distro
+PHONIES = all clean preinstall install clean_strings strings out_dirs out_dir clean_distro
