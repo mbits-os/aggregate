@@ -56,7 +56,7 @@ struct Config
 		: config::wrapper::section(impl, "Server")
 		, address   (*this, "address",    "127.0.0.1:1337")
 		, static_web(*this, "static-web", "http://static.reedr.net/")
-		, pidfile   (*this, "pid",        "../reedr.pid")
+		, pidfile   (*this, "pid",        APP_PATH "/reedr.pid")
 		, user      (*this, "user"        )
 		, group     (*this, "group"       )
 		{

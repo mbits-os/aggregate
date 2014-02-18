@@ -93,7 +93,7 @@ namespace remote
 
 	pid::pid(const std::string& path) : m_path{ path }
 	{
-		FD fd{ open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0640) };
+		FD fd{ open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0644) };
 		if (!fd)
 		{
 			int err = errno;

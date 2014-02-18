@@ -40,7 +40,13 @@ namespace fs = filesystem;
 
 #define THREAD_COUNT 1
 
-#define CONFIG_FILE  APP_PATH "/config/reedr.conf"
+#ifdef _WIN32
+#	define CONFIG_FILE  APP_PATH "/config/reedr.conf"
+#else
+#	define CONFIG_FILE  "/etc/reedr/reedr.conf"
+#endif
+
+//#define CONFIG_DBG
 
 REGISTER_REDIRECT("/", "/view/");
 
@@ -118,6 +124,10 @@ struct Main
 		if (cfg.is_relative())
 			cfg = fs::absolute(cfg);
 
+#ifdef CONFIG_DBG
+		std::cout << "Config is: " << cfg << std::endl;
+#endif
+
 		config_file->m_proxy = config::base::file_config(cfg, cfg_needed);
 		if (!config_file->m_proxy)
 		{
@@ -128,9 +138,9 @@ struct Main
 		config_file->set_read_only(true);
 
 
-#if 0
+#ifdef CONFIG_DBG
 		std::cout
-			<< "config.server.address: " << config.server.address
+			<< "\nconfig.server.address: " << config.server.address
 			<< "\nconfig.server.static_web: " << config.server.static_web
 			<< "\nconfig.server.user: " << config.server.user
 			<< "\nconfig.server.group: " << config.server.group
@@ -158,7 +168,7 @@ struct Main
 		config.logs.access = path(config.logs.access, config.logs.dir);
 		config.logs.debug = path(config.logs.debug, config.logs.dir);
 
-#if 0
+#ifdef CONFIG_DBG
 		std::cout
 			<< "\nconfig.data.locales: " << config.data.locales
 			<< "\nconfig.data.charset: " << config.data.charset
@@ -167,7 +177,8 @@ struct Main
 			<< std::endl;
 #endif
 
-		log.open(debug_log());
+		if (!log.open(debug_log()))
+			std::cerr << "Could not open " << debug_log() << std::endl;
 
 		if (!args.command.empty())
 			return commands(argc, argv);
