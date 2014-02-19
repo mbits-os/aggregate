@@ -61,8 +61,8 @@ libenv/http/dom.cpp
 libenv/http/dom_xpath.cpp
 libenv/mail/mail.cpp
 libenv/mail/filter.cpp
-libenv/mail/wiki_parser.cpp
-libenv/mail/wiki_parser.hpp
+libenv/wiki/wiki_parser.cpp
+libenv/wiki/wiki_parser.hpp
 
 #ifdef POSIX
 libenv/utils/mt_posix.cpp
