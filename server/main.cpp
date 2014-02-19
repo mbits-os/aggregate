@@ -128,7 +128,7 @@ struct Main
 		cfg_dir = cfg.parent_path();
 
 #ifdef CONFIG_DBG
-		std::cout << "Config is: " << cfg << std::endl;
+		std::cout << "Config is: " << fs::canonical(cfg).native() << std::endl;
 #endif
 
 		config_file->m_proxy = config::base::file_config(cfg, cfg_needed);
