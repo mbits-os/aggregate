@@ -29,6 +29,7 @@ libenv/includes/mail.hpp
 libenv/includes/getopt.hpp
 libenv/includes/config.hpp
 libenv/includes/filesystem.hpp
+libenv/includes/wiki.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
@@ -61,6 +62,10 @@ libenv/http/dom.cpp
 libenv/http/dom_xpath.cpp
 libenv/mail/mail.cpp
 libenv/mail/filter.cpp
+libenv/wiki/wiki.cpp
+libenv/wiki/wiki_base.hpp
+libenv/wiki/wiki_nodes.cpp
+libenv/wiki/wiki_nodes.hpp
 libenv/wiki/wiki_parser.cpp
 libenv/wiki/wiki_parser.hpp
 
