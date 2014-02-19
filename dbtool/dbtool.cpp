@@ -35,6 +35,7 @@
 #include "schema.hpp"
 #include <http.hpp>
 #include <fast_cgi/application.hpp>
+#include <wiki.hpp>
 #include "../server/server_config.hpp"
 
 #ifdef WIN32
@@ -95,6 +96,7 @@ int refresh(int, char*[], const db::ConnectionPtr&); // in refresh.cpp
 int fetch(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int opml_cmd(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int user(int, char*[], const db::ConnectionPtr&);
+int wiki_cmd(int, char*[], const db::ConnectionPtr&);
 
 Command commands[] = {
 	Command("status", status),
@@ -104,7 +106,8 @@ Command commands[] = {
 	Command("refresh", refresh),
 	Command("fetch", fetch, false),
 	Command("opml", opml_cmd, false),
-	Command("user", user)
+	Command("user", user),
+	Command("wiki", wiki_cmd, false),
 };
 
 bool get_conn_ini(int& argc, char**& argv, filesystem::path& cfg_path)
@@ -367,4 +370,19 @@ int user_passwd(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 	}
 	fprintf(stderr, "user: password changed\n");
 	return 0;
+}
+
+int wiki_cmd(int argc, char* argv[], const db::ConnectionPtr&)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "wiki: not enough params\n");
+		fprintf(stderr, "dbtool wiki <path>\n");
+		return 1;
+	}
+
+	auto path = filesystem::canonical(argv[1]);
+	auto doc = wiki::compile(path);
+
+	return doc ? 0 : 1;
 }
