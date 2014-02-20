@@ -31,6 +31,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dbtool", "dbtool.vcxproj", 
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libremote", "libremote.vcxproj", "{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D7E65FE3-ADE5-46AE-B9EE-0AA0996C8A2F} = {D7E65FE3-ADE5-46AE-B9EE-0AA0996C8A2F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
