@@ -63,6 +63,7 @@ libenv/http/dom_xpath.cpp
 libenv/mail/mail.cpp
 libenv/mail/filter.cpp
 libenv/wiki/wiki.cpp
+libenv/wiki/wiki_binary.cpp
 libenv/wiki/wiki_base.hpp
 libenv/wiki/wiki_nodes.cpp
 libenv/wiki/wiki_nodes.hpp

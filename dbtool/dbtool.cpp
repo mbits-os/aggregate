@@ -381,8 +381,12 @@ int wiki_cmd(int argc, char* argv[], const db::ConnectionPtr&)
 		return 1;
 	}
 
+	wiki::document_ptr doc;
 	auto path = filesystem::canonical(argv[1]);
-	auto doc = wiki::compile(path);
+	if (argc < 3)
+		doc = wiki::compile(path);
+	else
+		doc = wiki::compile(path, filesystem::canonical(argv[2]));
 
 	return doc ? 0 : 1;
 }
