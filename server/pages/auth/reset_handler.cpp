@@ -71,8 +71,10 @@ namespace FastCGI { namespace app { namespace reader {
 					mail.var("recovery_url", "phony:here");
 
 					request.sendMail(mail);
+					request.redirect("/auth/msg_sent", false);
 				}
-				request.redirect("/auth/msg_sent", false);
+
+				content->setError(tr(lng::LNG_RESET_ERROR_MISMATCHED));
 			}
 		}
 	};

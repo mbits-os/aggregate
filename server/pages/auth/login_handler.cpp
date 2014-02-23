@@ -42,7 +42,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
 			if (request.getVariable("reset") != nullptr)
-				request.redirect("/auth/reset");
+				request.redirect("/auth/reset", false);
 
 			auto content = std::make_shared<Form>(tr(lng::LNG_LOGIN_TITLE));
 			request.setContent(content);
