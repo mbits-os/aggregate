@@ -50,6 +50,8 @@ LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED = "E-mail address used by different a
 LNG_USER_SETTINGS_ERROR_NAME_REQUIRED = "User name must be filled out."
 LNG_USER_SETTINGS_ERROR_SOME_ISSUES = "There were some issues:"
 
+LNG_MAIL_SUBJECT_PASSWORD_RECOVERY = "[reedr] Password recovery"
+
 LNG_URL_MISSING = "URL parameter is missing"
 LNG_FEED_FAILED = "Feed could not be found"
 LNG_FEED_SERVER_FAILED = "Feed server did not respond"
