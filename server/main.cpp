@@ -276,6 +276,7 @@ struct Main
 			RETURN_IF_ERROR(app.init(locale()));
 
 			app.setStaticResources(config.server.static_web);
+			app.setDataDir(config.data.dir);
 			app.setDBConn(config.connection.database);
 			app.setSMTPConn(config.connection.smtp);
 			app.setAccessLog(config.logs.access);
