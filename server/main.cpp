@@ -28,6 +28,7 @@
 #include <locale.hpp>
 #include <string.h>
 #include <http.hpp>
+#include <mail.hpp>
 #include "args.hpp"
 #include "server_config.hpp"
 #include <exception>
@@ -271,6 +272,7 @@ struct Main
 			if (env.failed) return 1;
 
 			http::init(charset());
+			mail::PostOffice::init(config.connection.smtp);
 
 			FastCGI::Application app;
 			RETURN_IF_ERROR(app.init(locale()));
