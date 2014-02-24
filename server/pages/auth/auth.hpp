@@ -135,6 +135,19 @@ namespace FastCGI { namespace app { namespace reader {
 		{
 			return Crypt::verify(pass, m_hash.c_str());
 		}
+
+		std::string createRecoverySession(const db::ConnectionPtr& db)
+		{
+			tyme::time_t now = tyme::now();
+			char seed[20];
+			Crypt::md5_t sessionId;
+			Crypt::newSalt(seed);
+			Crypt::md5(seed, sessionId);
+
+			// TODO: Store in database with m_id...
+
+			return sessionId;
+		}
 	};
 
 }}} // FastCGI::app::reader

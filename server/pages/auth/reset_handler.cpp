@@ -64,11 +64,15 @@ namespace FastCGI { namespace app { namespace reader {
 				UserInfo info = UserInfo::fromDB(request.dbConn(), email->getData().c_str());
 				if (info.m_id != 0)
 				{
+					auto recoveryId = info.createRecoverySession(request.dbConn());
+					if (recoveryId.empty())
+						request.on500("Could not create recovery session");
+
 					FastCGI::MailInfo mail{ "password-reset.txt", tr, lng::LNG_MAIL_SUBJECT_PASSWORD_RECOVERY };
 					mail.add_to(info.m_name, info.m_email);
 					mail.var("display_name", info.m_name);
 					mail.var("login", info.m_login);
-					mail.var("recovery_url", "phony:here");
+					mail.var("recovery_url", request.serverUri("/auth/recovery?id=" + url::encode(recoveryId), false));
 
 					request.sendMail(mail);
 					request.redirect("/auth/msg_sent", false);
