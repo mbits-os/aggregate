@@ -7,6 +7,7 @@ server/pages/debug_handler.cpp
 server/pages/view_handler.cpp
 server/pages/auth/login_handler.cpp
 server/pages/auth/logout_handler.cpp
+server/pages/auth/msg_sent_handler.cpp
 server/pages/auth/reset_handler.cpp
 server/pages/auth/auth.hpp
 server/pages/data/json.hpp
