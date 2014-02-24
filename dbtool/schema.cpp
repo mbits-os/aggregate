@@ -36,14 +36,19 @@ namespace db
 			SchemaDefinition sd;
 			SDBuilder()
 			{
+				sd.table("schema_config")
+					.field("name", std::string(), FIELD_TYPE::TEXT, att::KEY | att::NOTNULL)
+					.field("value", std::string(), FIELD_TYPE::BLOB, att::NONE)
+					;
+
 				sd.table("user")
 					._id()
 					.field("login")
 					.field("name")
 					.field("email")
 					.field("passphrase")
-					.field("root_folder", "0", field_type::KEY)
-					.field("is_admin", "0", field_type::BOOLEAN)
+					.field("root_folder", "0", FIELD_TYPE::KEY)
+					.field("is_admin", "0", FIELD_TYPE::BOOLEAN)
 					;
 
 				//hash is built from email and new salt
@@ -52,15 +57,15 @@ namespace db
 					.text_id("hash")
 					.field("seed")
 					.refer("user")
-					.field("set_on", std::string(), field_type::TIME)
+					.field("set_on", std::string(), FIELD_TYPE::TIME)
 					;
 
 				sd.table("folder")
 					._id()
 					.refer("user")
 					.field("name")
-					.field("parent", "0", field_type::KEY)
-					.field("ord", "0", field_type::INTEGER)
+					.field("parent", "0", FIELD_TYPE::KEY)
+					.field("ord", "0", FIELD_TYPE::INTEGER)
 					;
 
 				sd.table("feed")
@@ -68,7 +73,7 @@ namespace db
 					.field("title")
 					.field("site")
 					.field("feed")
-					.field("last_update", std::string(), field_type::TIME)
+					.field("last_update", std::string(), FIELD_TYPE::TIME)
 					.nullable("author")
 					.nullable("authorLink")
 					.nullable("etag")
@@ -81,7 +86,7 @@ namespace db
 					.field("guid")
 					.field("title", "")
 					.nullable("url")
-					.nullable("date", std::string(), field_type::TIME)
+					.nullable("date", std::string(), FIELD_TYPE::TIME)
 					.nullable("author")
 					.nullable("authorLink")
 					//only one of those can acutally be null:
@@ -93,7 +98,7 @@ namespace db
 					.refer("entry")
 					.field("url")
 					.field("mime")
-					.field("length", std::string(), field_type::INTEGER)
+					.field("length", std::string(), FIELD_TYPE::INTEGER)
 					;
 
 				sd.table("categories")
@@ -104,13 +109,13 @@ namespace db
 				sd.table("subscription")
 					.refer("feed")
 					.refer("folder")
-					.field("ord", std::string(), field_type::INTEGER)
+					.field("ord", std::string(), FIELD_TYPE::INTEGER)
 					;
 
 				sd.table("state")
 					.refer("user")
 					.refer("entry")
-					.field("type", std::string(), field_type::INTEGER) // 0 - unread; 1 - starred; ?2 - important?
+					.field("type", std::string(), FIELD_TYPE::INTEGER) // 0 - unread; 1 - starred; ?2 - important?
 					;
 
 				sd.view("parents",
@@ -368,17 +373,100 @@ namespace db
 			return transaction.commit();
 		}
 
+		namespace
+		{
+			template <typename T>
+			T getConfig(const db::ConnectionPtr& conn, const char* field, T defValue = T())
+			{
+				auto select = conn->prepare("SELECT value FROM schema_config WHERE name=?");
+				if (!select.get())
+					return defValue;
+
+				if (!select->bind(0, field))
+					return defValue;
+
+				db::Transaction transaction(conn);
+				if (!transaction.begin())
+					return defValue;
+
+				auto c = select->query();
+				if (!c.get() || !c->next())
+					return defValue;
+
+				if (c->isNull(0))
+					return defValue;
+
+				auto ptr = c->getBlob(0);
+				auto len = c->getBlobSize(0);
+				if (len != sizeof(T))
+					return defValue;
+
+				T out{ *(const T*)ptr };
+
+				transaction.commit();
+
+				return out;
+			}
+			template <typename T>
+			bool setConfig(const db::ConnectionPtr& conn, const char* field, const T& value)
+			{
+				auto insert = conn->prepare("INSERT INTO schema_config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=VALUES(value)");
+				if (!insert.get())
+				{
+					fprintf(stderr, "DB message: %s\n", conn->errorMessage());
+					return false;
+				}
+
+				if (!insert->bind(0, field))
+				{
+					fprintf(stderr, "Statement message: %s\n", insert->errorMessage());
+					return false;
+				}
+				if (!insert->bind(1, &value, sizeof(value)))
+				{
+					fprintf(stderr, "Statement message: %s\n", insert->errorMessage());
+					return false;
+				}
+
+				db::Transaction transaction(conn);
+				if (!transaction.begin())
+				{
+					fprintf(stderr, "DB message: %s\n", conn->errorMessage());
+					return false;
+				}
+
+				if (!insert->execute())
+				{
+					fprintf(stderr, "Statement message: %s\n", insert->errorMessage());
+					return false;
+				}
+
+				return transaction.commit();
+			}
+		}
+
+		long Schema::version()
+		{
+			return getConfig<long>(m_conn, "version");
+		}
+
+		bool Schema::version(long v)
+		{
+			return setConfig<long>(m_conn, "version", v);
+		}
+
 		std::string Field::repr() const
 		{
 			std::string sql = m_name + " ";
 			switch (m_fld_type)
 			{
-			case field_type::INTEGER: sql += "INTEGER"; break;
-			case field_type::KEY: sql += "BIGINT"; break;
-			case field_type::TEXT: sql += "TEXT CHARACTER SET utf8"; break;
-			case field_type::TEXT_KEY: sql += "VARCHAR(100) CHARACTER SET utf8"; break;
-			case field_type::BOOLEAN: sql += "BOOLEAN"; break;
-			case field_type::TIME: sql += "TIMESTAMP"; break;
+			case FIELD_TYPE::INTEGER: sql += "INTEGER"; break;
+			case FIELD_TYPE::KEY: sql += "BIGINT"; break;
+			case FIELD_TYPE::TEXT: sql += "TEXT CHARACTER SET utf8"; break;
+			case FIELD_TYPE::TEXT_KEY: sql += "VARCHAR(100) CHARACTER SET utf8"; break;
+			case FIELD_TYPE::BOOLEAN: sql += "BOOLEAN"; break;
+			case FIELD_TYPE::TIME: sql += "TIMESTAMP"; break;
+			case FIELD_TYPE::BLOB: sql += "BLOB"; break;
 			}
 
 			if (m_attributes & att::NOTNULL)
@@ -412,7 +500,7 @@ namespace db
 				else if (m_attributes & att::DEFAULT)
 				{
 					sql += " DEFAULT ";
-					if (m_fld_type == field_type::TEXT)
+					if (m_fld_type == FIELD_TYPE::TEXT)
 						sql += "\"" + m_ref + "\"";
 					else
 						sql += m_ref;

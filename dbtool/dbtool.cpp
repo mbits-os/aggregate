@@ -218,7 +218,13 @@ int status(int, char*[], const db::ConnectionPtr& db)
 {
 	if (db != nullptr && db->isStillAlive())
 	{
-		printf("status: connection established\n");
+		db::model::Schema schema{ db };
+		auto ver = schema.version();
+		printf("status: connection established (schema version %d)\n", ver);
+#if 0
+		if (!ver)
+			schema.version(1);
+#endif
 		return 0;
 	}
 	return 1;

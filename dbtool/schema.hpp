@@ -34,18 +34,20 @@ namespace db
 {
 	namespace model
 	{
-		namespace field_type {
-			enum FIELD_TYPE {
-				KEY,
-				TEXT_KEY,
-				INTEGER,
-				TEXT,
-				BOOLEAN,
-				TIME
-			};
-		}
+		enum class FIELD_TYPE
+		{
+			KEY,
+			TEXT_KEY,
+			INTEGER,
+			TEXT,
+			BOOLEAN,
+			TIME,
+			BLOB
+		};
 
-		namespace att { enum {
+		enum class att
+		{
+			NONE            = 0x0000,
 			NOTNULL         = 0x0001,
 			AUTOINCREMENT   = 0x0002,
 			UNIQUE		    = 0x0004,
@@ -58,16 +60,44 @@ namespace db
 			DELETE_NULLIFY  = 0x0200,
 			UPDATE_NULLIFY  = 0x0400,
 			DEFAULT         = 0x0800
-		};}
+		};
+
+		struct Attributes
+		{
+			unsigned int value = 0;
+			Attributes() {}
+			Attributes(att att): value((unsigned int)att) {}
+			Attributes& operator |= (att att)
+			{
+				value |= (unsigned int)att;
+				return *this;
+			}
+
+			bool operator & (att att) const
+			{
+				return !!(value & ((unsigned int)att));
+			}
+		};
+
+		inline Attributes operator|(const Attributes& attributes, att att)
+		{
+			auto tmp = attributes;
+			return tmp |= att;
+		}
+
+		inline Attributes operator|(att left, att right)
+		{
+			return Attributes(left) | right;
+		}
 
 		class Field
 		{
 			std::string m_name;
-			field_type::FIELD_TYPE m_fld_type;
-			unsigned int m_attributes;
+			FIELD_TYPE m_fld_type;
+			Attributes m_attributes;
 			std::string m_ref;
 		public:
-			Field(const std::string& name, field_type::FIELD_TYPE fld_type, unsigned int attributes, const std::string& ref = std::string())
+			Field(const std::string& name, FIELD_TYPE fld_type, Attributes attributes, const std::string& ref = std::string())
 				: m_name(name)
 				, m_fld_type(fld_type)
 				, m_attributes(attributes)
@@ -84,8 +114,8 @@ namespace db
 			std::list<Field> m_fields;
 		public:
 			Table(const std::string& name): m_name(name) {}
-			Table& field(const std::string& name, const std::string& defValue = std::string(), field_type::FIELD_TYPE type = field_type::TEXT,
-				unsigned int attributes = att::NOTNULL)
+			Table& field(const std::string& name, const std::string& defValue = std::string(), FIELD_TYPE type = FIELD_TYPE::TEXT,
+				Attributes attributes = att::NOTNULL)
 			{
 				if (!defValue.empty())
 					attributes |= att::DEFAULT;
@@ -93,8 +123,8 @@ namespace db
 				m_fields.push_back(Field(name, type, attributes, defValue));
 				return *this;
 			}
-			Table& nullable(const std::string& name, const std::string& defValue = std::string(), field_type::FIELD_TYPE type = field_type::TEXT,
-				unsigned int attributes = 0)
+			Table& nullable(const std::string& name, const std::string& defValue = std::string(), FIELD_TYPE type = FIELD_TYPE::TEXT,
+				Attributes attributes = Attributes())
 			{
 				if (!defValue.empty())
 					attributes |= att::DEFAULT;
@@ -104,17 +134,22 @@ namespace db
 			}
 			Table& _id()
 			{
-				m_fields.push_back(Field("_id", field_type::KEY, att::NOTNULL | att::AUTOINCREMENT | att::KEY));
+				m_fields.push_back(Field("_id", FIELD_TYPE::KEY, att::NOTNULL | att::AUTOINCREMENT | att::KEY));
 				return *this;
 			}
 			Table& text_id(const std::string& name)
 			{
-				m_fields.push_back(Field(name, field_type::TEXT_KEY, att::NOTNULL | att::KEY));
+				m_fields.push_back(Field(name, FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY));
+				return *this;
+			}
+			Table& blob(const std::string& name)
+			{
+				m_fields.push_back(Field(name, FIELD_TYPE::BLOB, Attributes()));
 				return *this;
 			}
 			Table& refer(const std::string& remote)
 			{
-				m_fields.push_back(Field(remote + "_id", field_type::KEY, att::NOTNULL | att::REFERENCES | att::DELETE_CASCADE, remote));
+				m_fields.push_back(Field(remote + "_id", FIELD_TYPE::KEY, att::NOTNULL | att::REFERENCES | att::DELETE_CASCADE, remote));
 				return *this;
 			}
 			std::string drop() const;
@@ -206,6 +241,8 @@ namespace db
 			bool removeUser(const char* mail);
 			bool changePasswd(const char* mail, const char* passwd);
 			bool getUsers(Users& users);
+			long version();
+			bool version(long);
 		};
 	}
 };
