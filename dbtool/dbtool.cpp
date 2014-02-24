@@ -250,11 +250,13 @@ int restore(int, char*[], const db::ConnectionPtr&)
 int user_add(int, char*[], const db::ConnectionPtr&);
 int user_remove(int, char*[], const db::ConnectionPtr&);
 int user_passwd(int, char*[], const db::ConnectionPtr&);
+int user_list(int, char*[], const db::ConnectionPtr&);
 
 Command user_cmmd[] = {
 	Command("add", user_add),
 	Command("remove", user_remove),
-	Command("passwd", user_passwd)
+	Command("passwd", user_passwd),
+	Command("list", user_list)
 };
 
 int user(int argc, char* argv[], const db::ConnectionPtr& conn)
@@ -369,6 +371,32 @@ int user_passwd(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 		return 1;
 	}
 	fprintf(stderr, "user: password changed\n");
+	return 0;
+}
+
+int user_list(int, char*[], const db::ConnectionPtr& dbConn)
+{
+	db::model::Users users;
+	if (!db::model::Schema{ dbConn }.getUsers(users))
+	{
+		fprintf(stderr, "user: error listing users\n");
+		return 1;
+	}
+
+	size_t size1 = 0, size2 = 0;
+	for (auto&& user : users)
+	{
+		auto len = user.login.length();
+		if (len > size1) size1 = len;
+		len = user.name.length();
+		if (len > size2) size2 = len;
+	}
+
+	for (auto&& user : users)
+	{
+		printf("%-*s | %-*s | %s\n", size1, user.login.c_str(), size2, user.name.c_str(), user.email.c_str());
+	}
+
 	return 0;
 }
 

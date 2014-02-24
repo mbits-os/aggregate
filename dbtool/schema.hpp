@@ -187,15 +187,25 @@ namespace db
 			static SchemaDefinition& schema();
 		};
 
+		struct User
+		{
+			std::string login;
+			std::string name;
+			std::string email;
+		};
+
+		using Users = std::vector<User>;
+
 		class Schema
 		{
 			ConnectionPtr m_conn;
 		public:
-			Schema(const ConnectionPtr& conn): m_conn(conn) {}
+			Schema(const ConnectionPtr& conn) : m_conn(conn) {}
 			bool install();
 			bool addUser(const char* login, const char* mail, const char* name);
 			bool removeUser(const char* mail);
 			bool changePasswd(const char* mail, const char* passwd);
+			bool getUsers(Users& users);
 		};
 	}
 };

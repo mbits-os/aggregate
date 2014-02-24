@@ -344,6 +344,30 @@ namespace db
 			return update->execute();
 		}
 
+		bool Schema::getUsers(Users& users)
+		{
+			db::StatementPtr select = m_conn->prepare("SELECT login, name, email FROM user");
+			if (!select.get())
+				return false;
+
+			db::Transaction transaction(m_conn);
+			if (!transaction.begin())
+				return false;
+
+			CursorPtr c = select->query();
+			if (!c.get()) return false;
+			while (c->next())
+			{
+				User usr;
+				usr.login = c->getText(0);
+				usr.name = c->getText(1);
+				usr.email = c->getText(2);
+				users.push_back(usr);
+			}
+
+			return transaction.commit();
+		}
+
 		std::string Field::repr() const
 		{
 			std::string sql = m_name + " ";
