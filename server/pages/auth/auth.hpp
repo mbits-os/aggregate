@@ -136,6 +136,40 @@ namespace FastCGI { namespace app { namespace reader {
 			return Crypt::verify(pass, m_hash.c_str());
 		}
 
+		static UserInfo fromRecoveryId(const db::ConnectionPtr& db, const char* recoveryId)
+		{
+			constexpr tyme::time_t DAY = 24 * 60 * 60;
+			UserInfo out;
+			out.m_id = -1;
+
+			auto select = db->prepare(
+				"SELECT user._id, user.login, user.name, user.email, user.passphrase, recovery.started "
+				"FROM recovery LEFT JOIN user ON (recovery.user_id = user._id) "
+				"WHERE recovery._id=?"
+				);
+
+			if (select && select->bind(0, recoveryId))
+			{
+				auto c = select->query();
+				if (c && c->next())
+				{
+					auto started = c->getTimestamp(5);
+					if (tyme::now() > started + DAY)
+					{
+						out.m_id = -2;
+						return out;
+					}
+
+					out.m_id = c->getLongLong(0);
+					out.m_login = c->getText(1);
+					out.m_name = c->getText(2);
+					out.m_email = c->getText(3);
+					out.m_hash = c->getText(4);
+				}
+			}
+			return out;
+		}
+
 		std::string createRecoverySession(const db::ConnectionPtr& db)
 		{
 			tyme::time_t now = tyme::now();
@@ -144,9 +178,18 @@ namespace FastCGI { namespace app { namespace reader {
 			Crypt::newSalt(seed);
 			Crypt::md5(seed, sessionId);
 
-			// TODO: Store in database with m_id...
+			auto insert = db->prepare("INSERT INTO recovery (_id, user_id, started) VALUES (?, ?, ?)");
 
-			return sessionId;
+			if (insert &&
+				insert->bind(0, sessionId) &&
+				insert->bind(1, m_id) &&
+				insert->bindTime(2, now) &&
+				insert->execute())
+			{
+				return sessionId;
+			}
+
+			return std::string();
 		}
 	};
 

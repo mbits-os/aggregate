@@ -66,7 +66,18 @@ namespace FastCGI { namespace app { namespace reader {
 				{
 					auto recoveryId = info.createRecoverySession(request.dbConn());
 					if (recoveryId.empty())
-						request.on500("Could not create recovery session");
+					{
+						std::string msg = "Could not create recovery session";
+						const char* dbMsg = request.dbConn()->errorMessage();
+						if (dbMsg && *dbMsg)
+						{
+							msg += " (DB Message: ";
+							msg += dbMsg;
+							msg += ")";
+						}
+
+						request.on500(msg);
+					}
 
 					FastCGI::MailInfo mail{ "password-reset.txt", tr, lng::LNG_MAIL_SUBJECT_PASSWORD_RECOVERY };
 					mail.add_to(info.m_name, info.m_email);
