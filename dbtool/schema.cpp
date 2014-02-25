@@ -38,7 +38,7 @@ namespace db
 			sd.drop(currVersion, newVersion, program);
 			sd.create(currVersion, newVersion, program);
 
-#if 0
+#if 0 // DRY-RUN
 			printf("\n-- ########################################################\n");
 			printf("-- ## CHANGE FROM %d TO %d\n", currVersion, newVersion);
 			printf("-- ########################################################\n\n");
@@ -215,16 +215,20 @@ namespace db
 			long newVersion = VERSION::CURRENT;
 			if (newVersion < currVersion)
 			{
-				fprintf(stderr, "dbtool: downgrading is not supported\n");
+				fprintf(stderr, "install: downgrading is not supported\n");
 				return false;
 			}
 			if (newVersion == currVersion)
 			{
-				printf("dbtool: schema already at version %d\n", newVersion);
+				printf("install: schema already at version %d\n", newVersion);
 				return true;
 			}
 
-			printf("dbtool: installing the schema (from version %d to version %d)\n", currVersion, newVersion);
+			if (currVersion)
+				printf("install: updating the schema from version %d to %d\n", currVersion, newVersion);
+			else
+				printf("install: installing the schema\n");
+
 			SchemaDefinition& sd = SchemaDefinition::schema();
 
 			db::Transaction transaction(m_conn);
@@ -232,6 +236,9 @@ namespace db
 				return false;
 
 			if (!db::model::install(m_conn, currVersion, newVersion, sd))
+				return false;
+
+			if (!version(newVersion))
 				return false;
 
 			return transaction.commit();

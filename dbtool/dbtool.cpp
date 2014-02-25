@@ -220,11 +220,28 @@ int status(int, char*[], const db::ConnectionPtr& db)
 	{
 		db::model::Schema schema{ db };
 		auto ver = schema.version();
-		printf("status: connection established (schema version %d)\n", ver);
-#if 0
-		if (!ver)
-			schema.version(1);
-#endif
+		if (ver == db::model::VERSION::CURRENT)
+			printf("status: connection established (schema version: %d, current)\n", ver);
+		else
+			printf("status: connection established (schema version: %d)\n", ver);
+
+		if (ver < db::model::VERSION::CURRENT)
+		{
+			printf("\n"
+				"warning: current known schema version is %d\n"
+				"warning: update by calling\n"
+				"warning:    dbtool install\n",
+				db::model::VERSION::CURRENT);
+		}
+		else if (ver > db::model::VERSION::CURRENT)
+		{
+			printf("\n"
+				"error: current known schema version is %d\n"
+				"error: using this database is not supported\n",
+				db::model::VERSION::CURRENT);
+			return 1;
+		}
+
 		return 0;
 	}
 	return 1;
