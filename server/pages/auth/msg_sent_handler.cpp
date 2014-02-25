@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "auth.hpp"
+#include "auth_forms.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 
@@ -38,6 +39,14 @@ namespace FastCGI { namespace app { namespace reader {
 
 	protected:
 		virtual bool restrictedPage() { return false; }
+
+		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
+		{
+			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_MSG_SENT_TITLE));
+			request.setContent(content);
+
+			content->addMessage(tr(lng::LNG_MSG_SENT_MESSAGE));
+		}
 	};
 
 }}} // FastCGI::app::reader

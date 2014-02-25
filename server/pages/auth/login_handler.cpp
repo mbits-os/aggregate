@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "auth.hpp"
+#include "auth_forms.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 
@@ -44,19 +45,20 @@ namespace FastCGI { namespace app { namespace reader {
 			if (request.getVariable("reset") != nullptr)
 				request.redirect("/auth/reset", false);
 
-			auto content = std::make_shared<Form>(tr(lng::LNG_LOGIN_TITLE));
+			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_LOGIN_TITLE));
 			request.setContent(content);
 
 			content->hidden("continue");
 
 			content->submit("submit", tr(lng::LNG_NAV_SIGNIN));
-			content->submit("reset", tr(lng::LNG_LOGIN_FORGOT));
+			content->link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
 
-			Section& section = content->section(std::string());
-			auto message = section.control<Message>("message");
-			auto email = section.text("email", tr(lng::LNG_LOGIN_USERNAME), false, tr(lng::LNG_LOGIN_USERNAME_HINT));
-			auto password = section.text("password", tr(lng::LNG_LOGIN_PASSWORD), true);
-			auto cookie = section.checkbox("long_cookie", tr(lng::LNG_LOGIN_STAY));
+			content->addMessage(tr(lng::LNG_LOGIN_USERNAME_HINT));
+
+			auto message = content->control<Message>("message");
+			auto email = content->text("email", tr(lng::LNG_LOGIN_USERNAME));
+			auto password = content->text("password", tr(lng::LNG_LOGIN_PASSWORD), true);
+			auto cookie = content->checkbox("long_cookie", tr(lng::LNG_LOGIN_STAY));
 
 			content->bind(request);
 

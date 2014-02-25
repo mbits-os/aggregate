@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "auth.hpp"
+#include "auth_forms.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 
@@ -44,16 +45,15 @@ namespace FastCGI { namespace app { namespace reader {
 			if (request.getVariable("cancel"))
 				request.redirect("/");
 
-			auto content = std::make_shared<Form>(tr(lng::LNG_RESET_TITLE));
+			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_RESET_TITLE));
 			request.setContent(content);
 
 			content->hidden("continue");
 
 			content->submit("submit", tr(lng::LNG_CMD_SEND));
-			content->submit("cancel", tr(lng::LNG_CMD_CLOSE));
+			content->link("cancel", "/", tr(lng::LNG_CMD_CLOSE));
 
-			Section& section = content->section(std::string());
-			auto email = section.text("email", tr(lng::LNG_LOGIN_USERNAME), false, tr(lng::LNG_LOGIN_USERNAME_HINT));
+			auto email = content->text("email", tr(lng::LNG_RESET_USERNAME_HINT));
 
 			content->bind(request);
 
