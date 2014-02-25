@@ -90,21 +90,32 @@ namespace db
 			return Attributes(left) | right;
 		}
 
+		namespace VERSION { enum { SAME_AS_PARENT = -1, CURRENT = 1 }; }
+
+		static inline bool version_valid(long currVersion, long newVersion, long version)
+		{
+			return currVersion < version && version <= newVersion;
+		}
+
 		class Field
 		{
 			std::string m_name;
 			FIELD_TYPE m_fld_type;
 			Attributes m_attributes;
 			std::string m_ref;
+			long m_version;
 		public:
-			Field(const std::string& name, FIELD_TYPE fld_type, Attributes attributes, const std::string& ref = std::string())
+			Field(const std::string& name, FIELD_TYPE fld_type, Attributes attributes, const std::string& ref = std::string(), long version = VERSION::SAME_AS_PARENT)
 				: m_name(name)
 				, m_fld_type(fld_type)
 				, m_attributes(attributes)
 				, m_ref(ref)
+				, m_version(version)
 			{
 			}
-			std::string repr() const;
+			bool altered(long currVersion, long newVersion) const { return version_valid(currVersion, newVersion, m_version); }
+			long version() const { return m_version; }
+			std::string repr(bool alter = false) const;
 			void constraints(std::list<std::string>& cos) const;
 		};
 
@@ -112,24 +123,25 @@ namespace db
 		{
 			std::string m_name;
 			std::list<Field> m_fields;
+			long m_version;
 		public:
-			Table(const std::string& name): m_name(name) {}
+			Table(const std::string& name, long version = 1) : m_name(name), m_version(version) {}
 			Table& field(const std::string& name, const std::string& defValue = std::string(), FIELD_TYPE type = FIELD_TYPE::TEXT,
-				Attributes attributes = att::NOTNULL)
+				Attributes attributes = att::NOTNULL, long version = VERSION::SAME_AS_PARENT)
 			{
 				if (!defValue.empty())
 					attributes |= att::DEFAULT;
 
-				m_fields.push_back(Field(name, type, attributes, defValue));
+				m_fields.push_back(Field(name, type, attributes, defValue, version));
 				return *this;
 			}
 			Table& nullable(const std::string& name, const std::string& defValue = std::string(), FIELD_TYPE type = FIELD_TYPE::TEXT,
-				Attributes attributes = Attributes())
+				Attributes attributes = Attributes(), long version = VERSION::SAME_AS_PARENT)
 			{
 				if (!defValue.empty())
 					attributes |= att::DEFAULT;
 
-				m_fields.push_back(Field(name, type, attributes, defValue));
+				m_fields.push_back(Field(name, type, attributes, defValue, version));
 				return *this;
 			}
 			Table& _id()
@@ -137,31 +149,37 @@ namespace db
 				m_fields.push_back(Field("_id", FIELD_TYPE::KEY, att::NOTNULL | att::AUTOINCREMENT | att::KEY));
 				return *this;
 			}
-			Table& text_id(const std::string& name)
+			Table& text_id(const std::string& name, long version = VERSION::SAME_AS_PARENT)
 			{
-				m_fields.push_back(Field(name, FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY));
+				m_fields.push_back(Field(name, FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY, std::string(), version));
 				return *this;
 			}
-			Table& blob(const std::string& name)
+			Table& blob(const std::string& name, long version = VERSION::SAME_AS_PARENT)
 			{
-				m_fields.push_back(Field(name, FIELD_TYPE::BLOB, Attributes()));
+				m_fields.push_back(Field(name, FIELD_TYPE::BLOB, Attributes(), std::string(), version));
 				return *this;
 			}
-			Table& refer(const std::string& remote)
+			Table& refer(const std::string& remote, long version = VERSION::SAME_AS_PARENT)
 			{
-				m_fields.push_back(Field(remote + "_id", FIELD_TYPE::KEY, att::NOTNULL | att::REFERENCES | att::DELETE_CASCADE, remote));
+				m_fields.push_back(Field(remote + "_id", FIELD_TYPE::KEY, att::NOTNULL | att::REFERENCES | att::DELETE_CASCADE, remote, version));
 				return *this;
 			}
+
+			long version() const { return m_version; }
+			bool altered(long currVersion, long newVersion) const;
 			std::string drop() const;
-			std::string create() const;
+			std::string create(long newVersion) const;
+			void alter(long currVersion, long newVersion, std::list<std::string>& program) const;
 		};
 
 		class View
 		{
 			std::string m_name;
 			std::string m_select;
+			long m_version;
 		public:
-			View(const std::string& name, const std::string& select): m_name(name), m_select(select) {}
+			View(const std::string& name, const std::string& select, long version = 1) : m_name(name), m_select(select), m_version(version) {}
+			long version() const { return m_version; }
 			std::string drop() const;
 			std::string create() const;
 		};
@@ -171,24 +189,15 @@ namespace db
 			std::list<Table> m_tables;
 			std::list<View> m_views;
 		public:
-			Table& table(const std::string& name)
+			Table& table(const std::string& name, long version = 1)
 			{
-				m_tables.push_back(name);
+				m_tables.emplace_back(name, version);
 				return m_tables.back();
 			}
-			View& view(const std::string& name, const std::string& select)
+			View& view(const std::string& name, const std::string& select, long version = 1)
 			{
-				m_views.push_back(View(name, select));
+				m_views.push_back(View(name, select, version));
 				return m_views.back();
-			}
-
-			template <typename Cont, typename T>
-			static void each(std::list<std::string>& out, const Cont& cont, std::string (T::*op)() const)
-			{
-				for (const T& item : cont)
-				{
-					out.push_back((item.*op)());
-				}
 			}
 
 			template <typename Cont>
@@ -204,20 +213,8 @@ namespace db
 			template <typename Cont>
 			static reverse_t<Cont> reverse(const Cont& cont) { return reverse_t<Cont>(cont); }
 
-			std::list<std::string> drop() const
-			{
-				std::list<std::string> out;
-				each(out, reverse(m_views), &View::drop);
-				each(out, reverse(m_tables), &Table::drop);
-				return out;
-			}
-			std::list<std::string> create() const
-			{
-				std::list<std::string> out;
-				each(out, m_tables, &Table::create);
-				each(out, m_views, &View::create);
-				return out;
-			}
+			void drop(long currVersion, long newVersion, std::list<std::string>& program) const;
+			void create(long currVersion, long newVersion, std::list<std::string>& program) const;
 
 			static SchemaDefinition& schema();
 		};
@@ -241,9 +238,18 @@ namespace db
 			bool removeUser(const char* mail);
 			bool changePasswd(const char* mail, const char* passwd);
 			bool getUsers(Users& users);
+			bool force_schema_config();
 			long version();
 			bool version(long);
 		};
+
+		template <typename T>
+		inline void errorMessage(const char* title, const T& ptr)
+		{
+			const char* msg = ptr->errorMessage();
+			if (msg && *msg)
+				fprintf(stderr, "%s: %s\n", title, msg);
+		}
 	}
 };
 

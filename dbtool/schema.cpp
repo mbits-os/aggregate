@@ -31,15 +31,47 @@ namespace db
 {
 	namespace model
 	{
+		static inline bool install(const ConnectionPtr& conn, long currVersion, long newVersion, const SchemaDefinition& sd)
+		{
+			std::list<std::string> program;
+
+			sd.drop(currVersion, newVersion, program);
+			sd.create(currVersion, newVersion, program);
+
+#if 0
+			printf("\n-- ########################################################\n");
+			printf("-- ## CHANGE FROM %d TO %d\n", currVersion, newVersion);
+			printf("-- ########################################################\n\n");
+			for (auto&& sql : program)
+				printf("%s;\n", sql.c_str());
+#else
+			for (auto&& sql : program)
+			{
+				if (!conn->exec(sql.c_str()))
+				{
+					printf("%s;\n", sql.c_str());
+					return false;
+				}
+			}
+#endif
+
+			return true;
+		}
+
 		struct SDBuilder
 		{
 			SchemaDefinition sd;
+
 			SDBuilder()
 			{
-				sd.table("schema_config")
-					.field("name", std::string(), FIELD_TYPE::TEXT, att::KEY | att::NOTNULL)
-					.field("value", std::string(), FIELD_TYPE::BLOB, att::NONE)
-					;
+
+				/////////////////////////////////////////////////////////////////////////////
+				//
+				//          VERSION 1
+				//
+				/////////////////////////////////////////////////////////////////////////////
+
+				schema_config(sd);
 
 				sd.table("user")
 					._id()
@@ -148,6 +180,26 @@ namespace db
 					"FROM feed "
 					"LEFT JOIN trending ON (trending.feed_id = feed._id) "
 					"ORDER BY popularity DESC, last_update ASC");
+
+				/////////////////////////////////////////////////////////////////////////////
+				//
+				//          VERSION 2
+				//
+				/////////////////////////////////////////////////////////////////////////////
+
+				sd.table("recovery", 2)
+					.text_id("_id")
+					.refer("user")
+					.field("started", std::string(), FIELD_TYPE::TIME)
+					;
+			}
+
+			static void schema_config(SchemaDefinition& sd)
+			{
+				sd.table("schema_config")
+					.text_id("name")
+					.field("value", std::string(), FIELD_TYPE::BLOB, att::NONE)
+					;
 			}
 		};
 
@@ -159,39 +211,27 @@ namespace db
 
 		bool Schema::install()
 		{
-			printf("dbtool: installing the schema\n");
+			long currVersion = version();
+			long newVersion = VERSION::CURRENT;
+			if (newVersion < currVersion)
+			{
+				fprintf(stderr, "dbtool: downgrading is not supported\n");
+				return false;
+			}
+			if (newVersion == currVersion)
+			{
+				printf("dbtool: schema already at version %d\n", newVersion);
+				return true;
+			}
+
+			printf("dbtool: installing the schema (from version %d to version %d)\n", currVersion, newVersion);
 			SchemaDefinition& sd = SchemaDefinition::schema();
-			std::list<std::string> program;
-			std::list<std::string>::const_iterator _cur, _end;
 
 			db::Transaction transaction(m_conn);
 			if (!transaction.begin())
 				return false;
 
-			program = sd.drop();
-			auto it = std::find_if(program.begin(), program.end(), [this](const std::string& sql) -> bool
-			{
-				bool ret = !m_conn->exec(sql.c_str());
-				if (ret)
-				{
-					printf("%s\n", sql.c_str());
-				}
-				return ret;
-			});
-			if (it != program.end())
-				return false;
-
-			program = sd.create();
-			it = std::find_if(program.begin(), program.end(), [this](const std::string& sql) -> bool
-			{
-				bool ret = !m_conn->exec(sql.c_str());
-				if (ret)
-				{
-					printf("%s\n", sql.c_str());
-				}
-				return ret;
-			});
-			if (it != program.end())
+			if (!db::model::install(m_conn, currVersion, newVersion, sd))
 				return false;
 
 			return transaction.commit();
@@ -373,6 +413,13 @@ namespace db
 			return transaction.commit();
 		}
 
+		bool Schema::force_schema_config()
+		{
+			SchemaDefinition sd;
+			SDBuilder::schema_config(sd);
+			return db::model::install(m_conn, 0, 1, sd);
+		}
+
 		namespace
 		{
 			template <typename T>
@@ -413,31 +460,31 @@ namespace db
 				auto insert = conn->prepare("INSERT INTO schema_config (name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value=VALUES(value)");
 				if (!insert.get())
 				{
-					fprintf(stderr, "DB message: %s\n", conn->errorMessage());
+					db::model::errorMessage("DB message", conn);
 					return false;
 				}
 
 				if (!insert->bind(0, field))
 				{
-					fprintf(stderr, "Statement message: %s\n", insert->errorMessage());
+					db::model::errorMessage("Statement message", insert);
 					return false;
 				}
 				if (!insert->bind(1, &value, sizeof(value)))
 				{
-					fprintf(stderr, "Statement message: %s\n", insert->errorMessage());
+					db::model::errorMessage("Statement message", insert);
 					return false;
 				}
 
 				db::Transaction transaction(conn);
 				if (!transaction.begin())
 				{
-					fprintf(stderr, "DB message: %s\n", conn->errorMessage());
+					db::model::errorMessage("DB message", conn);
 					return false;
 				}
 
 				if (!insert->execute())
 				{
-					fprintf(stderr, "Statement message: %s\n", insert->errorMessage());
+					db::model::errorMessage("Statement message", insert);
 					return false;
 				}
 
@@ -455,7 +502,7 @@ namespace db
 			return setConfig<long>(m_conn, "version", v);
 		}
 
-		std::string Field::repr() const
+		std::string Field::repr(bool alter) const
 		{
 			std::string sql = m_name + " ";
 			switch (m_fld_type)
@@ -478,35 +525,18 @@ namespace db
 			if (m_attributes & att::KEY)
 				sql += " PRIMARY KEY";
 
-			if (!m_ref.empty())
-				if (m_attributes & att::REFERENCES)
-				{
-#if 0
-					sql += " REFERENCES " + m_ref + " (_id)";
-					if (m_attributes & att::DELETE_RESTRICT)
-						sql += " ON DELETE RESTRICT";
-					if (m_attributes & att::UPDATE_RESTRICT)
-						sql += " ON UPDATE RESTRICT";
-					if (m_attributes & att::DELETE_CASCADE)
-						sql += " ON DELETE CASCADE";
-					if (m_attributes & att::UPDATE_CASCADE)
-						sql += " ON UPDATE CASCADE";
-					if (m_attributes & att::DELETE_NULLIFY)
-						sql += " ON DELETE SET NULL";
-					if (m_attributes & att::UPDATE_NULLIFY)
-						sql += " ON UPDATE SET NULL";
-#endif
-				}
-				else if (m_attributes & att::DEFAULT)
-				{
-					sql += " DEFAULT ";
-					if (m_fld_type == FIELD_TYPE::TEXT)
-						sql += "\"" + m_ref + "\"";
-					else
-						sql += m_ref;
-				}
+			if (alter || (!m_ref.empty() && m_attributes & att::DEFAULT))
+			{
+				sql += " DEFAULT ";
+				if (m_ref.empty())
+					sql += "NULL"; // in case of alter
+				else if (m_fld_type == FIELD_TYPE::TEXT)
+					sql += "\"" + m_ref + "\"";
+				else
+					sql += m_ref;
+			}
 
-				return sql;
+			return sql;
 		}
 
 		void Field::constraints(std::list<std::string>& cos) const
@@ -531,31 +561,73 @@ namespace db
 			}
 		}
 
+		bool Table::altered(long currVersion, long newVersion) const
+		{
+			for (auto&& field : m_fields)
+			{
+				if (field.altered(currVersion, newVersion))
+					return true;
+			}
+			return false;
+		}
+
 		std::string Table::drop() const
 		{
 			return "DROP TABLE IF EXISTS " + m_name;
 		}
 
-		std::string Table::create() const
+		std::string Table::create(long newVersion) const
 		{
 			std::string sql = "CREATE TABLE " + m_name + " (\n  ";
 			bool first = true;
-			for (auto _cur = m_fields.begin(); _cur != m_fields.end(); ++_cur)
-			{
-				if (first) first = false;
-				else sql += ",\n  ";
-				sql += _cur->repr();
-			}
+
 			std::list<std::string> cos;
-			for (auto _cur = m_fields.begin(); _cur != m_fields.end(); ++_cur)
-				_cur->constraints(cos);
-			for (auto _cur = cos.begin(); _cur != cos.end(); ++_cur)
+			for (auto&& field : m_fields)
+			{
+				if (field.version() > newVersion)
+					continue;
+
+				if (first) first = false;
+				else sql += ",\n  ";
+				sql += field.repr();
+				field.constraints(cos);
+			}
+
+			for (auto&& con: cos)
 			{
 				if (first) first = false;
 				else sql += ",\n  ";
-				sql += *_cur;
+				sql += con;
 			}
 			return sql += "\n)";
+		}
+
+		void Table::alter(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			std::list<std::string> cos;
+
+			for (auto&& field : m_fields)
+			{
+				if (!field.altered(currVersion, newVersion))
+					continue;
+
+				std::string sql = "ALTER TABLE ";
+				sql.append(m_name);
+				sql.append(" ADD COLUMN ");
+				sql.append(field.repr(true));
+				program.push_back(sql);
+
+				field.constraints(cos);
+			}
+
+			for (auto&& con : cos)
+			{
+				std::string sql = "ALTER TABLE ";
+				sql.append(m_name);
+				sql.append(" ADD CONSTRAINT ");
+				sql.append(con);
+				program.push_back(sql);
+			}
 		}
 
 		std::string View::drop() const
@@ -566,6 +638,42 @@ namespace db
 		std::string View::create() const
 		{
 			return "CREATE VIEW " + m_name + " AS (" + m_select + ")";
+		}
+
+		void SchemaDefinition::drop(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto && v : reverse(m_views))
+			{
+				if (version_valid(currVersion, newVersion, v.version()))
+					program.push_back(v.drop());
+			}
+
+			for (auto && t : reverse(m_tables))
+			{
+				if (version_valid(currVersion, newVersion, t.version()))
+					program.push_back(t.drop());
+			}
+		}
+
+		void SchemaDefinition::create(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto && t : m_tables)
+			{
+				if (version_valid(currVersion, newVersion, t.version()))
+				{
+					program.push_back(t.create(newVersion));
+				}
+				else if (t.version() <= currVersion && t.altered(currVersion, newVersion))
+				{
+					t.alter(currVersion, newVersion, program);
+				}
+			}
+
+			for (auto && v : m_views)
+			{
+				if (version_valid(currVersion, newVersion, v.version()))
+					program.push_back(v.create());
+			}
 		}
 
 	}

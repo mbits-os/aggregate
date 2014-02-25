@@ -70,25 +70,28 @@ template <size_t N>
 Command* get_cmmd(Command (&commands)[N], int argc, char* argv[])
 {
 	if (argc > 1)
+	{
 		for (size_t i = 0; i < array_size(commands); ++i)
 		{
 			if (strcmp(argv[1], commands[i].name) == 0)
 				return commands + i;
 		}
+	}
 
-		if (argc > 1)
-			fprintf(stderr, "%s: unknown command: %s\n", argv[0], argv[1]);
-		else
-			fprintf(stderr, "%s: command missing\n", argv[0]);
+	if (argc > 1)
+		fprintf(stderr, "%s: unknown command: %s\n", argv[0], argv[1]);
+	else
+		fprintf(stderr, "%s: command missing\n", argv[0]);
 
-		fprintf(stderr, "\nKnown commands are:\n");
-		for (size_t i = 0; i < array_size(commands); ++i)
-			fprintf(stderr, "\t%s\n", commands[i].name);
+	fprintf(stderr, "\nKnown commands are:\n");
+	for (size_t i = 0; i < array_size(commands); ++i)
+		fprintf(stderr, "\t%s\n", commands[i].name);
 
-		return nullptr;
+	return nullptr;
 }
 
 int status(int, char*[], const db::ConnectionPtr&);
+int schema_version(int, char*[], const db::ConnectionPtr&);
 int install(int, char*[], const db::ConnectionPtr&);
 int backup(int, char*[], const db::ConnectionPtr&);
 int restore(int, char*[], const db::ConnectionPtr&);
@@ -100,6 +103,7 @@ int wiki_cmd(int, char*[], const db::ConnectionPtr&);
 
 Command commands[] = {
 	Command("status", status),
+	Command("schema-version", schema_version),
 	Command("install", install),
 	Command("backup", backup),
 	Command("restore", restore),
@@ -207,11 +211,7 @@ int main(int argc, char* argv[])
 
 	int ret = command->run(argc - 1, argv + 1, conn);
 	if (ret != 0 && conn.get() != nullptr)
-	{
-		const char* error = conn->errorMessage();
-		if (error && *error)
-			fprintf(stderr, "DB message: %s\n", conn->errorMessage());
-	}
+		db::model::errorMessage("DB message", conn);
 }
 
 int status(int, char*[], const db::ConnectionPtr& db)
@@ -228,6 +228,40 @@ int status(int, char*[], const db::ConnectionPtr& db)
 		return 0;
 	}
 	return 1;
+}
+
+int schema_version(int argc, char* argv[], const db::ConnectionPtr& dbConn)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "schema-version: not enough params\n");
+		fprintf(stderr, "user schema-version <version>\n");
+		return 1;
+	}
+
+	long version = atoi(argv[1]);
+	if (version < 0)
+		version = 0;
+
+	printf("schema-version: setting version %d\n", version);
+
+	db::model::Schema schema{ dbConn };
+	bool success = schema.version(version);
+
+	if (!success || schema.version() != version)
+	{
+		fprintf(stderr, "schema-version: trying to force schema config\n");
+
+		success = schema.force_schema_config();
+		if (!success)
+			return 1;
+
+		success = schema.version(version);
+		if (!success)
+			return 1;
+	}
+
+	return 0;
 }
 
 int install(int, char*[], const db::ConnectionPtr& dbConn)
