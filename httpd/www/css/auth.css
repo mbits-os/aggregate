@@ -12,6 +12,25 @@ img { border: none; }
 	margin: 0px auto;
 }
 
+.auth-logo span
+{
+	display: block;
+	margin: 0px 0px -2em 0px;
+	padding: 0px;
+	position: relative;
+	top: -2.2em;
+	left: 130px;
+	width: 100%;
+	color: #f8f8f8;
+	font-weight: bold;
+	text-shadow: black 0.1em 0.1em 0.2em
+}
+
+.auth-logo a
+{
+	text-decoration: none;
+}
+
 .form
 {
 	width: 300px;

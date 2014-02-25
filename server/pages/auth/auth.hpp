@@ -43,19 +43,37 @@ namespace FastCGI { namespace app { namespace reader {
 		}
 		virtual bool restrictedPage() { return false; }
 
-		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
+		void header(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
-			PageHandler::headElement(session, request, tr);
-			request << "    <style type=\"text/css\">@import url(\"" << static_web << "css/forms.css\");</style>\r\n";
+			request << "<!DOCTYPE html "
+				"PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
+				"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n"
+				"<html>\r\n"
+				"  <head>\r\n";
+			headElement(session, request, tr);
+			request <<
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/auth.css\");</style>\r\n"
+				"  </head>\r\n"
+				"  <body>\r\n";
+			bodyStart(session, request, tr);
 		}
 
-		void buildTopMenu(TopMenu::TopBar& menu, SessionPtr session, Request& request, PageTranslation& tr)
+		void bodyStart(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
-			menu.left().home("home", 0, tr(lng::LNG_GLOBAL_PRODUCT), tr(lng::LNG_GLOBAL_DESCRIPTION));
+			request <<
+				"    <div class='auth-logo'><div><a href='/'><img src='" << static_web << "images/auth_logo.png' /><span>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</span></a></div></div>\r\n"
+				"    <div id=\"auth-content\">\r\n";
 		}
 
-		void topbarUI(SessionPtr session, Request& request, PageTranslation& tr)
+		void bodyEnd(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
+#if DEBUG_CGI
+			std::string icicle = request.getIcicle();
+			if (!icicle.empty())
+				request << "\r\n<a href='/debug/?frozen=" << url::encode(icicle) << "'>[F]</a>";
+#endif
+			request << "\r\n"
+				"    </div>\r\n";
 		}
 	};
 
@@ -69,7 +87,7 @@ namespace FastCGI { namespace app { namespace reader {
 		virtual void getControlString(Request& request)
 		{
 			if (!m_value.empty())
-				request << "<td></td><td><span class='message'>" << m_value << "</span></td>";
+				request << "<p class='message'>" << m_value << "</p>";
 		}
 		void bindUI() {}
 	};
