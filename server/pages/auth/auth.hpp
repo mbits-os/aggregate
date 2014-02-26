@@ -154,6 +154,21 @@ namespace FastCGI { namespace app { namespace reader {
 			return Crypt::verify(pass, m_hash.c_str());
 		}
 
+		bool changePasswd(const db::ConnectionPtr& db, const char* mail, const char* passwd)
+		{
+			Crypt::password_t hash;
+			Crypt::password(passwd, hash);
+
+			db::StatementPtr update = db->prepare("UPDATE user SET passphrase=? WHERE email=?");
+			if (!update.get())
+				return false;
+
+			if (!update->bind(0, hash)) return false;
+			if (!update->bind(1, mail)) return false;
+
+			return update->execute();
+		}
+
 		static UserInfo fromRecoveryId(const db::ConnectionPtr& db, const char* recoveryId)
 		{
 			constexpr tyme::time_t DAY = 24 * 60 * 60;
