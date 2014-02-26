@@ -72,7 +72,10 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 
 		void getControlString(Request& request)
 		{
-			request << "<li>";
+			if (m_hasError)
+				request << "<li class='error'>";
+			else
+				request << "<li>";
 			getElement(request, "input");
 			request << "</li>";
 		}
@@ -111,7 +114,10 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 		}
 		void getControlString(Request& request)
 		{
-			request << "<li>";
+			if (m_hasError)
+				request << "<li class='error'>";
+			else
+				request << "<li>";
 			getElement(request, "input");
 			getLabelString(request);
 			request << "</li>";
@@ -165,7 +171,11 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 		}
 		virtual void getControlString(Request& request)
 		{
-			request << "<li class='link'><a href='" << m_link << "'>" << m_text << "</a></li>";
+			if (m_hasError)
+				request << "<li class='link error'>";
+			else
+				request << "<li class='link'>";
+			request << "<a href='" << m_link << "'>" << m_text << "</a></li>";
 		}
 		void bindUI() {}
 	};
