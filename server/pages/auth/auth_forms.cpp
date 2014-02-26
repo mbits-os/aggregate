@@ -107,11 +107,20 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 
 			for (auto&& ctrl : m_buttons)
 				ctrl->render(request);
-
-			request << "\r\n";
 		}
+		request << "</ul>\r\n";
+
+#if DEBUG_CGI
 		request << "\r\n"
-			"</ul>\r\n"
+			"<div class=\"debug-icons\"><div>\r\n"
+			"<a class=\"debug-icon\" href=\"/debug/\"><span>[D]</span></a>\r\n";
+		std::string icicle = request.getIcicle();
+		if (!icicle.empty())
+			request << "<a class=\"frozen-icon\" href=\"/debug/?frozen=" << url::encode(icicle) << "\"><span>[F]</span></a>\r\n";
+		request << "</div></div>\r\n";
+#endif
+
+		request <<
 			"</div>\r\n"
 			"</form>\r\n";
 	}

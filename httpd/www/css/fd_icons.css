@@ -1,0 +1,40 @@
+.debug-icons div
+{
+	margin: 0px;
+}
+.debug-icons span
+{
+	display: none;
+}
+
+.frozen-icon, .debug-icon
+{
+	background-image: url("/css/images/fd_icons.png");
+	background-repeat: no-repeat;
+	margin: 0px;
+	float: right;
+	position: relative;
+	height: 16px;
+	width: 16px;
+}
+
+.frozen-icon
+{
+	margin: 0px 4px;
+	background-position: 0px -0px;
+}
+
+.debug-icon
+{
+    background-position: 0px -32px;
+}
+
+.frozen-icon:hover
+{
+    background-position: 0px -16px;
+}
+
+.debug-icon:hover
+{
+    background-position: 0px -48px;
+}
