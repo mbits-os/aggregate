@@ -103,6 +103,7 @@ namespace db
 			FIELD_TYPE m_fld_type;
 			Attributes m_attributes;
 			std::string m_ref;
+			int m_length;
 			long m_version;
 		public:
 			Field(const std::string& name, FIELD_TYPE fld_type, Attributes attributes, const std::string& ref = std::string(), long version = VERSION::SAME_AS_PARENT)
@@ -110,6 +111,7 @@ namespace db
 				, m_fld_type(fld_type)
 				, m_attributes(attributes)
 				, m_ref(ref)
+				, m_length(-1)
 				, m_version(version)
 			{
 			}
@@ -117,6 +119,8 @@ namespace db
 			long version() const { return m_version; }
 			std::string repr(bool alter = false) const;
 			void constraints(std::list<std::string>& cos) const;
+			int length() const { return m_length; }
+			void length(int len) { m_length = len; }
 		};
 
 		class Table
@@ -162,6 +166,12 @@ namespace db
 			Table& refer(const std::string& remote, long version = VERSION::SAME_AS_PARENT)
 			{
 				m_fields.push_back(Field(remote + "_id", FIELD_TYPE::KEY, att::NOTNULL | att::REFERENCES | att::DELETE_CASCADE, remote, version));
+				return *this;
+			}
+
+			Table& add(const Field& field)
+			{
+				m_fields.push_back(field);
 				return *this;
 			}
 

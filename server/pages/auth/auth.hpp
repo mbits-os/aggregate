@@ -51,6 +51,10 @@ namespace FastCGI { namespace app { namespace reader {
 				"<html>\r\n"
 				"  <head>\r\n";
 			headElement(session, request, tr);
+#if DEBUG_CGI
+			request <<
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/fd_icons.css\");</style>\r\n";
+#endif
 			request <<
 				"    <style type=\"text/css\">@import url(\"" << static_web << "css/auth.css\");</style>\r\n"
 				"  </head>\r\n"
@@ -67,11 +71,6 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void bodyEnd(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
-#if DEBUG_CGI
-			std::string icicle = request.getIcicle();
-			if (!icicle.empty())
-				request << "\r\n<a href='/debug/?frozen=" << url::encode(icicle) << "'>[F]</a>";
-#endif
 			request << "\r\n"
 				"    </div>\r\n";
 		}
@@ -113,10 +112,10 @@ namespace FastCGI { namespace app { namespace reader {
 				"WHERE email=?"
 				);
 
-			if (query.get() && query->bind(0, email))
+			if (query && query->bind(0, email))
 			{
 				db::CursorPtr c = query->query();
-				if (c.get() && c->next())
+				if (c && c->next())
 				{
 					out.m_id = c->getLongLong(0);
 					out.m_login = c->getText(1);
@@ -132,10 +131,10 @@ namespace FastCGI { namespace app { namespace reader {
 						"WHERE login=?"
 						);
 
-					if (query.get() && query->bind(0, email))
+					if (query && query->bind(0, email))
 					{
 						db::CursorPtr c = query->query();
-						if (c.get() && c->next())
+						if (c && c->next())
 						{
 							out.m_id = c->getLongLong(0);
 							out.m_login = email;
@@ -149,22 +148,48 @@ namespace FastCGI { namespace app { namespace reader {
 			return out;
 		}
 
+		static UserInfo fromSession(db::ConnectionPtr db, const SessionPtr& session)
+		{
+			UserInfo out;
+			out.m_id = -1;
+
+			db::StatementPtr query = db->prepare(
+				"SELECT passphrase "
+				"FROM user "
+				"WHERE _id=?"
+				);
+
+			if (query && query->bind(0, session->getId()))
+			{
+				db::CursorPtr c = query->query();
+				if (c && c->next())
+				{
+					out.m_id = session->getId();
+					out.m_login = session->getLogin();
+					out.m_name = session->getName();
+					out.m_email = session->getEmail();
+					out.m_hash = c->getText(0);
+				}
+			}
+			return out;
+		}
+
 		bool passwordValid(const char* pass)
 		{
 			return Crypt::verify(pass, m_hash.c_str());
 		}
 
-		bool changePasswd(const db::ConnectionPtr& db, const char* mail, const char* passwd)
+		bool changePasswd(const db::ConnectionPtr& db, const char* passwd)
 		{
 			Crypt::password_t hash;
 			Crypt::password(passwd, hash);
 
 			db::StatementPtr update = db->prepare("UPDATE user SET passphrase=? WHERE email=?");
-			if (!update.get())
+			if (!update)
 				return false;
 
 			if (!update->bind(0, hash)) return false;
-			if (!update->bind(1, mail)) return false;
+			if (!update->bind(1, m_email.c_str())) return false;
 
 			return update->execute();
 		}
@@ -206,10 +231,7 @@ namespace FastCGI { namespace app { namespace reader {
 		std::string createRecoverySession(const db::ConnectionPtr& db)
 		{
 			tyme::time_t now = tyme::now();
-			char seed[20];
-			Crypt::md5_t sessionId;
-			Crypt::newSalt(seed);
-			Crypt::md5(seed, sessionId);
+			std::string sessionId = digest<Crypt::SHA512Hash>() + "_" + digest<Crypt::MD5Hash>();
 
 			auto insert = db->prepare("INSERT INTO recovery (_id, user_id, started) VALUES (?, ?, ?)");
 
@@ -223,6 +245,25 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 
 			return std::string();
+		}
+
+		static bool deleteRecoverySession(const db::ConnectionPtr& db, const char* sessionId)
+		{
+			auto stmt = db->prepare("DELETE FROM recovery WHERE _id=?");
+
+			return stmt && stmt->bind(0, sessionId) && stmt->execute();
+		}
+
+	private:
+		template <typename Hash>
+		static inline std::string digest()
+		{
+			char seed[20];
+			typename Hash::hash_t out;
+			Crypt::newSalt(seed);
+			Hash::digest(seed, out);
+
+			return out;
 		}
 	};
 

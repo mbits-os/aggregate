@@ -27,6 +27,18 @@
 #include <model.hpp>
 #include <algorithm>
 
+#ifdef __CYGWIN__
+namespace std
+{
+	inline std::string to_string(int i)
+	{
+		char buffer[64];
+		sprintf(buffer, "%d", i);
+		return buffer;
+	}
+}
+#endif
+
 namespace db
 {
 	namespace model
@@ -187,8 +199,10 @@ namespace db
 				//
 				/////////////////////////////////////////////////////////////////////////////
 
+				Field _id{ "_id", FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY };
+				_id.length(150);
 				sd.table("recovery", 2)
-					.text_id("_id")
+					.add(_id)
 					.refer("user")
 					.field("started", std::string(), FIELD_TYPE::TIME)
 					;
@@ -517,7 +531,12 @@ namespace db
 			case FIELD_TYPE::INTEGER: sql += "INTEGER"; break;
 			case FIELD_TYPE::KEY: sql += "BIGINT"; break;
 			case FIELD_TYPE::TEXT: sql += "TEXT CHARACTER SET utf8"; break;
-			case FIELD_TYPE::TEXT_KEY: sql += "VARCHAR(100) CHARACTER SET utf8"; break;
+			case FIELD_TYPE::TEXT_KEY:
+				if (m_length > 0)
+					sql += "VARCHAR(" + std::to_string(m_length) + ") CHARACTER SET utf8";
+				else
+					sql += "VARCHAR(100) CHARACTER SET utf8";
+				break;
 			case FIELD_TYPE::BOOLEAN: sql += "BOOLEAN"; break;
 			case FIELD_TYPE::TIME: sql += "TIMESTAMP"; break;
 			case FIELD_TYPE::BLOB: sql += "BLOB"; break;
