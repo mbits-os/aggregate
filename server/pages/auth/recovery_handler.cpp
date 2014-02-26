@@ -34,7 +34,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		std::string name() const
 		{
-			return "Password Recovery";
+			return "PWD Recovery";
 		}
 
 	protected:
@@ -46,12 +46,12 @@ namespace FastCGI { namespace app { namespace reader {
 			request.setContent(content);
 
 			auto recoveryId = request.getVariable("id");
-			UserInfo info;
-			info.m_id = -1;
+			UserInfo user;
+			user.m_id = -1;
 			if (recoveryId)
-			info = UserInfo::fromRecoveryId(request.dbConn(), recoveryId);
+				user = UserInfo::fromRecoveryId(request.dbConn(), recoveryId);
 
-			if (info.m_id < 0)
+			if (user.m_id < 0)
 			{
 				content->addMessage(tr(lng::LNG_RECOVERY_INVALID));
 				content->link("cancel", "/", std::string("&laquo; ") + tr(lng::LNG_CMD_CLOSE));
@@ -63,11 +63,47 @@ namespace FastCGI { namespace app { namespace reader {
 			content->addMessage(tr(lng::LNG_CHNGPASS_MESSAGE));
 
 			auto message = content->control<Message>("message");
-			auto email = content->text("password", tr(lng::LNG_CHNGPASS_NEW), true);
-			auto password = content->text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
+			auto new_pass = content->text("new-pass", tr(lng::LNG_CHNGPASS_NEW), true);
+			auto retype = content->text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
 			content->submit("submit", tr(lng::LNG_RECOVERY_CMD));
 			content->link("cancel", "/", std::string("&laquo; ") + tr(lng::LNG_CMD_CLOSE));
+
+			content->bind(request);
+
+			if (!request.getVariable("posted")) return;
+
+			if (!new_pass->hasUserData() || !retype->hasUserData())
+			{
+				content->setError(tr(lng::LNG_CHNGPASS_ERROR_ONE_MISSING));
+				if (!new_pass->hasUserData())
+					new_pass->setError();
+				if (!retype->hasUserData())
+					retype->setError();
+			}
+			else
+			{
+				if (new_pass->getData() != retype->getData())
+				{
+					content->setError(tr(lng::LNG_CHNGPASS_ERROR_MISMATCHED));
+					new_pass->setError();
+					retype->setError();
+				}
+				else
+				{
+					if (!UserInfo::deleteRecoverySession(request.dbConn(), recoveryId))
+						request.on500("Cannot delete the recovery ID");
+
+					if (!user.changePasswd(request.dbConn(), new_pass->getData().c_str()))
+						request.on500("Could not change the email");
+
+					SessionPtr session = request.startSession(false, user.m_email.c_str());
+					if (session)
+						onAuthFinished(request);
+					else
+						request.on500("Session could not be started");
+				}
+			}
 		}
 	};
 
