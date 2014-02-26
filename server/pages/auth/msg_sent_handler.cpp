@@ -42,10 +42,14 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			if (request.getVariable("close"))
+				onAuthFinished(request);
+
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_MSG_SENT_TITLE));
 			request.setContent(content);
 
 			content->addMessage(tr(lng::LNG_MSG_SENT_MESSAGE));
+			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
 		}
 	};
 

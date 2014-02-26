@@ -85,7 +85,14 @@ input[type=submit]
 {
 	padding: 16px;
 	margin: .5em 0px;
-	width: 300px
+	width: 100%
+}
+
+input[type=submit].narrow
+{
+	padding: 8px 16px;
+	margin: .5em 0px;
+	width: 100%
 }
 
 .link

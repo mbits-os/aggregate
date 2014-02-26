@@ -137,9 +137,11 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 	class Submit: public Input
 	{
 	public:
-		Submit(const std::string& name, const std::string& label, const std::string& hint)
+		Submit(const std::string& name, const std::string& label, bool narrow, const std::string& hint)
 			: Input("submit", name, std::string(), hint)
 		{
+			if (narrow)
+				setAttr("class", "narrow");
 			setAttr("value", label);
 		}
 
@@ -225,9 +227,9 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 			return control<Checkbox>(name, label, hint);
 		}
 
-		SubmitPtr submit(const std::string& name, const std::string& label = std::string(), const std::string& hint = std::string())
+		SubmitPtr submit(const std::string& name, const std::string& label = std::string(), bool narrow = false, const std::string& hint = std::string())
 		{
-			auto ptr = std::make_shared<Submit>(name, label, hint);
+			auto ptr = std::make_shared<Submit>(name, label, narrow, hint);
 
 			if (ptr.get())
 				m_buttons.push_back(ptr);

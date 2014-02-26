@@ -42,8 +42,8 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
-			if (request.getVariable("cancel"))
-				request.redirect("/");
+			if (request.getVariable("close"))
+				onAuthFinished(request);
 
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_RESET_TITLE));
 			request.setContent(content);
@@ -51,7 +51,7 @@ namespace FastCGI { namespace app { namespace reader {
 			content->hidden("continue");
 
 			content->submit("submit", tr(lng::LNG_CMD_SEND));
-			content->link("cancel", "/", tr(lng::LNG_CMD_CLOSE));
+			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
 
 			content->addMessage(tr(lng::LNG_RESET_MESSAGE));
 			auto email = content->text("email", tr(lng::LNG_RESET_USERNAME));

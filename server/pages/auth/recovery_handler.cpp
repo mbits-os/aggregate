@@ -42,6 +42,9 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			if (request.getVariable("close"))
+				onAuthFinished(request);
+
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_RECOVERY_TITLE));
 			request.setContent(content);
 
@@ -54,7 +57,7 @@ namespace FastCGI { namespace app { namespace reader {
 			if (user.m_id < 0)
 			{
 				content->addMessage(tr(lng::LNG_RECOVERY_INVALID));
-				content->link("cancel", "/", std::string("&laquo; ") + tr(lng::LNG_CMD_CLOSE));
+				content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
 				return;
 			}
 
@@ -67,7 +70,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto retype = content->text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
 			content->submit("submit", tr(lng::LNG_RECOVERY_CMD));
-			content->link("cancel", "/", std::string("&laquo; ") + tr(lng::LNG_CMD_CLOSE));
+			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
 
 			content->bind(request);
 

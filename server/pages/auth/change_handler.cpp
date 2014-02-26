@@ -57,7 +57,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto retype = content->text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
 			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->submit("cancel", tr(lng::LNG_CMD_CLOSE));
+			content->submit("cancel", tr(lng::LNG_CMD_CLOSE), true);
 
 			content->bind(request);
 
