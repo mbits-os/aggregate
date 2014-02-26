@@ -71,8 +71,8 @@ namespace FastCGI { namespace app { namespace api
 #if DEBUG_CGI
 			APIOperationDbgInfo info;
 			info.ptr = ptr;
-#ifdef POSIX
-			info.file = file + 6; // skip "../../"
+#if defined(POSIX) || defined(NDEBUG)
+			info.file = file + 6; // skip "../../" (or "..\..\")
 #else
 			info.file = file + BUILD_DIR_LEN;
 #endif
