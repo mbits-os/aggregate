@@ -34,7 +34,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		std::string name() const
 		{
-			return "Password Reset";
+			return "PWD Reset";
 		}
 
 	protected:
@@ -53,7 +53,8 @@ namespace FastCGI { namespace app { namespace reader {
 			content->submit("submit", tr(lng::LNG_CMD_SEND));
 			content->link("cancel", "/", tr(lng::LNG_CMD_CLOSE));
 
-			auto email = content->text("email", tr(lng::LNG_RESET_USERNAME_HINT));
+			content->addMessage(tr(lng::LNG_RESET_MESSAGE));
+			auto email = content->text("email", tr(lng::LNG_RESET_USERNAME));
 
 			content->bind(request);
 
@@ -90,6 +91,12 @@ namespace FastCGI { namespace app { namespace reader {
 				}
 
 				content->setError(tr(lng::LNG_RESET_ERROR_MISMATCHED));
+				email->setError();
+			}
+			else
+			{
+				content->setError(tr(lng::LNG_RESET_ERROR_MISSING));
+				email->setError();
 			}
 		}
 	};

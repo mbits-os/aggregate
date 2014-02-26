@@ -55,7 +55,6 @@ namespace FastCGI { namespace app { namespace reader {
 
 			content->addMessage(tr(lng::LNG_LOGIN_USERNAME_HINT));
 
-			auto message = content->control<Message>("message");
 			auto email = content->text("email", tr(lng::LNG_LOGIN_USERNAME));
 			auto password = content->text("password", tr(lng::LNG_LOGIN_PASSWORD), true);
 			auto cookie = content->checkbox("long_cookie", tr(lng::LNG_LOGIN_STAY));
@@ -76,7 +75,7 @@ namespace FastCGI { namespace app { namespace reader {
 					else
 					{
 						SessionPtr session = request.startSession(set_cookie, info.m_email.c_str());
-						if (session.get())
+						if (session)
 							onAuthFinished(request);
 						else
 							request.on500("Session could not be started");
@@ -86,16 +85,17 @@ namespace FastCGI { namespace app { namespace reader {
 			else if (request.getVariable("posted") != nullptr)
 			{
 				content->setError(tr(lng::LNG_LOGIN_ERROR_ONE_MISSING));
+				email->setError();
+				password->setError();
 			}
 			else
 			{
 				Strings data;
-				if (session.get())
+				if (session)
 				{
 					data["email"] = session->getEmail();
-					data["message"] = tr(lng::LNG_LOGIN_UI_STALE); 
+					content->addMessage(tr(lng::LNG_LOGIN_UI_STALE));
 				}
-				message->bind(request, data);
 				email->bind(request, data);
 			}
 		}

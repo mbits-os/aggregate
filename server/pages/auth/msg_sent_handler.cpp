@@ -32,9 +32,9 @@ namespace FastCGI { namespace app { namespace reader {
 	{
 	public:
 
-		std::string name() const override
+		std::string name() const
 		{
-			return "Message Sent";
+			return "SMTP Landing";
 		}
 
 	protected:
