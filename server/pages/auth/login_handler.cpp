@@ -53,6 +53,7 @@ namespace FastCGI { namespace app { namespace reader {
 			content->submit("submit", tr(lng::LNG_NAV_SIGNIN));
 			content->link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
 
+			content->addMessage(tr(lng::LNG_LOGIN_ABSTRACT));
 			content->addMessage(tr(lng::LNG_LOGIN_USERNAME_HINT));
 
 			auto email = content->text("email", tr(lng::LNG_LOGIN_USERNAME));

@@ -44,7 +44,6 @@ img { border: none; }
 	font-weight: normal;
 	font-family: Calibri, "Helvetica Neue", Arial, Helvetica, "Nimbus Sans L", sans-serif;
 	color: black;
-	margin-bottom: 1.3em;
 }
 
 .form p
@@ -128,4 +127,66 @@ p.error, li.error label
 li.error input[type=text], li.error input[type=password], li.error input[type=email]
 {
 	border: solid 1px #c00;
+}
+
+.tabs ul
+{
+	list-style: none;
+	margin: 0px;
+	margin-bottom: 1.3em;
+	padding: 0px;
+	padding-top: 1em;
+	font-size: 16px;
+	border: none;
+	border-bottom: solid 1px gray;
+}
+
+.tabs li
+{
+	color: gray;
+	display: inline-block;
+	margin: 0px 6px 0px 6px;
+	padding: 3px .5em 2px;
+	border: solid 1px #eee;
+	border-bottom: none;
+	-webkit-border-top-left-radius: 3px;
+	-webkit-border-top-right-radius: 3px;
+	-moz-border-radius-topleft: 3px;
+	-moz-border-radius-topright: 3px;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+
+.tabs li + li
+{
+	margin-left: -8px;
+	margin-rigth: 0px;
+}
+
+.tabs .selected
+{
+	padding-bottom: 3px;
+	margin-bottom: -1px;
+	border: solid 1px gray;
+	border-bottom: none;
+	background: white;
+}
+
+.tabs a
+{
+	color: gray;
+	text-decoration: none;
+}
+
+.tabs a:hover { color: #004; }
+
+.auth-logo div
+{
+	width: 450px;
+	margin: 0px auto;
+}
+
+.form
+{
+	width: 450px;
 }
