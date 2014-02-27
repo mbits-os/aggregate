@@ -10,7 +10,7 @@ f.close()
 locale = sys.argv[2]
 
 print """# Copyright (C) 2012 midnightBITS
-# This file is distributed under the same license as the ShelvesSite package.
+# This file is distributed under the same license as the Aggregate package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2012.
 #"""
 print 'msgid ""'
@@ -51,7 +51,7 @@ poDate = getPODate()
 
 for line in decl:
 	cmd = line.split('"')[1].split(':')[0]
-	if cmd == 'Project-Id-Version': print '"Project-Id-Version: ShelvesSite 1.0\\n"'
+	if cmd == 'Project-Id-Version': print '"Project-Id-Version: Aggregate 1.0\\n"'
 	elif cmd == 'Content-Type': print '"Content-Type: text/plain; charset=UTF-8\\n"'
 	elif cmd == 'PO-Revision-Date': print '"PO-Revision-Date: %s\\n"' % poDate
 	elif cmd == 'Last-Translator' : print '"Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\\n"'

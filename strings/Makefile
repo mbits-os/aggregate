@@ -71,9 +71,13 @@ get-locale-2=$(subst _,-,$(word 5,$(subst /, ,$1)))
 all: $(DEFINES_FILE) $(LNGS) $(EXPORTED) $(CHARSET_DB)
 
 help:
-	$(Q)$(ECHO) -e "Targets are:\n    all\n    clean\n    help\n    update - extract new strings and distribute them\n    msgs - compile .mo files"
+	$(Q)$(ECHO) -e "Targets are:\n    all\n    clean\n    help\n    update - extract new strings and distribute them\n    msgs - compile .mo files\n    check - test unused and duplicate strings"
 
 update: site_strings.pot $(POS)
+
+check:
+	@python ./code/duplicates.py
+	@python ./code/unused.py
 
 clean:
 	$(Q)$(RM) $(MOS)
@@ -84,12 +88,14 @@ clean:
 
 msgs: $(MOS)
 
-.PHONY: all clean update msgs
+.PHONY: all clean update help check msgs
 
 $(DEFINES_FILE): site_strings.txt
 	$(Q)$(ECHO) "[ENUM]" $(notdir $@)
 	$(Q)$(MKDIR) $(LOCALES_DIR)
 	$(Q)$(DEFINE) site_strings.txt $(DEFINES_FILE)
+	@python ./code/duplicates.py
+	@python ./code/unused.py
 
 site_strings.pot: site_strings.txt
 	$(Q)$(ECHO) "[LANG]" $@
