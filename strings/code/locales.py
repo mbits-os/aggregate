@@ -1,4 +1,4 @@
-﻿#! /usr/bin/python
+#! /usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys, os, struct
@@ -185,7 +185,10 @@ namespace lng
 \t{
 \t\tCULTURE = 0, // ISO code for the culture"""
     for key in keys:
-        print >>f, "\t\t%s = %s, // %s" % (key, i, " ".join(strings[key].content.split("\n")))
+        message = " ".join(strings[key].content.split("\n"))
+        descr = " ".join(strings[key].comment.split("\n"))
+        if descr: descr = " (%s)" % descr
+        print >>f, "\t\t%s = %s, // %s%s" % (key, i, message, descr)
         i += 1
     print >>f, "\t};\n} // lng\n#endif // __STRINGS_INCLUDE__"
     f.close()

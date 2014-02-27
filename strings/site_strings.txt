@@ -1,3 +1,5 @@
+LANGUAGE_NAME = "Name of the language"
+LANGUAGE_NAME.dscr = "The name of the language in the language itself, e.g. 'English (United States)' for en-US, or 'Polski' for pl"
 LNG_GLOBAL_SITENAME = "reedr"
 LNG_GLOBAL_PRODUCT = "reedr"
 LNG_GLOBAL_DESCRIPTION = "stay up to date"

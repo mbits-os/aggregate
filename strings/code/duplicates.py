@@ -17,6 +17,7 @@ for line in f:
     if len(l) == 1: continue
     name = l[0].strip()
     if name in exclude: continue
+    if '.' in name: continue
     value = l[1].strip()[1:]
     value = value[:len(value)-1]
     key = value.lower()

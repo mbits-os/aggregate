@@ -5,7 +5,7 @@ import os, re
 dirs = ["../libenv", "../server"]
 
 patt = re.compile("(lng::LNG_[A-Z0-9_]+)")
-strings = []
+strings = ["LANGUAGE_NAME"] # mark as used
 
 for d in dirs:
     for (base, subs, files) in os.walk(d):
@@ -32,6 +32,7 @@ for line in f:
     l = line.split("=", 1)
     if len(l) == 1: continue
     l = l[0].strip()
+    if '.' in l: continue
     if l in strings: continue
     out.append(line)
 f.close()
