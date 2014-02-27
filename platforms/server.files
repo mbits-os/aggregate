@@ -20,4 +20,11 @@ server/pages/data/api_handler.cpp
 server/pages/data/api_subscribe.cpp
 server/pages/data/api_subscription.cpp
 server/pages/data/api_feed.cpp
+server/pages/settings/admin_handler.cpp
+server/pages/settings/feeds_handler.cpp
+server/pages/settings/folders_handler.cpp
+server/pages/settings/general_handler.cpp
+server/pages/settings/profile_handler.cpp
+server/pages/settings/settings.cpp
+server/pages/settings/settings.hpp
 strings/site_strings.txt
