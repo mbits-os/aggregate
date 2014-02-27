@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ShelvesSite 1.0\n"
+"Project-Id-Version: Aggregate 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-22 20:47+0200\n"
-"PO-Revision-Date: 2014-02-26 08:54+0100\n"
+"PO-Revision-Date: 2014-02-27 10:03+0100\n"
 "Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\n"
 "Language-Team: Translators <translate@midnightbits.com>\n"
 "Language: pl\n"
@@ -199,10 +199,6 @@ msgctxt "LNG_NAV_SEARCH"
 msgid "Search"
 msgstr "Szukaj"
 
-msgctxt "LNG_NAV_SETTINGS"
-msgid "Settings"
-msgstr "Ustawienia"
-
 msgctxt "LNG_NAV_SIGNIN"
 msgid "Sign In"
 msgstr "Zaloguj się"
@@ -255,6 +251,30 @@ msgstr "Resetowanie hasła"
 msgctxt "LNG_RESET_USERNAME"
 msgid "Login/e-mail"
 msgstr "Login/adres e-mail"
+
+msgctxt "LNG_SETTINGS_ADMIN"
+msgid "Admin"
+msgstr "Admin"
+
+msgctxt "LNG_SETTINGS_FEEDS"
+msgid "Feeds"
+msgstr "Kanały"
+
+msgctxt "LNG_SETTINGS_FOLDERS"
+msgid "Folders"
+msgstr "Foldery"
+
+msgctxt "LNG_SETTINGS_GENERAL"
+msgid "General"
+msgstr "Ogólne"
+
+msgctxt "LNG_SETTINGS_PROFILE"
+msgid "Profile"
+msgstr "Profil"
+
+msgctxt "LNG_SETTINGS_TITLE"
+msgid "Settings"
+msgstr "Ustawienia"
 
 msgctxt "LNG_SUBSCRIBE_ERROR"
 msgid ""
@@ -316,10 +336,6 @@ msgstr "Musisz podać hasło, żeby zmienić adres e-mail"
 msgctxt "LNG_USER_SETTINGS_SEC_SIGNIN"
 msgid "Signing in"
 msgstr "Logowanie"
-
-msgctxt "LNG_USER_SETTINGS_TITLE"
-msgid "Settings"
-msgstr "Ustawienia"
 
 msgctxt "LNG_VIEW_ALL_ITEMS"
 msgid "All items"
