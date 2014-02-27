@@ -31,6 +31,7 @@ libenv/includes/config.hpp
 libenv/includes/filesystem.hpp
 libenv/includes/wiki.hpp
 libenv/includes/wiki_mailer.hpp
+libenv/includes/format.hpp
 
 libenv/database/dbconn.cpp
 libenv/database/mysql/mysql.cpp
