@@ -63,6 +63,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 			content->hidden("id");
 
+			content->addMessage(tr(lng::LNG_CHNGPASS_TITLE_FOR, auth::format_username(user.m_name, user.m_login)));
 			content->addMessage(tr(lng::LNG_CHNGPASS_MESSAGE));
 
 			auto message = content->control<Message>("message");

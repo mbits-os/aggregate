@@ -48,6 +48,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_CHNGPASS_TITLE));
 			request.setContent(content);
 
+			content->addMessage(tr(lng::LNG_CHNGPASS_TITLE_FOR, auth::format_username(session)));
 			content->addMessage(tr(lng::LNG_CHNGPASS_MESSAGE));
 			content->hidden("continue");
 

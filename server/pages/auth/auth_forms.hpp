@@ -263,6 +263,41 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 		void addMessage(const std::string& message) { m_messages.push_back(message); }
 	};
 
+	inline std::string format_username(const std::string& name, const std::string& login)
+	{
+		std::string out;
+		out.reserve(name.length() + login.length() + 17);
+
+		auto both = !name.empty() && !login.empty();
+
+		if (!name.empty())
+		{
+			out.append("<b>");
+			out.append(name);
+			out.append("</b>");
+		}
+
+		if (both)
+			out.append(" (");
+
+		if (!login.empty())
+		{
+			out.append("<i>");
+			out.append(login);
+			out.append("</i>");
+		}
+
+		if (both)
+			out.append(")");
+
+		return out;
+	}
+
+	inline std::string format_username(const SessionPtr& session)
+	{
+		return format_username(session->getName(), session->getLogin());
+	}
+
 }}}} // FastCGI::app::reader::auth
 
 #endif // __AUTH_FORMS_H__
