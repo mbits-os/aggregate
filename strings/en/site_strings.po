@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.6.4\n"
 
-#. The name of the language in te language, e.g. 'English (United States)' for en-US, or 'Polski' for pl
+#. The name of the language in the language itself, e.g. 'English (United States)' for en-US, or 'Polski' for pl
 msgctxt "LANGUAGE_NAME"
 msgid "Name of the language"
 msgstr "English"
