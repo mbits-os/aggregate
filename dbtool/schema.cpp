@@ -85,6 +85,8 @@ namespace db
 
 				schema_config(sd);
 
+				Field language("lang", FIELD_TYPE::TEXT, att::NONE, std::string(), 2);
+
 				sd.table("user")
 					._id()
 					.field("login")
@@ -93,6 +95,7 @@ namespace db
 					.field("passphrase")
 					.field("root_folder", "0", FIELD_TYPE::KEY)
 					.field("is_admin", "0", FIELD_TYPE::BOOLEAN)
+					.add(language)
 					;
 
 				//hash is built from email and new salt
