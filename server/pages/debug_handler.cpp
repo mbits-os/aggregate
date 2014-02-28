@@ -26,6 +26,7 @@
 #include <handlers.hpp>
 #include <crypt.hpp>
 #include "data/api_handler.hpp"
+#include <iomanip>
 
 #if DEBUG_CGI
 
@@ -39,6 +40,40 @@ extern char ** environ;
 long long asctoll(const char* ptr, char** end);
 
 namespace FastCGI { namespace app { namespace reader {
+
+	Request& operator << (Request& request, FrozenState::duration_t dur)
+	{
+		auto second = FrozenState::duration_t::period::den;
+		auto ticks = dur.count();
+
+		auto seconds = ticks / second;
+
+		if (seconds > 59)
+		{
+			ticks -= (seconds / 60) * 60 * second;
+
+			return request << seconds / 60 << '.' << ticks / second << '.' << std::setw(3) << std::setfill('0') << (ticks * 1000 / second) % 1000 << 's';
+		}
+
+		const char* freq = "s";
+		if (ticks * 10 / second < 9)
+		{
+			freq = "ms";
+			ticks *= 1000;
+			if (ticks * 10 / second < 9)
+			{
+				freq = "&micro;s";
+				ticks *= 1000;
+				if (ticks * 10 / second < 9)
+				{
+					freq = "ns";
+					ticks *= 1000;
+				}
+			}
+		}
+
+		return request << ticks / second << '.' << std::setw(3) << std::setfill('0') << (ticks * 1000 / second) % 1000 << freq;
+	}
 
 	class DebugPageHandler: public PageHandler
 	{
@@ -197,7 +232,14 @@ namespace FastCGI { namespace app { namespace reader {
 				if (item.icicle.empty())
 					request << "<em style=\"color: silver\">empty</em>";
 				else
-					request << "<a href='/debug/?frozen=" + url::encode(item.icicle) + "'>Icicle</a>";
+				{
+					FrozenState::duration_t dur;
+					auto frozen = request.app().frozen(item.icicle);
+					if (frozen)
+						request << "<a href='/debug/?frozen=" + url::encode(item.icicle) + "' title='Took " << frozen->duration() << "'>Icicle</a>";
+					else
+						request << "<a href='/debug/?frozen=" + url::encode(item.icicle) + "' title='Took -.---ms'>Icicle</a>";
+				}
 				request
 					<< "</td></tr>\n";
 			}
@@ -380,6 +422,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto item_resource = frozen->resource();
 			auto item_remote_addr = frozen->remote_addr();
 			auto item_remote_port = frozen->remote_port();
+			auto item_duration = frozen->duration();
 
 			tyme::tm_t gmt = tyme::gmtime(item_now);
 			char timebuf[100];
@@ -392,6 +435,7 @@ namespace FastCGI { namespace app { namespace reader {
 				".even td { background: #ddd }\n"
 				"th { font-weight: normal; color: white; background: #444; }\n"
 				"table { width: auto; max-width: 650px }\n"
+				"dt { font-weight: bold }\n"
 				"</style>\n"
 				"<title>Frozen debug page</title>\n<div id='content'>\n"
 				"<h1>Frozen debug page</h1>\n"
@@ -403,10 +447,8 @@ namespace FastCGI { namespace app { namespace reader {
 				"<li><a href='#session'>Session</a></li>\n"
 				"</ol>\n"
 				"<h2>Resource:</h2>\n"
-				"<p><a href='http://" << item_server << item_resource << "'>" << item_resource << "</a> called from " << item_remote_addr << ":" << item_remote_port << " on " << timebuf << "</p>\n"
-				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
-				"<h2>Thread: <em>" << mt::Thread::currentId() << "</em> (update!)</h2>\n"
-				"<h2>Request Number: <em>" << request.app().requs().size() << "</em> (update!)</h2>\n";
+				"<dl>\n<dt>URI:</dt><dd><a href='http://" << item_server << item_resource << "'>" << item_resource << "</a></dd>\n<dt>Remote end:</dt><dd>" << item_remote_addr << ":" << item_remote_port << "</dd><dd>" << timebuf << "</dd>\n"
+				"<dt>Rendered in:</dt><dd>" << item_duration << "</dd>\n</dl>\n";
 #if 0
 			FastCGI::RequestStatePtr statePtr = request.getRequestState();
 			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
