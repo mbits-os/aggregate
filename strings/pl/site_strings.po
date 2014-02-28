@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Aggregate 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-22 20:47+0200\n"
-"PO-Revision-Date: 2014-02-27 17:44+0100\n"
+"PO-Revision-Date: 2014-02-28 23:47+0100\n"
 "Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\n"
 "Language-Team: Translators <translate@midnightbits.com>\n"
 "Language: pl\n"
@@ -272,6 +272,50 @@ msgstr "Foldery"
 msgctxt "LNG_SETTINGS_GENERAL"
 msgid "General"
 msgstr "Ogólne"
+
+msgctxt "LNG_SETTINGS_GENERAL_DEFAULT"
+msgid "Use language from browser"
+msgstr "Użyj języka z przeglądarki"
+
+msgctxt "LNG_SETTINGS_GENERAL_FEED_ALL"
+msgid "All posts"
+msgstr "Wszystkie artykuły"
+
+msgctxt "LNG_SETTINGS_GENERAL_FEED_TITLE"
+msgid "How many posts to show"
+msgstr "Które artykuły pokazywać"
+
+msgctxt "LNG_SETTINGS_GENERAL_FEED_UNREAD"
+msgid "Only unread posts"
+msgstr "Tylko nieprzeczytane"
+
+msgctxt "LNG_SETTINGS_GENERAL_LANGUAGES"
+msgid "Languages:"
+msgstr "Języki:"
+
+msgctxt "LNG_SETTINGS_GENERAL_POSTS_EXPANDED"
+msgid "Full articles"
+msgstr "Pełne artykuły"
+
+msgctxt "LNG_SETTINGS_GENERAL_POSTS_LIST"
+msgid "List of subjects"
+msgstr "Lista tytułów"
+
+msgctxt "LNG_SETTINGS_GENERAL_POSTS_TITLE"
+msgid "How to show the posts"
+msgstr "Jak pokazywać artykuły"
+
+msgctxt "LNG_SETTINGS_GENERAL_SORT_NEWEST"
+msgid "Newest on top"
+msgstr "Najnowsze na górze"
+
+msgctxt "LNG_SETTINGS_GENERAL_SORT_OLDEST"
+msgid "Oldest on top"
+msgstr "Najstarsze na górze"
+
+msgctxt "LNG_SETTINGS_GENERAL_SORT_TITLE"
+msgid "How to sort the posts"
+msgstr "Jak sortować artykuły"
 
 msgctxt "LNG_SETTINGS_PROFILE"
 msgid "Profile"
