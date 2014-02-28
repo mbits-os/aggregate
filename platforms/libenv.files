@@ -7,6 +7,12 @@ libenv/includes/fast_cgi/backends.hpp
 libenv/includes/fast_cgi/request.hpp
 libenv/includes/fast_cgi/session.hpp
 libenv/includes/fast_cgi/thread.hpp
+libenv/includes/forms/basic_renderer.hpp
+libenv/includes/forms/controls.hpp
+libenv/includes/forms/control_base.hpp
+libenv/includes/forms/forms.hpp
+libenv/includes/forms/table_renderer.hpp
+libenv/includes/forms/vertical_renderer.hpp
 libenv/includes/handlers.hpp
 libenv/includes/top_menu.hpp
 libenv/includes/forms.hpp
@@ -47,7 +53,6 @@ libenv/fast_cgi/request.cpp
 libenv/fast_cgi/session.cpp
 libenv/fast_cgi/thread.cpp
 libenv/fast_cgi/handlers.cpp
-libenv/fast_cgi/forms.cpp
 libenv/locale/lang_file.cpp
 libenv/locale/locale.cpp
 libenv/feeds/feed_parser.cpp
@@ -57,6 +62,12 @@ libenv/feeds/atom_10.cpp
 libenv/feeds/rdf_10.cpp
 libenv/feeds/rss_20.cpp
 libenv/feeds/opml.cpp
+libenv/forms/basic_renderer.cpp
+libenv/forms/controls.cpp
+libenv/forms/control_base.cpp
+libenv/forms/forms.cpp
+libenv/forms/table_renderer.cpp
+libenv/forms/vertical_renderer.cpp
 libenv/http/http.cpp
 libenv/http/curl_http.cpp
 libenv/http/curl_http.hpp
