@@ -36,11 +36,72 @@ namespace FastCGI { namespace app { namespace reader {
 			return "Settings: General";
 		}
 
+		// TODO: find a better home for this enum
+		enum
+		{
+			VIEW_UNREAD  = 1,
+			ONLY_TITLES  = 2,
+			OLDEST_FIRST = 4
+		};
+
 	protected:
+
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			if (request.getVariable("posted"))
+			{
+				std::string newLang = request.getVariable("lang");
+				if (newLang != session->preferredLanguage())
+				{
+					session->preferredLanguage(newLang);
+
+					// empty preferred language means "only look into Accept-Languages, when there is nothing loaded"
+					// so we must behave as if nothing was loaded...
+					if (newLang.empty())
+						session->setTranslation(nullptr);
+
+					tr.init(session, request);
+				}
+			}
+
 			auto content = std::make_shared<settings::SettingsForm>(settings::PAGE::GENERAL);
 			request.setContent(content);
+
+			Options lang_opts;
+			lang_opts.add("", tr(lng::LNG_SETTINGS_GENERAL_DEFAULT));
+
+			auto langs = request.app().knownLanguages();
+			for (auto&& lang : langs)
+				lang_opts.add(lang.m_lang, lang.m_name);
+
+			content->selection("lang", tr(lng::LNG_SETTINGS_GENERAL_LANGUAGES), lang_opts);
+
+			auto feeds = content->radio_group("feed", tr(lng::LNG_SETTINGS_GENERAL_FEED_TITLE));
+			feeds->radio("all", tr(lng::LNG_SETTINGS_GENERAL_FEED_ALL));
+			feeds->radio("unread", tr(lng::LNG_SETTINGS_GENERAL_FEED_UNREAD));
+
+			auto posts = content->radio_group("posts", tr(lng::LNG_SETTINGS_GENERAL_POSTS_TITLE));
+			posts->radio("list", tr(lng::LNG_SETTINGS_GENERAL_POSTS_LIST));
+			posts->radio("exp", tr(lng::LNG_SETTINGS_GENERAL_POSTS_EXPANDED));
+
+			auto sort = content->radio_group("sort", tr(lng::LNG_SETTINGS_GENERAL_SORT_TITLE));
+			sort->radio("newest", tr(lng::LNG_SETTINGS_GENERAL_SORT_NEWEST));
+			sort->radio("oldest", tr(lng::LNG_SETTINGS_GENERAL_SORT_OLDEST));
+
+			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
+			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
+
+			// TODO: real prefs
+			int flags = 0; // all, expanded, newest first
+			Strings data;
+
+			data["lang"]  = session->preferredLanguage();
+			data["feed"]  = flags & VIEW_UNREAD  ? "unread" : "all";
+			data["posts"] = flags & ONLY_TITLES  ? "list"   : "exp";
+			data["sort"]  = flags & OLDEST_FIRST ? "oldest" : "newest";
+
+			content->bind(request, data);
+
 		}
 	};
 
