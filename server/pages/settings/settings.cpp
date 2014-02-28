@@ -28,45 +28,6 @@
 
 namespace FastCGI { namespace app { namespace reader { namespace settings {
 
-	void SettingsControl::render(Request& request)
-	{
-		getControlString(request);
-		request << "\r\n";
-	}
-
-	void SettingsControl::renderSimple(Request& request)
-	{
-		getSimpleControlString(request);
-	}
-
-	void Checkbox::bindData(Request& request, const Strings& data)
-	{
-		if (m_name.empty()) return;
-
-		m_userValue = false;
-		m_value.erase();
-
-		if (request.getVariable("posted") != nullptr)
-		{
-			param_t value = request.getVariable(m_name.c_str());
-			m_userValue = true;
-			if (value)
-				m_value = value;
-			else
-				m_value.erase();
-			m_checked = value != nullptr;
-			return;
-		}
-
-		auto _it = data.find(m_name);
-		if (_it != data.end())
-		{
-			m_value = _it->second;
-			m_checked = m_value == "1" || m_value == "true";
-			return;
-		}
-	}
-
 	static struct PageInfo
 	{
 		lng::LNG title;
@@ -84,11 +45,9 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 	};
 
 	SettingsForm::SettingsForm(PAGE page_type, const std::string& method, const std::string& action, const std::string& mime)
-		: m_page_type(page_type)
+		: SimpleForm<VerticalRenderer>(std::string(), method, action, mime)
+		, m_page_type(page_type)
 		, m_title_created(false)
-		, m_method(method)
-		, m_action(action)
-		, m_mime(mime)
 	{
 	}
 
@@ -108,21 +67,11 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 	void SettingsForm::render(SessionPtr session, Request& request, PageTranslation& tr)
 	{
-		request << "\r\n<form method='" << m_method << "'";
-		if (!m_action.empty()) request << " action='" << m_action << "'";
-		if (!m_mime.empty()) request << " enctype='" << m_mime << "'";
-		request << ">\r\n<input type='hidden' name='posted' value='1' />\r\n";
+		FormBase::formStart(session, request, tr);
+		RendererT::getFormStart(request, getFormTitle(tr));
 
-		for (auto&& hidden: m_hidden) {
-			param_t var = request.getVariable(hidden.c_str());
-			if (var != nullptr)
-				request << "<input type='hidden' name='" << hidden << "' value='" << url::htmlQuotes(var) << "' />\r\n";
-		};
-
-		request << "\r\n"
-			"<div class='form'>\r\n"
-			"<h1>" << tr(lng::LNG_SETTINGS_TITLE) << "</h1>\r\n"
-			"\r\n"
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		request <<
 			"<div class='tabs'>\r\n"
 			"<ul>\r\n";
 
@@ -148,70 +97,18 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		request << "</ul>\r\n"
 			"</ul>\r\n"
 			"</div>\r\n";
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		for (auto&& m : m_messages)
-			request << "<p class='message'>" << m << "</p>\r\n";
+		RendererT::getMessagesString(request, m_messages);
 
 		if (!m_error.empty())
-			request << "<p class='error'>" << m_error << "</p>\r\n";
+			RendererT::getErrorString(request, m_error);
 
-		for (auto&& ctrl : m_controls)
-			ctrl->render(request);
+		ControlsT::renderControls(request);
+		ButtonsT::renderControls(request);
 
-		if (!m_buttons.empty())
-		{
-			request << "\r\n<li><hr/></li>\r\n";
-
-			for (auto&& ctrl : m_buttons)
-				ctrl->render(request);
-		}
-		request << "</ul>\r\n";
-
-#if DEBUG_CGI
-		request << "\r\n"
-			"<div class=\"debug-icons\"><div>\r\n"
-			"<a class=\"debug-icon\" href=\"/debug/\"><span>[D]</span></a>\r\n";
-		std::string icicle = request.getIcicle();
-		if (!icicle.empty())
-			request << "<a class=\"frozen-icon\" href=\"/debug/?frozen=" << url::encode(icicle) << "\"><span>[F]</span></a>\r\n";
-		request << "</div></div>\r\n";
-#endif
-
-		request <<
-			"</div>\r\n"
-			"</form>\r\n";
-	}
-
-	Control* SettingsForm::findControl(const std::string& name)
-	{
-		for (auto&& ctrl : m_controls)
-		{
-			auto ptr = ctrl->findControl(name);
-			if (ptr)
-				return ptr;
-		}
-
-		for (auto&& ctrl : m_buttons)
-		{
-			auto ptr = ctrl->findControl(name);
-			if (ptr)
-				return ptr;
-		}
-
-		return nullptr;
-	}
-
-	void SettingsForm::bind(Request& request, const Strings& data)
-	{
-		for (auto&& ctrl : m_controls)
-		{
-			ctrl->bind(request, data);
-		};
-
-		for (auto&& ctrl: m_buttons)
-		{
-			ctrl->bind(request, data);
-		};
+		RendererT::getFormEnd(request);
+		FormBase::formEnd(session, request, tr);
 	}
 
 }}}} // FastCGI::app::reader::settings

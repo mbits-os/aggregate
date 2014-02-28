@@ -24,7 +24,6 @@
 
 #include "pch.h"
 #include "auth.hpp"
-#include "auth_forms.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 
@@ -51,7 +50,7 @@ namespace FastCGI { namespace app { namespace reader {
 			content->hidden("continue");
 
 			content->submit("submit", tr(lng::LNG_NAV_SIGNIN));
-			content->link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
+			content->cmd_link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
 
 			content->addMessage(tr(lng::LNG_LOGIN_ABSTRACT));
 			content->addMessage(tr(lng::LNG_LOGIN_USERNAME_HINT));

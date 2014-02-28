@@ -24,7 +24,6 @@
 
 #include "pch.h"
 #include "auth.hpp"
-#include "auth_forms.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 
@@ -66,7 +65,6 @@ namespace FastCGI { namespace app { namespace reader {
 			content->addMessage(tr(lng::LNG_CHNGPASS_TITLE_FOR, auth::format_username(user.m_name, user.m_login)));
 			content->addMessage(tr(lng::LNG_CHNGPASS_MESSAGE));
 
-			auto message = content->control<Message>("message");
 			auto new_pass = content->text("new-pass", tr(lng::LNG_CHNGPASS_NEW), true);
 			auto retype = content->text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 

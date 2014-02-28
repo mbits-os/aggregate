@@ -24,7 +24,6 @@
 
 #include "pch.h"
 #include "auth.hpp"
-#include "auth_forms.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 

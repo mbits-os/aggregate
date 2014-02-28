@@ -12,8 +12,6 @@ server/pages/auth/msg_sent_handler.cpp
 server/pages/auth/recovery_handler.cpp
 server/pages/auth/reset_handler.cpp
 server/pages/auth/auth.hpp
-server/pages/auth/auth_forms.cpp
-server/pages/auth/auth_forms.hpp
 server/pages/data/json.hpp
 server/pages/data/json.cpp
 server/pages/data/api_handler.cpp
