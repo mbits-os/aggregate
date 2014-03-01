@@ -30,14 +30,10 @@ namespace FastCGI { namespace app { namespace reader {
 	class ProfileSettingsPageHandler : public SettingsPageHandler
 	{
 	public:
-
-		std::string name() const
-		{
-			return "Settings: Profile";
-		}
+		DEBUG_NAME("Settings: Profile");
 
 	protected:
-		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
+		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			auto content = std::make_shared<settings::SettingsForm>(settings::PAGE::PROFILE);
 			request.setContent(content);

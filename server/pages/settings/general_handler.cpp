@@ -30,15 +30,10 @@ namespace FastCGI { namespace app { namespace reader {
 	class GeneralSettingsPageHandler : public SettingsPageHandler
 	{
 	public:
-
-		std::string name() const
-		{
-			return "Settings: General";
-		}
+		DEBUG_NAME("Settings: General");
 
 	protected:
-
-		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
+		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("close"))
 				request.redirect("/view/", false);

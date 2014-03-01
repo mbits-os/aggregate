@@ -80,7 +80,7 @@ namespace FastCGI { namespace app { namespace api
 	class Subscribe: public APIOperation
 	{
 	public:
-		void render(SessionPtr session, Request& request, PageTranslation& tr)
+		void render(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
 #if 1
 			SubscribeAnswer answer;
@@ -203,7 +203,7 @@ namespace FastCGI { namespace app { namespace api
 #endif
 		}
 
-		const char** getVariables() const
+		const char** getVariables() const override
 		{
 			static const char* vars[] = { "url", nullptr };
 			return vars;

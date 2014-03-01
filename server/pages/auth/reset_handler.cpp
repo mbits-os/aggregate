@@ -30,16 +30,12 @@ namespace FastCGI { namespace app { namespace reader {
 	class ResetPasswordPageHandler: public AuthPageHandler
 	{
 	public:
-
-		std::string name() const
-		{
-			return "PWD Reset";
-		}
+		DEBUG_NAME("PWD Reset");
 
 	protected:
-		virtual bool restrictedPage() { return false; }
+		bool restrictedPage() override { return false; }
 
-		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
+		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("close"))
 				onAuthFinished(request);

@@ -65,7 +65,7 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		return m_title.c_str();
 	}
 
-	void SettingsForm::render(SessionPtr session, Request& request, PageTranslation& tr)
+	void SettingsForm::render(const SessionPtr& session, Request& request, PageTranslation& tr)
 	{
 		FormBase::formStart(session, request, tr);
 		RendererT::getFormStart(request, getFormTitle(tr));

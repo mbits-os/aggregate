@@ -91,7 +91,7 @@ namespace FastCGI { namespace app { namespace api {
 	class Subscription: public APIOperation
 	{
 	public:
-		void render(SessionPtr session, Request& request, PageTranslation& tr)
+		void render(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
 			db::ConnectionPtr db = request.dbConn();
 			json::Subscriptions subs;
@@ -105,7 +105,7 @@ namespace FastCGI { namespace app { namespace api {
 			json::render(request, subs);
 		}
 
-		const char** getVariables() const
+		const char** getVariables() const override
 		{
 			static const char* vars[] = { nullptr };
 			return vars;

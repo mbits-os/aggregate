@@ -142,7 +142,7 @@ namespace FastCGI { namespace app { namespace api
 	class Feed: public APIOperation
 	{
 	public:
-		void render(SessionPtr session, Request& request, PageTranslation& tr)
+		void render(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
 			db::StatementPtr header;
 			db::StatementPtr entries;
@@ -339,7 +339,7 @@ namespace FastCGI { namespace app { namespace api
 #endif
 		}
 
-		const char** getVariables() const
+		const char** getVariables() const override
 		{
 			static const char* vars[] = { "feed", "page", nullptr };
 			return vars;

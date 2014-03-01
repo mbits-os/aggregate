@@ -31,12 +31,9 @@ namespace FastCGI { namespace app { namespace reader {
 	{
 	public:
 
-		std::string name() const
-		{
-			return "Web UI";
-		}
+		DEBUG_NAME("Web UI");
 
-		void headElement(SessionPtr session, Request& request, PageTranslation& tr)
+		void headElement(const SessionPtr& session, Request& request, PageTranslation& tr)
 		{
 			std::string culture = tr(lng::CULTURE);
 			std::transform(culture.begin(), culture.end(), culture.begin(), [](char c) { return c == '-' ? '_' : c; });
@@ -48,7 +45,7 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "    <script type=\"text/javascript\" src=\"" << static_web << "code/view.js\"></script>\r\n";
 		}
 
-		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
+		void render(const SessionPtr& session, Request& request, PageTranslation& tr)
 		{
 			request << 
 				"<div id=\"navigation\">"

@@ -103,10 +103,7 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 		};
 
-		std::string name() const
-		{
-			return "DEBUG_CGI";
-		}
+		DEBUG_NAME("DEBUG_CGI");
 
 		static void penv(FastCGI::Request& request, const char * const * envp)
 		{
@@ -287,9 +284,10 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "</tbody></table>\n";
 		}
 
-		bool restrictedPage() { return false; }
-		const char* getPageTitle(Request&, PageTranslation& tr) { return "Debug"; }
-		void prerender(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
+		bool restrictedPage() override { return false; }
+		const char* getPageTitle(Request&, PageTranslation&) override { return "Debug"; }
+
+		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			param_t loop = request.getVariable("loop");
 			if (loop)
@@ -319,7 +317,7 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 		}
 
-		void render(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
+		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			auto icicle = request.getVariable("frozen");
 			FrozenStatePtr ptr;
@@ -332,7 +330,7 @@ namespace FastCGI { namespace app { namespace reader {
 				render_basic(session, request, tr);
 		}
 
-		void render_basic(FastCGI::SessionPtr session, Request& request, PageTranslation& tr)
+		void render_basic(const SessionPtr& session, Request& request, PageTranslation& tr)
 		{
 			bool all = request.getVariable("all") != nullptr;
 
@@ -415,7 +413,7 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 		}
 
-		void render_icicle(FastCGI::SessionPtr session, Request& request, PageTranslation& tr, const FrozenStatePtr& frozen)
+		void render_icicle(const SessionPtr& session, Request& request, PageTranslation& tr, const FrozenStatePtr& frozen)
 		{
 			auto item_now = frozen->now();
 			auto item_server = frozen->server();

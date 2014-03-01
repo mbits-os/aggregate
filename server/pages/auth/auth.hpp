@@ -85,7 +85,7 @@ namespace FastCGI { namespace app { namespace reader {
 		}
 		virtual bool restrictedPage() { return false; }
 
-		void header(SessionPtr session, Request& request, PageTranslation& tr) override
+		void header(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			request << "<!DOCTYPE html "
 				"PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
@@ -104,14 +104,14 @@ namespace FastCGI { namespace app { namespace reader {
 			bodyStart(session, request, tr);
 		}
 
-		void bodyStart(SessionPtr session, Request& request, PageTranslation& tr) override
+		void bodyStart(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			request <<
 				"    <div class='auth-logo'><div><a href='/'><img src='" << static_web << "images/auth_logo.png' /><span>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</span></a></div></div>\r\n"
 				"    <div id=\"auth-content\">\r\n";
 		}
 
-		void bodyEnd(SessionPtr session, Request& request, PageTranslation& tr) override
+		void bodyEnd(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			request << "\r\n"
 				"    </div>\r\n";

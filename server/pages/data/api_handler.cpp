@@ -56,9 +56,9 @@ namespace FastCGI { namespace app { namespace reader {
 	class ApiPageHandler: public Handler
 	{
 	public:
-		std::string name() const { return "reedr API"; }
+		DEBUG_NAME("reedr API");
 
-		void visit(Request& request)
+		void visit(Request& request) override
 		{
 			api::APIOperationPtr ptr = api::Operations::handler(request);
 			if (!ptr)

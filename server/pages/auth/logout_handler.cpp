@@ -30,14 +30,10 @@ namespace FastCGI { namespace app { namespace reader {
 	class LogoutPageHandler: public AuthPageHandler
 	{
 	public:
-
-		std::string name() const
-		{
-			return "Logout";
-		}
+		DEBUG_NAME("Logout");
 
 	protected:
-		void visit(Request& request)
+		void visit(Request& request) override
 		{
 			SessionPtr session = request.getSession(false);
 			if (session.get())

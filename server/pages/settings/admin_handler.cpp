@@ -30,16 +30,12 @@ namespace FastCGI { namespace app { namespace reader {
 	class AdminSettingsPageHandler : public SettingsPageHandler
 	{
 	public:
-
-		std::string name() const
-		{
-			return "Settings: Admin";
-		}
+		DEBUG_NAME("Settings: Admin");
 
 	protected:
-		virtual bool restrictedPage() { return false; }
+		bool restrictedPage() override { return false; }
 
-		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
+		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (!session || !session->isAdmin())
 				request.on404();
