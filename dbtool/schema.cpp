@@ -61,8 +61,46 @@ namespace db
 			{
 				if (!conn->exec(sql.c_str()))
 				{
+					const char* error = conn->errorMessage();
+					if (error && *error)
+						printf("[SQL] error %d: %s\n", conn->errorCode(), error);
+					else
+						printf("[SQL] error %d\n", conn->errorCode());
+
 					printf("%s;\n", sql.c_str());
 					return false;
+				}
+			}
+#endif
+
+			return true;
+		}
+
+		static inline bool downgrade(const ConnectionPtr& conn, long currVersion, long newVersion, const SchemaDefinition& sd)
+		{
+			std::list<std::string> program;
+
+			sd.drop(newVersion, currVersion, program);
+			sd.drop_columns(newVersion, currVersion, program);
+
+#if 0 // DRY-RUN
+			printf("\n-- ########################################################\n");
+			printf("-- ## CHANGE FROM %d TO %d\n", currVersion, newVersion);
+			printf("-- ########################################################\n\n");
+			for (auto&& sql : program)
+				printf("%s;\n", sql.c_str());
+#else
+			for (auto&& sql : program)
+			{
+				if (!conn->exec(sql.c_str()))
+				{
+					const char* error = conn->errorMessage();
+					if (error && *error)
+						printf("[SQL] error %d: %s (ignored)\n", conn->errorCode(), error);
+					else
+						printf("[SQL] error %d (ignored)\n", conn->errorCode());
+
+					printf("%s;\n", sql.c_str());
 				}
 			}
 #endif
@@ -256,6 +294,43 @@ namespace db
 				return false;
 
 			if (!version(newVersion))
+				return false;
+
+			return transaction.commit();
+		}
+
+		bool Schema::downgrade()
+		{
+			long currVersion = version();
+			long maxVersion = VERSION::CURRENT;
+
+			if (maxVersion < currVersion)
+			{
+				fprintf(stderr, "downgrade: downgrading from unknown schema version (%d) is not supported\n", currVersion);
+				return false;
+			}
+
+			if (!currVersion)
+			{
+				fprintf(stderr, "downgrade: schema dropping is not supported\n", currVersion);
+				return false;
+			}
+
+			if (maxVersion == currVersion)
+			{
+				printf("downgrade: schema already at version %d\n", maxVersion);
+				return true;
+			}
+
+			printf("downgrade: downgrading the schema from version %d to %d\n", maxVersion, currVersion);
+
+			SchemaDefinition& sd = SchemaDefinition::schema();
+
+			db::Transaction transaction(m_conn);
+			if (!transaction.begin())
+				return false;
+
+			if (!db::model::downgrade(m_conn, maxVersion, currVersion, sd))
 				return false;
 
 			return transaction.commit();
@@ -659,6 +734,21 @@ namespace db
 			}
 		}
 
+		void Table::alter_drop(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto&& field : m_fields)
+			{
+				if (!field.altered(currVersion, newVersion))
+					continue;
+
+				std::string sql = "ALTER TABLE ";
+				sql.append(m_name);
+				sql.append(" DROP COLUMN ");
+				sql.append(field.name());
+				program.push_back(sql);
+			}
+		}
+
 		std::string View::drop() const
 		{
 			return "DROP VIEW IF EXISTS " + m_name;
@@ -681,6 +771,15 @@ namespace db
 			{
 				if (version_valid(currVersion, newVersion, t.version()))
 					program.push_back(t.drop());
+			}
+		}
+
+		void SchemaDefinition::drop_columns(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto && t : reverse(m_tables))
+			{
+				if (t.version() <= currVersion && t.altered(currVersion, newVersion))
+					t.alter_drop(currVersion, newVersion, program);
 			}
 		}
 

@@ -117,6 +117,7 @@ namespace db
 			}
 			bool altered(long currVersion, long newVersion) const { return version_valid(currVersion, newVersion, m_version); }
 			long version() const { return m_version; }
+			const std::string& name() const { return m_name; }
 			std::string repr(bool alter = false) const;
 			void constraints(std::list<std::string>& cos) const;
 			int length() const { return m_length; }
@@ -180,6 +181,7 @@ namespace db
 			std::string drop() const;
 			std::string create(long newVersion) const;
 			void alter(long currVersion, long newVersion, std::list<std::string>& program) const;
+			void alter_drop(long currVersion, long newVersion, std::list<std::string>& program) const;
 		};
 
 		class View
@@ -224,6 +226,7 @@ namespace db
 			static reverse_t<Cont> reverse(const Cont& cont) { return reverse_t<Cont>(cont); }
 
 			void drop(long currVersion, long newVersion, std::list<std::string>& program) const;
+			void drop_columns(long currVersion, long newVersion, std::list<std::string>& program) const;
 			void create(long currVersion, long newVersion, std::list<std::string>& program) const;
 
 			static SchemaDefinition& schema();
@@ -244,6 +247,7 @@ namespace db
 		public:
 			Schema(const ConnectionPtr& conn) : m_conn(conn) {}
 			bool install();
+			bool downgrade();
 			bool addUser(const char* login, const char* mail, const char* name);
 			bool removeUser(const char* mail);
 			bool changePasswd(const char* mail, const char* passwd);

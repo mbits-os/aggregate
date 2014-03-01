@@ -93,6 +93,7 @@ Command* get_cmmd(Command (&commands)[N], int argc, char* argv[])
 int status(int, char*[], const db::ConnectionPtr&);
 int schema_version(int, char*[], const db::ConnectionPtr&);
 int install(int, char*[], const db::ConnectionPtr&);
+int downgrade(int, char*[], const db::ConnectionPtr&);
 int backup(int, char*[], const db::ConnectionPtr&);
 int restore(int, char*[], const db::ConnectionPtr&);
 int refresh(int, char*[], const db::ConnectionPtr&); // in refresh.cpp
@@ -105,6 +106,7 @@ Command commands[] = {
 	Command("status", status),
 	Command("schema-version", schema_version),
 	Command("install", install),
+	Command("downgrade", downgrade),
 	Command("backup", backup),
 	Command("restore", restore),
 	Command("refresh", refresh),
@@ -289,6 +291,17 @@ int install(int, char*[], const db::ConnectionPtr& dbConn)
 		return 1;
 	}
 	printf("install: schema installed\n");
+	return 0;
+}
+
+int downgrade(int, char*[], const db::ConnectionPtr& dbConn)
+{
+	if (!db::model::Schema(dbConn).downgrade())
+	{
+		fprintf(stderr, "downgrade: error downgrading the schema\n");
+		return 1;
+	}
+	printf("downgrade: schema downgraded\n");
 	return 0;
 }
 
