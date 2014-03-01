@@ -36,18 +36,13 @@ namespace FastCGI { namespace app { namespace reader {
 			return "Settings: General";
 		}
 
-		// TODO: find a better home for this enum
-		enum
-		{
-			VIEW_UNREAD  = 1,
-			ONLY_TITLES  = 2,
-			OLDEST_FIRST = 4
-		};
-
 	protected:
 
 		void prerender(SessionPtr session, Request& request, PageTranslation& tr)
 		{
+			if (request.getVariable("close"))
+				request.redirect("/view/", false);
+
 			if (request.getVariable("posted"))
 			{
 				std::string newLang = request.getVariable("lang");
@@ -91,17 +86,27 @@ namespace FastCGI { namespace app { namespace reader {
 			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
 			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
 
-			// TODO: real prefs
-			int flags = 0; // all, expanded, newest first
 			Strings data;
 
 			data["lang"]  = session->preferredLanguage();
-			data["feed"]  = flags & VIEW_UNREAD  ? "unread" : "all";
-			data["posts"] = flags & ONLY_TITLES  ? "list"   : "exp";
-			data["sort"]  = flags & OLDEST_FIRST ? "oldest" : "newest";
+			data["feed"]  = session->viewOnlyUnread()  ? "unread" : "all";
+			data["posts"] = session->viewOnlyTitles()  ? "list"   : "exp";
+			data["sort"]  = session->viewOldestFirst() ? "oldest" : "newest";
 
 			content->bind(request, data);
 
+			if (!request.getVariable("posted"))
+				return;
+
+			if (feeds->hasUserData())
+				session->setViewOnlyUnread(feeds->getData() == "unread");
+			if (posts->hasUserData())
+				session->setViewOnlyTitles(posts->getData() == "list");
+			if (sort->hasUserData())
+				session->setViewOldestFirst(sort->getData() == "oldest");
+
+			session->storeLanguage(request.dbConn());
+			session->storeFlags(request.dbConn());
 		}
 	};
 
