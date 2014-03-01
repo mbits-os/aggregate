@@ -133,7 +133,8 @@ namespace db
 					.field("passphrase")
 					.field("root_folder", "0", FIELD_TYPE::KEY)
 					.field("is_admin", "0", FIELD_TYPE::BOOLEAN)
-					.add(language)
+					.add(language) // version 2
+					.field("prefs", "0", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT, 2)
 					;
 
 				//hash is built from email and new salt
