@@ -46,7 +46,7 @@ namespace remote
 			for (auto&& a : args)
 				size += a.length() + 1;
 
-			char* strings = (char*)malloc(size);
+			char* strings = new (std::nothrow) char[size];
 			if (!strings)
 				return;
 

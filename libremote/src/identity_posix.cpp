@@ -39,36 +39,36 @@ namespace remote
 {
 	namespace posix
 	{
-		template <typename final>
+		template <typename Final>
 		struct id_data
 		{
 			template <typename T>
-			static final from_(T reader)
+			static Final from_(T reader)
 			{
-				using item_t = typename final::item_t;
+				using item_t = typename Final::item_t;
 				item_t item;
 				item_t *result = nullptr;
 
-				size_t bufsize = sysconf(final::size_max);
+				size_t bufsize = sysconf(Final::size_max);
 				if (bufsize == -1)          /* Value was indeterminate */
 					bufsize = 16384;        /* Should be more than enough */
 
-				char* buffer = (char*)malloc(bufsize);
+				char* buffer = new (std::nothrow) char[bufsize];
 				if (!buffer)
-					return final(identity::oom);
+					return Final(identity::oom);
 
 				int s = reader(&item, buffer, bufsize, &result);
 				if (result)
 				{
-					final out{ item };
-					free(buffer);
+					Final out{ item };
+					delete [] buffer;
 					return out;
 				}
 
-				free(buffer);
+				delete [] buffer;
 				if (!s)
-					return final(identity::name_unknown);
-				return final(identity::no_access);
+					return Final(identity::name_unknown);
+				return Final(identity::no_access);
 
 			}
 		};

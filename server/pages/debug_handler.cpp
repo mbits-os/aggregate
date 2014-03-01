@@ -91,12 +91,12 @@ namespace FastCGI { namespace app { namespace reader {
 			{}
 			~DebugRequestState()
 			{
-				free(m_buffer);
+				delete [] m_buffer;
 			}
 			bool alloc(long long size)
 			{
 				free(m_buffer);
-				m_buffer = (char*)malloc((size_t)size);
+				m_buffer = new (std::nothrow) char[(size_t)size];
 				m_contentSize = m_buffer ? size : 0;
 				m_read = 0;
 				return m_buffer != nullptr;
