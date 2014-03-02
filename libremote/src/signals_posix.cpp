@@ -37,7 +37,8 @@ namespace remote
 			int signal;
 			signal_t function;
 		} mapping[] = {
-			{ "stop", SIGTERM }
+			{ "stop", SIGTERM },
+			{ "reload", SIGHUP }
 		};
 
 		class signals : public os::signals

@@ -106,9 +106,11 @@ struct Main
 	{
 	}
 
-	bool read_config()
+	bool read_config(bool reloading)
 	{
 		bool cfg_needed = true;
+
+		auto prev_log = config.logs.debug;
 
 		fs::path cfg{ args.config };
 		if (cfg.empty())
@@ -177,10 +179,36 @@ struct Main
 			<< std::endl;
 #endif
 
+		if (reloading)
+			FLOG << "Reloading the config";
+
+		if (reloading && prev_log != config.logs.debug)
+			FLOG << "Moving to " << config.logs.debug;
+
 		if (!log.open(config.logs.debug))
 			std::cerr << "Could not open " << config.logs.debug << std::endl;
 
+		if (reloading && prev_log != config.logs.debug)
+			FLOG << "Moved from " << prev_log;
+
 		return true;
+	}
+
+	void reload(FastCGI::Application& app)
+	{
+		if (!read_config(true))
+			return;
+
+		http::reload(config.data.charset);
+		mail::PostOffice::reload(config.connection.smtp);
+
+		app.setStaticResources(config.server.static_web);
+		app.setDataDir(config.data.dir);
+		app.setDBConn(config.connection.database);
+		app.setSMTPConn(config.connection.smtp);
+		app.setAccessLog(config.logs.access);
+
+		app.reload(config.data.locales);
 	}
 
 	int run(int argc, char* argv[])
@@ -194,7 +222,7 @@ struct Main
 		std::cout << "Config is: " << fs::canonical(cfg).native() << std::endl;
 #endif
 
-		if (!read_config())
+		if (!read_config(false))
 			return 1;
 
 		if (!args.command.empty())
@@ -265,6 +293,18 @@ struct Main
 		return false;
 	}
 
+	struct banner
+	{
+		banner()
+		{
+			FLOG << "Application started";
+		}
+		~banner()
+		{
+			FLOG << "Application stopped";
+		}
+	};
+
 	template <typename Runtime>
 	int run()
 	{
@@ -277,6 +317,8 @@ struct Main
 
 			db::environment env;
 			if (env.failed) return 1;
+
+			banner b{};
 
 			http::init(config.data.charset);
 			mail::PostOffice::init(config.connection.smtp);
@@ -291,6 +333,7 @@ struct Main
 			app.setAccessLog(config.logs.access);
 
 			signals.set("stop", [&app](){ app.shutdown(); });
+			signals.set("reload", [this, &app](){ reload(app); });
 
 			return Runtime::run(*this, app);
 		}
@@ -330,11 +373,8 @@ struct Main
 			if (!app.addThreads<Thread>(THREAD_COUNT))
 				return 1;
 
-			FLOG << "Application started";
-
 			app.run();
 
-			FLOG << "Application stopped";
 			return 0;
 		}
 	};
