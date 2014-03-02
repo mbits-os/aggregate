@@ -81,7 +81,7 @@ namespace FastCGI { namespace app { namespace reader {
 					mail.var("login", info.m_login);
 					mail.var("recovery_url", request.serverUri("/auth/recovery?id=" + url::encode(recoveryId), false));
 
-					request.sendMail(mail);
+					request.sendMail(std::string(), mail);
 					request.redirect("/auth/msg_sent", false);
 				}
 
