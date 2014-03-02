@@ -25,8 +25,6 @@
 #ifndef __LIBREMOTE_PCH_H__
 #define __LIBREMOTE_PCH_H__
 
-#include <new.hpp>
-
 #include <algorithm>
 #include <cstdlib>
 #include <iomanip>
