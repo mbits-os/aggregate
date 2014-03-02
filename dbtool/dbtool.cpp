@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#include <new.hpp>
+
 #include <stdio.h>
 #include <string.h>
 
