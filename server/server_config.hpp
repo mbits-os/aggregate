@@ -64,15 +64,7 @@ namespace config
 	}
 }
 
-struct ProxyConfig : config::base::config
-{
-	config_ptr m_proxy;
-
-	section_ptr get_section(const std::string& name) override { return m_proxy->get_section(name); }
-	void set_read_only(bool read_only) override { m_proxy->set_read_only(read_only); }
-};
-
-struct Config
+struct ConfigINI
 {
 	using path = filesystem::path;
 
@@ -135,7 +127,7 @@ struct Config
 		config::wrapper::setting<path> access;
 	};
 
-	Config(const config::base::config_ptr& impl)
+	ConfigINI(const config::base::config_ptr& impl)
 		: server(impl)
 		, data(impl)
 		, connection(impl)
@@ -147,6 +139,45 @@ struct Config
 	data_wrapper data;
 	connection_wrapper connection;
 	logs_wrapper logs;
+};
+
+struct Config
+{
+	using path = filesystem::path;
+
+	struct Server
+	{
+		std::string address;
+		std::string static_web;
+		path        pidfile;
+		std::string user;
+		std::string group;
+	};
+
+	struct Data
+	{
+		path dir;
+		path locales;
+		path charset;
+	};
+
+	struct Connection
+	{
+		path database;
+		path smtp;
+	};
+
+	struct Logs
+	{
+		path dir;
+		path debug;
+		path access;
+	};
+
+	Server server;
+	Data data;
+	Connection connection;
+	Logs logs;
 };
 
 

@@ -163,7 +163,7 @@ bool open_cfg(int& argc, char**& argv, filesystem::path& charset, filesystem::pa
 	}
 	config_file->set_read_only(true);
 
-	Config config{ config_file };
+	ConfigINI config{ config_file };
 
 	cfg = cfg.parent_path();
 

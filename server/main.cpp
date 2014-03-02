@@ -99,23 +99,17 @@ struct Main
 	remote::signals signals;
 	Args args;
 	fs::path cfg_dir;
-	std::shared_ptr<ProxyConfig> config_file;
-	Config config{ config_file };
+	Config config;
 
 	Main()
 		: signals{ std::make_shared<RemoteLogger>() }
-		, config_file{ std::make_shared<ProxyConfig>() }
 	{
 	}
 
-	int run(int argc, char* argv[])
+	bool read_config()
 	{
-		RETURN_IF_ERROR(args.read(argc, argv));
-
-		if (args.version)
-			return version();
-
 		bool cfg_needed = true;
+
 		fs::path cfg{ args.config };
 		if (cfg.empty())
 		{
@@ -128,49 +122,51 @@ struct Main
 
 		cfg_dir = cfg.parent_path();
 
-#ifdef CONFIG_DBG
-		std::cout << "Config is: " << fs::canonical(cfg).native() << std::endl;
-#endif
-
-		config_file->m_proxy = config::base::file_config(cfg, cfg_needed);
-		if (!config_file->m_proxy)
+		auto config_file = config::base::file_config(cfg, cfg_needed);
+		if (!config_file)
 		{
 			FLOG << "Could not open " << args.config;
 			std::cerr << "Could not open " << args.config << std::endl;
-			return 1;
+			return false;
 		}
+		ConfigINI config_ini{ config_file };
 		config_file->set_read_only(true);
 
 
 #ifdef CONFIG_DBG
 		std::cout
-			<< "\nconfig.server.address: " << config.server.address
-			<< "\nconfig.server.static_web: " << config.server.static_web
-			<< "\nconfig.server.user: " << config.server.user
-			<< "\nconfig.server.group: " << config.server.group
-			<< "\nconfig.server.pidfile: " << config.server.pidfile << " -> " << canonical(config.server.pidfile)
-			<< "\nconfig.connection.database: " << config.connection.database << " -> " << canonical(config.connection.database)
-			<< "\nconfig.connection.smtp: " << config.connection.smtp << " -> " << canonical(config.connection.smtp)
-			<< "\nconfig.data.dir: " << config.data.dir << " -> " << canonical(config.data.dir)
-			<< "\nconfig.data.locales: " << config.data.locales
-			<< "\nconfig.data.charset: " << config.data.charset
-			<< "\nconfig.logs.dir: " << config.logs.dir << " -> " << canonical(config.logs.dir)
-			<< "\nconfig.logs.access: " << config.logs.access
-			<< "\nconfig.logs.debug: " << config.logs.debug
+			<< "\nconfig.server.address: " << config_ini.server.address
+			<< "\nconfig.server.static_web: " << config_ini.server.static_web
+			<< "\nconfig.server.user: " << config_ini.server.user
+			<< "\nconfig.server.group: " << config_ini.server.group
+			<< "\nconfig.server.pidfile: " << config_ini.server.pidfile << " -> " << canonical(config_ini.server.pidfile)
+			<< "\nconfig.connection.database: " << config_ini.connection.database << " -> " << canonical(config_ini.connection.database)
+			<< "\nconfig.connection.smtp: " << config_ini.connection.smtp << " -> " << canonical(config_ini.connection.smtp)
+			<< "\nconfig.data.dir: " << config_ini.data.dir << " -> " << canonical(config_ini.data.dir)
+			<< "\nconfig.data.locales: " << config_ini.data.locales
+			<< "\nconfig.data.charset: " << config_ini.data.charset
+			<< "\nconfig.logs.dir: " << config_ini.logs.dir << " -> " << canonical(config_ini.logs.dir)
+			<< "\nconfig.logs.access: " << config_ini.logs.access
+			<< "\nconfig.logs.debug: " << config_ini.logs.debug
 			<< std::endl;
 #endif
 
-		config.server.pidfile = canonical(config.server.pidfile);
-		config.connection.database = canonical(config.connection.database);
-		config.connection.smtp = canonical(config.connection.smtp);
+		config.server.address = config_ini.server.address;
+		config.server.static_web = config_ini.server.static_web;
+		config.server.pidfile = canonical(config_ini.server.pidfile);
+		config.server.user = config_ini.server.user;
+		config.server.group = config_ini.server.group;
 
-		config.data.dir = canonical(config.data.dir);
-		config.data.locales = fs::canonical(config.data.locales, config.data.dir);
-		config.data.charset = fs::canonical(config.data.charset, config.data.dir);
+		config.connection.database = canonical(config_ini.connection.database);
+		config.connection.smtp = canonical(config_ini.connection.smtp);
 
-		config.logs.dir = canonical(config.logs.dir);
-		config.logs.access = fs::canonical(config.logs.access, config.logs.dir);
-		config.logs.debug = fs::canonical(config.logs.debug, config.logs.dir);
+		config.data.dir = canonical(config_ini.data.dir);
+		config.data.locales = fs::canonical(config_ini.data.locales, config.data.dir);
+		config.data.charset = fs::canonical(config_ini.data.charset, config.data.dir);
+
+		config.logs.dir = canonical(config_ini.logs.dir);
+		config.logs.access = fs::canonical(config_ini.logs.access, config.logs.dir);
+		config.logs.debug = fs::canonical(config_ini.logs.debug, config.logs.dir);
 
 #ifdef CONFIG_DBG
 		std::cout
@@ -181,8 +177,25 @@ struct Main
 			<< std::endl;
 #endif
 
-		if (!log.open(debug_log()))
-			std::cerr << "Could not open " << debug_log() << std::endl;
+		if (!log.open(config.logs.debug))
+			std::cerr << "Could not open " << config.logs.debug << std::endl;
+
+		return true;
+	}
+
+	int run(int argc, char* argv[])
+	{
+		RETURN_IF_ERROR(args.read(argc, argv));
+
+		if (args.version)
+			return version();
+
+#ifdef CONFIG_DBG
+		std::cout << "Config is: " << fs::canonical(cfg).native() << std::endl;
+#endif
+
+		if (!read_config())
+			return 1;
 
 		if (!args.command.empty())
 			return commands(argc, argv);
@@ -204,12 +217,6 @@ struct Main
 		return fs::canonical(file, cfg_dir);
 	}
 
-	fs::path pidfile() { return config.server.pidfile; }
-	fs::path charset() { return config.data.charset; }
-	fs::path locale() { return config.data.locales; }
-	fs::path debug_log() { return config.logs.debug; }
-	fs::path access_log() { return config.logs.access; }
-
 	int commands(int argc, char* argv[])
 	{
 		for (auto& c : args.command)
@@ -219,9 +226,9 @@ struct Main
 			return args.respawn(std::make_shared<RemoteLogger>(), config.server.address, argc, argv);
 
 		int pid = -1;
-		if (!remote::pid::read(pidfile().native(), pid))
+		if (!remote::pid::read(config.server.pidfile.native(), pid))
 		{
-			std::cerr << pidfile() << " not found.\n";
+			std::cerr << config.server.pidfile << " not found.\n";
 			return 1;
 		}
 
@@ -263,7 +270,7 @@ struct Main
 	{
 		try
 		{
-			remote::pid guard(pidfile().native());
+			remote::pid guard(config.server.pidfile.native());
 
 			if (!impersonate())
 				return 1;
@@ -271,11 +278,11 @@ struct Main
 			db::environment env;
 			if (env.failed) return 1;
 
-			http::init(charset());
+			http::init(config.data.charset);
 			mail::PostOffice::init(config.connection.smtp);
 
 			FastCGI::Application app;
-			RETURN_IF_ERROR(app.init(locale()));
+			RETURN_IF_ERROR(app.init(config.data.locales));
 
 			app.setStaticResources(config.server.static_web);
 			app.setDataDir(config.data.dir);
