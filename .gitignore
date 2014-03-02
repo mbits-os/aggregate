@@ -47,6 +47,8 @@ httpd/libmysql.dll
 # removing a file with a password from a public repo
 httpd/config/connection.ini
 httpd/config/smtp.ini
+httpd/config/connection-*.ini
+httpd/config/smtp-*.ini
 httpd/logs/reedr.log
 httpd/reedr.pid
 httpd/data/locales/charset.db
