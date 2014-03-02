@@ -35,8 +35,42 @@ namespace FastCGI { namespace app { namespace reader {
 	protected:
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
-			auto content = std::make_shared<settings::SettingsForm>(settings::PAGE::PROFILE);
+			if (request.getVariable("close"))
+				request.redirect("/view/", false);
+
+			auto content = std::make_shared<settings::SectionForm>(settings::PAGE::PROFILE);
 			request.setContent(content);
+
+			std::string url = "/auth/change";
+			auto here_uri = request.getParam("DOCUMENT_URI");
+			if (here_uri)
+				url += "?continue=" + url::encode(request.serverUri(here_uri, false));
+
+			auto& signin = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_SIGNIN));
+			auto& name = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_NAME));
+
+			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
+			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
+
+			signin.text("login-text", tr(lng::LNG_LOGIN_USERNAME));
+			signin.text("pass-word", tr(lng::LNG_LOGIN_PASSWORD), true, tr(lng::LNG_SETTINGS_PROFILE_PASSWORD_MAIL_HINT));
+			signin.text("email", tr(lng::LNG_SETTINGS_PROFILE_EMAIL));
+			signin.ctrl_link("pass", url, tr(lng::LNG_SETTINGS_PROFILE_CHANGE_PASSWORD));
+
+			Options opts;
+			opts.add("0", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_CUSTOM))
+				.add("1", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_ORIGINAL))
+				.add("2", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_NAME))
+				.add("3", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_FAMILY_NAME))
+				.add("4", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_NFN))
+				.add("5", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_FNN))
+				.add("6", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_NCFN))
+				.add("7", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_FNCN));
+
+			name.text("name", tr(lng::LNG_SETTINGS_PROFILE_NAME));
+			name.text("family_name", tr(lng::LNG_SETTINGS_PROFILE_FAMILY_NAME));
+			name.selection("display_name", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME), opts);
+			name.text("custom", std::string());
 		}
 	};
 

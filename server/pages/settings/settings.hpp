@@ -55,6 +55,19 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override;
 	};
 
+	class SectionForm : public FastCGI::SectionForm<VerticalRenderer>
+	{
+		using BaseT = FastCGI::SectionForm<VerticalRenderer>;
+		PAGE          m_page_type;
+		bool          m_title_created;
+	public:
+		SectionForm(PAGE page_type, const std::string& method = "POST", const std::string& action = std::string(), const std::string& mime = std::string());
+
+		const char* getPageTitle(PageTranslation& tr) override;
+		const char* getFormTitle(PageTranslation& tr) override { return tr(lng::LNG_SETTINGS_TITLE); }
+		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override;
+	};
+
 }}}} // FastCGI::app::reader::settings
 
 namespace FastCGI { namespace app { namespace reader {
