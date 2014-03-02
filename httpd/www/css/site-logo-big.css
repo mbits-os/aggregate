@@ -1,0 +1,43 @@
+img { border: none; }
+
+.site-logo
+{
+	padding: 1em;
+	background: #eee;
+}
+
+.site-logo .logo
+{
+	display: block;
+}
+
+.site-logo .site
+{
+	display: inline-block;
+	margin: -2.2em 0px 0px 150px;
+	padding: 0px;
+	color: #f8f8f8;
+	text-align: left;
+	font-weight: bold;
+	text-shadow: black 0.1em 0.1em 0.2em;
+	white-space: nowrap;
+}
+
+.site-logo .site a
+{
+	color: #f8f8f8;
+}
+
+.site-logo a
+{
+	text-decoration: none;
+}
+
+@media (min-width: 490px)
+{
+	.site-logo > div
+	{
+		width: 245px;
+		margin: 0px auto;
+	}
+}

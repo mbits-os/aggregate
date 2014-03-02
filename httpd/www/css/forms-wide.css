@@ -1,0 +1,57 @@
+.form
+{
+	width: 450px;
+	margin: 0px auto;
+}
+
+.label
+{
+	width: 149px;
+	text-align: right;
+	float: left;
+	display: block;
+}
+
+.label label
+{
+	padding: 0px 8px;
+}
+
+.control
+{
+	width: 300px;
+	padding: 0px;
+	padding-left: 150px;
+	border-color: green;
+	margin: 0px 0px 1em;
+}
+
+input[type=text], input[type=password], input[type=email], select
+{
+	width: 282px;
+}
+
+input::-webkit-input-placeholder
+{
+	color: white;
+}
+
+input::-moz-placeholder
+{
+	color: white;
+}
+
+input:-moz-placeholder
+{
+	color: white;
+}
+
+input:-ms-input-placeholder
+{
+	color: white;
+}
+
+input::input-placeholder
+{
+	color: white;
+}

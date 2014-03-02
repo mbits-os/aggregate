@@ -1,0 +1,126 @@
+.form
+{
+	font-family: Calibri, "Helvetica Neue", Arial, Helvetica, "Nimbus Sans L", sans-serif;
+	color: #888;
+	padding: 0px 1em;
+}
+
+.form h1, .form h2
+{
+	font-weight: normal;
+	font-family: Calibri, "Helvetica Neue", Arial, Helvetica, "Nimbus Sans L", sans-serif;
+	color: black;
+}
+
+.form h2
+{
+	margin: 1em 0px 0.5em 0px;
+	padding: 0.2em 10px 0.2em;
+	border: none;
+	border-left: solid 6px #eee;
+	border-right: solid 3px #eee;
+	background: #fafafa;
+}
+
+.label
+{
+	display: none;
+	padding: 8px 0px;
+}
+
+.label.retain
+{
+	display: block;
+}
+
+.label label
+{
+	padding: 0px 8px;
+}
+
+.control
+{
+	padding: 0px;
+	margin: 0px 0px 1em;
+}
+
+.hint
+{
+	font-size: 80%;
+}
+
+input[type=text], input[type=password], input[type=email], select
+{
+	border: solid 1px #888;
+	padding: 8px;
+	width: 96%;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+select
+{
+	width: 100%
+}
+
+input[type=submit]
+{
+	padding: 16px;
+	margin: .5em 0px;
+	width: 100%
+}
+
+input[type=submit].narrow
+{
+	padding: 8px 16px;
+	margin: .5em 0px;
+	width: 100%
+}
+
+.control a
+{
+	padding: 0.5em;
+	display: block;
+	color: #008;
+	text-decoration: none;
+}
+
+.control a:hover
+{
+	color: #1d1d1d;
+	background: #fafafa;
+	text-decoration: underline;
+}
+
+.link
+{
+	text-align: center;
+}
+
+.link a
+{
+	padding: 6px 16px;
+	display: block;
+	margin: 1em 0px;
+	color: #008;
+	background: #eef;
+	text-decoration: none;
+}
+
+.link a:hover
+{
+	color: #1d1d1d;
+	background: #c8c8c8;
+	text-decoration: underline;
+}
+
+div.error p, div.error label
+{
+	color: #c00;
+}
+
+div.error input[type=text], div.error input[type=password], div.error input[type=email], div.error select
+{
+	border: solid 1px #c00;
+}
