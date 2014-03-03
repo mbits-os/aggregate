@@ -49,13 +49,13 @@ namespace FastCGI { namespace app { namespace reader {
 			auto& signin = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_SIGNIN));
 			auto& name = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_NAME));
 
-			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
 
 			signin.text("login-text", tr(lng::LNG_LOGIN_USERNAME));
 			signin.text("pass-word", tr(lng::LNG_LOGIN_PASSWORD), true, tr(lng::LNG_SETTINGS_PROFILE_PASSWORD_MAIL_HINT));
 			signin.text("email", tr(lng::LNG_SETTINGS_PROFILE_EMAIL));
-			signin.ctrl_link("pass", url, tr(lng::LNG_SETTINGS_PROFILE_CHANGE_PASSWORD));
+			signin.link("pass", url, tr(lng::LNG_SETTINGS_PROFILE_CHANGE_PASSWORD));
 
 			Options opts;
 			opts.add("0", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME_CUSTOM))

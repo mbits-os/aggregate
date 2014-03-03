@@ -40,7 +40,7 @@ namespace FastCGI { namespace app { namespace reader {
 			if (!session || !session->isAdmin())
 				request.on404();
 
-			auto content = std::make_shared<settings::SettingsForm>(settings::PAGE::ADMIN);
+			auto content = std::make_shared<settings::SimpleForm>(settings::PAGE::ADMIN);
 			request.setContent(content);
 		}
 	};

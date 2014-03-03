@@ -54,7 +54,7 @@ namespace FastCGI { namespace app { namespace reader {
 				}
 			}
 
-			auto content = std::make_shared<settings::SettingsForm>(settings::PAGE::GENERAL);
+			auto content = std::make_shared<settings::SimpleForm>(settings::PAGE::GENERAL);
 			request.setContent(content);
 
 			Options lang_opts;
@@ -64,22 +64,24 @@ namespace FastCGI { namespace app { namespace reader {
 			for (auto&& lang : langs)
 				lang_opts.add(lang.m_lang, lang.m_name);
 
-			content->selection("lang", tr(lng::LNG_SETTINGS_GENERAL_LANGUAGES), lang_opts);
+			auto& controls = content->controls();
 
-			auto feeds = content->radio_group("feed", tr(lng::LNG_SETTINGS_GENERAL_FEED_TITLE));
+			controls.selection("lang", tr(lng::LNG_SETTINGS_GENERAL_LANGUAGES), lang_opts);
+
+			auto feeds = controls.radio_group("feed", tr(lng::LNG_SETTINGS_GENERAL_FEED_TITLE));
 			feeds->radio("all", tr(lng::LNG_SETTINGS_GENERAL_FEED_ALL));
 			feeds->radio("unread", tr(lng::LNG_SETTINGS_GENERAL_FEED_UNREAD));
 
-			auto posts = content->radio_group("posts", tr(lng::LNG_SETTINGS_GENERAL_POSTS_TITLE));
+			auto posts = controls.radio_group("posts", tr(lng::LNG_SETTINGS_GENERAL_POSTS_TITLE));
 			posts->radio("list", tr(lng::LNG_SETTINGS_GENERAL_POSTS_LIST));
 			posts->radio("exp", tr(lng::LNG_SETTINGS_GENERAL_POSTS_EXPANDED));
 
-			auto sort = content->radio_group("sort", tr(lng::LNG_SETTINGS_GENERAL_SORT_TITLE));
+			auto sort = controls.radio_group("sort", tr(lng::LNG_SETTINGS_GENERAL_SORT_TITLE));
 			sort->radio("newest", tr(lng::LNG_SETTINGS_GENERAL_SORT_NEWEST));
 			sort->radio("oldest", tr(lng::LNG_SETTINGS_GENERAL_SORT_OLDEST));
 
-			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
 
 			Strings data;
 

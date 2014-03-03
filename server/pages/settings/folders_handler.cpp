@@ -35,7 +35,7 @@ namespace FastCGI { namespace app { namespace reader {
 	protected:
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
-			auto content = std::make_shared<settings::SettingsForm>(settings::PAGE::FOLDERS);
+			auto content = std::make_shared<settings::SimpleForm>(settings::PAGE::FOLDERS);
 			request.setContent(content);
 		}
 	};
