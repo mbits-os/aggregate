@@ -47,12 +47,13 @@ namespace FastCGI { namespace app { namespace reader {
 			content->addMessage(tr(lng::LNG_CHNGPASS_MESSAGE));
 			content->hidden("continue");
 
-			auto password = content->text("pasword", tr(lng::LNG_CHNGPASS_CURRENT), true);
-			auto new_pass = content->text("new-pass", tr(lng::LNG_CHNGPASS_NEW), true);
-			auto retype = content->text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
+			auto& controls = content->controls();
+			auto password = controls.text("pasword", tr(lng::LNG_CHNGPASS_CURRENT), true);
+			auto new_pass = controls.text("new-pass", tr(lng::LNG_CHNGPASS_NEW), true);
+			auto retype = controls.text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
-			content->submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->submit("cancel", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
+			content->buttons().submit("cancel", tr(lng::LNG_CMD_CLOSE), true);
 
 			content->bind(request);
 

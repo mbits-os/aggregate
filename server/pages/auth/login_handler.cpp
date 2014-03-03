@@ -45,15 +45,16 @@ namespace FastCGI { namespace app { namespace reader {
 
 			content->hidden("continue");
 
-			content->submit("submit", tr(lng::LNG_NAV_SIGNIN));
-			content->cmd_link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
+			content->buttons().submit("submit", tr(lng::LNG_NAV_SIGNIN));
+			content->buttons().link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
 
 			content->addMessage(tr(lng::LNG_LOGIN_ABSTRACT));
 			content->addMessage(tr(lng::LNG_LOGIN_USERNAME_HINT));
 
-			auto email = content->text("email", tr(lng::LNG_LOGIN_USERNAME));
-			auto password = content->text("password", tr(lng::LNG_LOGIN_PASSWORD), true);
-			auto cookie = content->checkbox("long_cookie", tr(lng::LNG_LOGIN_STAY));
+			auto& controls = content->controls();
+			auto email = controls.text("email", tr(lng::LNG_LOGIN_USERNAME));
+			auto password = controls.text("password", tr(lng::LNG_LOGIN_PASSWORD), true);
+			auto cookie = controls.checkbox("long_cookie", tr(lng::LNG_LOGIN_STAY));
 
 			content->bind(request);
 

@@ -45,11 +45,11 @@ namespace FastCGI { namespace app { namespace reader {
 
 			content->hidden("continue");
 
-			content->submit("submit", tr(lng::LNG_CMD_SEND));
-			content->submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("submit", tr(lng::LNG_CMD_SEND));
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
 
 			content->addMessage(tr(lng::LNG_RESET_MESSAGE));
-			auto email = content->text("email", tr(lng::LNG_RESET_USERNAME));
+			auto email = content->controls().text("email", tr(lng::LNG_RESET_USERNAME));
 
 			content->bind(request);
 
