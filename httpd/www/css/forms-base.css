@@ -44,6 +44,28 @@
 	margin: 0px 0px 1em;
 }
 
+.radio-group
+{
+	margin: 0px 0px 1em;
+}
+
+.radio-group .control
+{
+	margin: 0px;
+}
+
+.radio-group>.label
+{
+	display: block;
+	padding-bottom: 0px;
+}
+
+.radio-group>.item
+{
+	margin: 0px;
+	padding: 0px;
+}
+
 .hint
 {
 	font-size: 80%;
@@ -115,7 +137,7 @@ input[type=submit].narrow
 	text-decoration: underline;
 }
 
-div.error p, div.error label
+div.error p, div.error label, div.error.radio-group .label
 {
 	color: #c00;
 }

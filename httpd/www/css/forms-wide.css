@@ -26,6 +26,16 @@
 	margin: 0px 0px 1em;
 }
 
+.radio-group>.item
+{
+	padding-top: 8px;
+}
+
+.radio-group>.item+.item
+{
+	padding-top: 0px;
+}
+
 input[type=text], input[type=password], input[type=email], select
 {
 	width: 282px;
