@@ -43,30 +43,65 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		ADMIN
 	};
 
-	class SettingsForm : public SimpleForm<VerticalRenderer>
+	lng::LNG page_title(PAGE type);
+	void render_tabs(const SessionPtr& session, Request& request, PageTranslation& tr, PAGE here);
+
+	template <typename Container>
+	class SettingsFormBase : public FormImpl<VerticalRenderer, Container, Content>
 	{
+		using ParentT = FormImpl<VerticalRenderer, Container, Content>;
+		using RendererT = typename ParentT::RendererT;
+		using ButtonsT = typename ParentT::ButtonsT;
+		using ControlsT = typename ParentT::ControlsT;
+
 		PAGE          m_page_type;
 		bool          m_title_created;
 	public:
-		SettingsForm(PAGE page_type, const std::string& method = "POST", const std::string& action = std::string(), const std::string& mime = std::string());
+		SettingsFormBase(PAGE page_type, const std::string& method = "POST", const std::string& action = std::string(), const std::string& mime = std::string())
+			: ParentT(std::string(), method, action, mime)
+			, m_page_type(page_type)
+			, m_title_created(false)
+		{}
 
-		const char* getPageTitle(PageTranslation& tr) override;
+		const char* getPageTitle(PageTranslation& tr) override
+		{
+			if (!m_title_created)
+			{
+				this->m_title = tr(lng::LNG_SETTINGS_TITLE);
+				this->m_title += " &raquo; ";
+				this->m_title += tr(page_title(m_page_type));
+
+				m_title_created = true;
+			}
+
+			return this->m_title.c_str();
+		}
+
 		const char* getFormTitle(PageTranslation& tr) override { return tr(lng::LNG_SETTINGS_TITLE); }
-		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override;
+		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override
+		{
+			RendererT renderer;
+			FormBase::formStart(session, request, tr);
+
+			renderer.getFormStart(request, getFormTitle(tr));
+
+			render_tabs(session, request, tr, this->m_page_type);
+
+			renderer.getMessagesString(request, this->m_messages);
+
+			if (!this->m_error.empty())
+				renderer.getErrorString(request, this->m_error);
+
+			ControlsT::renderControls(request, renderer);
+			ButtonsT::renderControls(request, renderer);
+
+			renderer.getFormEnd(request);
+			FormBase::formEnd(session, request, tr);
+		}
 	};
 
-	class SectionForm : public FastCGI::SectionForm<VerticalRenderer>
-	{
-		using BaseT = FastCGI::SectionForm<VerticalRenderer>;
-		PAGE          m_page_type;
-		bool          m_title_created;
-	public:
-		SectionForm(PAGE page_type, const std::string& method = "POST", const std::string& action = std::string(), const std::string& mime = std::string());
-
-		const char* getPageTitle(PageTranslation& tr) override;
-		const char* getFormTitle(PageTranslation& tr) override { return tr(lng::LNG_SETTINGS_TITLE); }
-		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override;
-	};
+	using SimpleForm = SettingsFormBase<ControlsContainer>;
+	using SectionForm = SettingsFormBase<SectionsContainer>;
 
 }}}} // FastCGI::app::reader::settings
 
