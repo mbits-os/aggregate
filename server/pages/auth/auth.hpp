@@ -93,12 +93,17 @@ namespace FastCGI { namespace app { namespace reader {
 				"<html>\r\n"
 				"  <head>\r\n";
 			headElement(session, request, tr);
+			request <<
+				"    <meta name=\"viewport\" content=\"width=device-width, user-scalable=no\"/>\r\n";
 #if DEBUG_CGI
 			request <<
 				"    <style type=\"text/css\">@import url(\"" << static_web << "css/fd_icons.css\");</style>\r\n";
 #endif
 			request <<
-				"    <style type=\"text/css\">@import url(\"" << static_web << "css/auth.css\");</style>\r\n"
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/site-logo-big.css\");</style>\r\n"
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/tabs.css\");</style>\r\n"
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/forms-base.css\");</style>\r\n"
+				"    <style type=\"text/css\" media=\"screen and (min-width: 490px)\">@import url(\"" << static_web << "css/forms-wide.css\");</style>\r\n"
 				"  </head>\r\n"
 				"  <body>\r\n";
 			bodyStart(session, request, tr);
@@ -107,7 +112,11 @@ namespace FastCGI { namespace app { namespace reader {
 		void bodyStart(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			request <<
-				"    <div class='auth-logo'><div><a href='/'><img src='" << static_web << "images/auth_logo.png' /><span>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</span></a></div></div>\r\n"
+				"  <div class='site-logo'><div>\r\n"
+				"    <div class='logo'><a href='/'><img src='" << static_web << "images/auth_logo.png' /></a></div>\r\n"
+				"    <div class='site'><a href='/'>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</a></div>\r\n"
+				"  </div></div>\r\n"
+				"\r\n"
 				"    <div id=\"auth-content\">\r\n";
 		}
 
