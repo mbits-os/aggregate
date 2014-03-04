@@ -29,6 +29,7 @@
 #include <forms.hpp>
 #include <crypt.hpp>
 #include <forms/vertical_renderer.hpp>
+#include "../reader_form.hpp"
 
 namespace FastCGI { namespace app { namespace reader { namespace auth {
 
@@ -73,58 +74,10 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 
 namespace FastCGI { namespace app { namespace reader {
 
-	class AuthPageHandler: public PageHandler
+	class AuthPageHandler : public ReaderFormPageHandler
 	{
 	protected:
-		void onAuthFinished(Request& request)
-		{
-			param_t _continue = request.getVariable("continue");
-			if (_continue != nullptr)
-				request.redirectUrl(_continue);
-			request.redirect("/");
-		}
 		virtual bool restrictedPage() { return false; }
-
-		void header(const SessionPtr& session, Request& request, PageTranslation& tr) override
-		{
-			request << "<!DOCTYPE html "
-				"PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
-				"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n"
-				"<html>\r\n"
-				"  <head>\r\n";
-			headElement(session, request, tr);
-			request <<
-				"    <meta name=\"viewport\" content=\"width=device-width, user-scalable=no\"/>\r\n";
-#if DEBUG_CGI
-			request <<
-				"    <style type=\"text/css\">@import url(\"" << static_web << "css/fd_icons.css\");</style>\r\n";
-#endif
-			request <<
-				"    <style type=\"text/css\">@import url(\"" << static_web << "css/site-logo-big.css\");</style>\r\n"
-				"    <style type=\"text/css\">@import url(\"" << static_web << "css/tabs.css\");</style>\r\n"
-				"    <style type=\"text/css\">@import url(\"" << static_web << "css/forms-base.css\");</style>\r\n"
-				"    <style type=\"text/css\" media=\"screen and (min-width: 490px)\">@import url(\"" << static_web << "css/forms-wide.css\");</style>\r\n"
-				"  </head>\r\n"
-				"  <body>\r\n";
-			bodyStart(session, request, tr);
-		}
-
-		void bodyStart(const SessionPtr& session, Request& request, PageTranslation& tr) override
-		{
-			request <<
-				"  <div class='site-logo'><div>\r\n"
-				"    <div class='logo'><a href='/'><img src='" << static_web << "images/auth_logo.png' /></a></div>\r\n"
-				"    <div class='site'><a href='/'>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</a></div>\r\n"
-				"  </div></div>\r\n"
-				"\r\n"
-				"    <div id=\"auth-content\">\r\n";
-		}
-
-		void bodyEnd(const SessionPtr& session, Request& request, PageTranslation& tr) override
-		{
-			request << "\r\n"
-				"    </div>\r\n";
-		}
 	};
 
 	struct UserInfo

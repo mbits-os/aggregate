@@ -4,6 +4,7 @@ server/main.cpp
 server/args.hpp
 server/server_config.hpp
 server/pages/debug_handler.cpp
+server/pages/reader_form.hpp
 server/pages/view_handler.cpp
 server/pages/auth/change_handler.cpp
 server/pages/auth/login_handler.cpp
@@ -24,5 +25,4 @@ server/pages/settings/folders_handler.cpp
 server/pages/settings/general_handler.cpp
 server/pages/settings/profile_handler.cpp
 server/pages/settings/settings.cpp
-server/pages/settings/settings.hpp
 strings/site_strings.txt
