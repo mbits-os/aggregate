@@ -14,12 +14,13 @@
 
 .form h2
 {
+	color: #446;
 	margin: 1em 0px 0.5em 0px;
 	padding: 0.2em 10px 0.2em;
 	border: none;
-	border-left: solid 6px #eee;
-	border-right: solid 3px #eee;
-	background: #fafafa;
+	border-left: solid 6px #eef;
+	border-right: solid 3px #eef;
+	background: #fafaff;
 }
 
 .label
