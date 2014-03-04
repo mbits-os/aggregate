@@ -73,6 +73,7 @@
 
 input[type=text], input[type=password], input[type=email], select
 {
+	background: white;
 	border: solid 1px #888;
 	padding: 8px;
 	width: 96%;
@@ -115,6 +116,14 @@ input[type=submit].narrow
 	text-decoration: underline;
 }
 
+.buttons
+{
+	padding: 1em 0px;
+	margin: 1.1em 0px;
+	border: none;
+	border-top: solid 1px #ddf;
+}
+
 .link
 {
 	text-align: center;
@@ -126,14 +135,14 @@ input[type=submit].narrow
 	display: block;
 	margin: 1em 0px;
 	color: #008;
-	background: #eef;
+	background: #f8f8ff;
 	text-decoration: none;
 }
 
 .link a:hover
 {
 	color: #1d1d1d;
-	background: #c8c8c8;
+	background: #f8f8f8;
 	text-decoration: underline;
 }
 

@@ -22,8 +22,36 @@
 	width: 300px;
 	padding: 0px;
 	padding-left: 150px;
-	border-color: green;
 	margin: 0px 0px 1em;
+}
+
+.buttons
+{
+	width: 300px;
+	padding-left: 150px;
+}
+
+.buttons input[type=submit]
+{
+	width: 64%;
+	padding: 8px 16px;
+}
+
+.buttons input[type=submit].full
+{
+	padding: 16px;
+	width: 100%;
+}
+
+.buttons input[type=submit].narrow
+{
+	width: 31%;
+	margin-left: 3%;
+}
+
+.buttons .link
+{
+	padding-left: 0%;
 }
 
 .radio-group>.item
@@ -39,6 +67,11 @@
 input[type=text], input[type=password], input[type=email], select
 {
 	width: 282px;
+}
+
+select
+{
+	width: 100%;
 }
 
 input::-webkit-input-placeholder
