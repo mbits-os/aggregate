@@ -87,7 +87,6 @@ LNG_SETTINGS_PROFILE_DISPLAY_NAME_FNCN = "Family name, Name"
 
 LNG_USER_HELLO = "Hello, %1!"
 LNG_CMD_RESET = "Reset"
-LNG_USER_SETTINGS_SEC_SIGNIN = "Signing in"
 LNG_USER_SETTINGS_ERROR_EMAIL_FILLED = "E-mail address must be filled out."
 LNG_USER_SETTINGS_ERROR_INVALID_PASSWORD = "Current password is invalid."
 LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED = "E-mail address used by different account."
