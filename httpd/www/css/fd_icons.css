@@ -9,9 +9,10 @@
 
 .frozen-icon, .debug-icon
 {
-	background-image: url("/css/images/fd_icons.png");
+	background-image: url("images/fd_icons.png");
 	background-repeat: no-repeat;
 	margin: 0px;
+	margin-bottom: 1em;
 	float: right;
 	position: relative;
 	height: 16px;
@@ -20,7 +21,7 @@
 
 .frozen-icon
 {
-	margin: 0px 4px;
+	margin-right: 4px;
 	background-position: 0px -0px;
 }
 
