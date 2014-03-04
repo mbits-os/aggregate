@@ -38,7 +38,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("close"))
-				onAuthFinished(request);
+				onPageDone(request);
 
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_RECOVERY_TITLE));
 			request.setContent(content);
@@ -98,7 +98,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 					SessionPtr session = request.startSession(false, user.m_email.c_str());
 					if (session)
-						onAuthFinished(request);
+						onPageDone(request);
 					else
 						request.on500("Session could not be started");
 				}

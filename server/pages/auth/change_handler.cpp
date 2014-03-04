@@ -38,7 +38,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("cancel"))
-				onAuthFinished(request);
+				onPageDone(request);
 
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_CHNGPASS_TITLE));
 			request.setContent(content);
@@ -88,7 +88,7 @@ namespace FastCGI { namespace app { namespace reader {
 						request.on500("Could not change the email");
 
 					if (session)
-						onAuthFinished(request);
+						onPageDone(request);
 					else
 						request.on500("Session could not be started");
 				}

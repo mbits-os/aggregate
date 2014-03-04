@@ -38,7 +38,7 @@ namespace FastCGI { namespace app { namespace reader {
 			SessionPtr session = request.getSession(false);
 			if (session.get())
 				request.endSession(session->getSessionId());
-			onAuthFinished(request);
+			onPageDone(request);
 		} 
 	};
 

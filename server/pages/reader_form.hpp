@@ -37,12 +37,12 @@ namespace FastCGI { namespace app { namespace reader {
 	class ReaderFormPageHandler : public PageHandler
 	{
 	protected:
-		void onAuthFinished(Request& request)
+		void onPageDone(Request& request)
 		{
 			param_t _continue = request.getVariable("continue");
 			if (_continue != nullptr)
 				request.redirectUrl(_continue);
-			request.redirect("/");
+			request.redirect("/view/", false); // reducing the number of 304s by one...
 		}
 
 		void header(const SessionPtr& session, Request& request, PageTranslation& tr) override

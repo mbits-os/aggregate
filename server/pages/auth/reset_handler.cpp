@@ -38,7 +38,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("close"))
-				onAuthFinished(request);
+				onPageDone(request);
 
 			auto content = std::make_shared<auth::AuthForm>(tr(lng::LNG_RESET_TITLE));
 			request.setContent(content);

@@ -36,7 +36,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("close"))
-				request.redirect("/view/", false);
+				onPageDone(request);
 
 			if (request.getVariable("posted"))
 			{

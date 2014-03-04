@@ -36,7 +36,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			if (request.getVariable("close"))
-				request.redirect("/view/", false);
+				onPageDone(request);
 
 			auto content = std::make_shared<settings::SectionForm>(settings::PAGE::PROFILE);
 			request.setContent(content);

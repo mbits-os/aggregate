@@ -72,7 +72,7 @@ namespace FastCGI { namespace app { namespace reader {
 					{
 						SessionPtr session = request.startSession(set_cookie, info.m_email.c_str());
 						if (session)
-							onAuthFinished(request);
+							onPageDone(request);
 						else
 							request.on500("Session could not be started");
 					}
