@@ -53,7 +53,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto retype = controls.text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
 			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->buttons().submit("cancel", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("cancel", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);
 
 			content->bind(request);
 

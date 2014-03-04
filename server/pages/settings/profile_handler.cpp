@@ -50,7 +50,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto& name = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_NAME));
 
 			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);
 
 			signin.text("login-text", tr(lng::LNG_LOGIN_USERNAME));
 			signin.text("pass-word", tr(lng::LNG_LOGIN_PASSWORD), true, tr(lng::LNG_SETTINGS_PROFILE_PASSWORD_MAIL_HINT));

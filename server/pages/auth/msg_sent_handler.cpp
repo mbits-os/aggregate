@@ -44,7 +44,7 @@ namespace FastCGI { namespace app { namespace reader {
 			request.setContent(content);
 
 			content->addMessage(tr(lng::LNG_MSG_SENT_MESSAGE));
-			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);
 		}
 	};
 

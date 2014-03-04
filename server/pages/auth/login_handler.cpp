@@ -45,7 +45,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 			content->hidden("continue");
 
-			content->buttons().submit("submit", tr(lng::LNG_NAV_SIGNIN));
+			content->buttons().submit("submit", tr(lng::LNG_NAV_SIGNIN), ButtonType::Full);
 			content->buttons().link("reset", "/auth/reset", tr(lng::LNG_LOGIN_FORGOT));
 
 			content->addMessage(tr(lng::LNG_LOGIN_ABSTRACT));

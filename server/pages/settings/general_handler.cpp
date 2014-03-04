@@ -81,7 +81,7 @@ namespace FastCGI { namespace app { namespace reader {
 			sort->radio("oldest", tr(lng::LNG_SETTINGS_GENERAL_SORT_OLDEST));
 
 			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
-			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);
 
 			Strings data;
 

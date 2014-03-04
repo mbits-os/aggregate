@@ -52,7 +52,7 @@ namespace FastCGI { namespace app { namespace reader {
 			if (user.m_id < 0)
 			{
 				content->addMessage(tr(lng::LNG_RECOVERY_INVALID));
-				content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
+				content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);
 				return;
 			}
 
@@ -66,7 +66,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto retype = controls.text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
 			content->buttons().submit("submit", tr(lng::LNG_RECOVERY_CMD));
-			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), true);
+			content->buttons().submit("close", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);
 
 			content->bind(request);
 
