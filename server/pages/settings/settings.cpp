@@ -66,7 +66,7 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 			if ((PAGE)i == here)
 				request << "<li class='selected'>" << tr(tab.title) << "</li>\r\n";
 			else
-				request << "<li><a href='" << tab.url << "'>" << tr(tab.title) << "</a></li>\r\n";
+				request << "<li><a href='" << tab.url << "' data-pjax='#fragment'>" << tr(tab.title) << "</a></li>\r\n";
 			++i;
 			//if (tab.)
 		}
@@ -74,6 +74,17 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		request << "</ul>\r\n"
 			"</ul>\r\n"
 			"</div>\r\n";
+	}
+
+	void start_xhr_fragment(Request& request)
+	{
+		if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
+			request << "<div id='fragment'>\r\n";
+	}
+	void end_xhr_fragment(Request& request)
+	{
+		if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
+			request << "</div> <!-- #fragment -->\r\n";
 	}
 
 }}}} // FastCGI::app::reader::settings

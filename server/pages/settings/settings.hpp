@@ -46,6 +46,8 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 	lng::LNG page_title(PAGE type);
 	void render_tabs(const SessionPtr& session, Request& request, PageTranslation& tr, PAGE here);
+	void start_xhr_fragment(Request& request);
+	void end_xhr_fragment(Request& request);
 
 	template <typename Container>
 	class SettingsFormBase : public FormImpl<VerticalRenderer, Container, Content>
@@ -81,6 +83,8 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		const char* getFormTitle(PageTranslation& tr) override { return tr(lng::LNG_SETTINGS_TITLE); }
 		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
+			start_xhr_fragment(request);
+
 			RendererT renderer;
 			FormBase::formStart(session, request, tr);
 
@@ -98,6 +102,8 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 			renderer.getFormEnd(request);
 			FormBase::formEnd(session, request, tr);
+
+			end_xhr_fragment(request);
 		}
 	};
 
