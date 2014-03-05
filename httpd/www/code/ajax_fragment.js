@@ -25,9 +25,8 @@
 (function ($) {
 	$(document).pjax("a[data-pjax]", { headers: { "X-Ajax-Fragment": "" } });
 	$(document).on('pjax:start', function(e) {
-		$target = $(e.target);
+		var $target = $(e.target);
 		$target.after($target.clone().attr('id', 'clone'));
-		alert($target.top);
 		$('#clone').css('z-index', 600);
 		$("body").css('overflow', 'hidden');
 	});
