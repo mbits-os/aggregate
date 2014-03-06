@@ -49,7 +49,7 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 	void render_tabs(const SessionPtr& session, Request& request, PageTranslation& tr, PAGE here)
 	{
 		request <<
-			"<div class='tabs'>\r\n"
+			"<div class='tabs' id='tabs'>\r\n"
 			"<ul>\r\n";
 
 		bool isAdmin = session && session->isAdmin();
@@ -81,10 +81,21 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
 			request << "<div id='fragment'>\r\n";
 	}
+
 	void end_xhr_fragment(Request& request)
 	{
 		if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
 			request << "</div> <!-- #fragment -->\r\n";
+	}
+
+	void start_xhr_section(Request& request, const char* name)
+	{
+		request << "<section id='" << name << "'>\r\n";
+	}
+
+	void end_xhr_section(Request& request)
+	{
+		request << "</section>\r\n";
 	}
 
 }}}} // FastCGI::app::reader::settings

@@ -48,6 +48,8 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 	void render_tabs(const SessionPtr& session, Request& request, PageTranslation& tr, PAGE here);
 	void start_xhr_fragment(Request& request);
 	void end_xhr_fragment(Request& request);
+	void start_xhr_section(Request& request, const char* name);
+	void end_xhr_section(Request& request);
 
 	template <typename Container>
 	class SettingsFormBase : public FormImpl<VerticalRenderer, Container, Content>
@@ -92,13 +94,22 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 			render_tabs(session, request, tr, this->m_page_type);
 
+			start_xhr_section(request, "messages");
+
 			renderer.getMessagesString(request, this->m_messages);
 
 			if (!this->m_error.empty())
 				renderer.getErrorString(request, this->m_error);
 
+			end_xhr_section(request);
+
+			start_xhr_section(request, "controls");
 			ControlsT::renderControls(request, renderer);
+			end_xhr_section(request);
+
+			start_xhr_section(request, "buttons");
 			ButtonsT::renderControls(request, renderer);
+			end_xhr_section(request);
 
 			renderer.getFormEnd(request);
 			FormBase::formEnd(session, request, tr);
