@@ -52,4 +52,16 @@ namespace std
 	}
 }
 
+#ifdef __CYGWIN__
+namespace std
+{
+	inline std::string to_string(int i)
+	{
+		char buffer[64];
+		sprintf(buffer, "%d", i);
+		return buffer;
+	}
+}
+#endif
+
 #endif //__SERVER_PCH_H__
