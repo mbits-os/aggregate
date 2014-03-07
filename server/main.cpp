@@ -93,6 +93,10 @@ public:
 	}
 };
 
+namespace FastCGI { namespace app { namespace reader { namespace errors {
+	void setErrorHandlers(Application& app);
+}}}}
+
 struct Main
 {
 	FastCGI::FLogSource log;
@@ -325,6 +329,8 @@ struct Main
 
 			FastCGI::Application app;
 			RETURN_IF_ERROR(app.init(config.data.locales));
+
+			FastCGI::app::reader::errors::setErrorHandlers(app);
 
 			app.setStaticResources(config.server.static_web);
 			app.setDataDir(config.data.dir);

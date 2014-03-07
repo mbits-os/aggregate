@@ -4,6 +4,7 @@ server/main.cpp
 server/args.hpp
 server/avatar.cpp
 server/avatar.hpp
+server/error_pages.cpp
 server/server_config.hpp
 server/pages/debug_handler.cpp
 server/pages/reader_form.hpp
