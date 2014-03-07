@@ -124,3 +124,4 @@ client-*.js
 Thumbs.db
 
 /3rd/curl-7.30.0-devel-mingw32
+/3rd/gd-2.0.33-1
