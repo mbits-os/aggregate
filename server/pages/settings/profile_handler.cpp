@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include "settings.hpp"
+#include "avatar.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 
@@ -72,24 +73,19 @@ namespace FastCGI { namespace app { namespace reader {
 			name.selection("display_name", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME), opts);
 			name.text("custom", std::string());
 
-			if (true)
+			const auto& avatars = avatar::Engines::engines();
+			if (avatars.size() > 1) // if there is anything more installed, than the default engine
 			{
 				auto& avatar = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_AVATAR));
 				auto engines = avatar.radio_group("avatar", tr(lng::LNG_SETTINGS_PROFILE_WHICH_AVATAR));
 
-				// TODO: actually enumerate available engines
-				struct
-				{
-					const char* id;
-					const char* name;
-					const char* url;
-				} avatar_engines[] = {
-					{ "gravatar", "Gravatar", "https://www.gravatar.com/" }
-				};
 				engines->radio("", tr(lng::LNG_SETTINGS_PROFILE_AVATAR_NONE));
-				for (auto&& engine : avatar_engines)
+				for (auto&& engine : avatars)
 				{
-					engines->radio(engine.id, tr(lng::LNG_SETTINGS_PROFILE_USE_AVATAR_FROM, engine.name, engine.url));
+					if (engine.first == "default") continue;
+					auto e = avatar::Engines::engine(engine);
+					if (!e->name()) continue;
+					engines->radio(engine.first, tr(lng::LNG_SETTINGS_PROFILE_USE_AVATAR_FROM, e->name(), e->homePage()));
 				}
 			}
 		}
