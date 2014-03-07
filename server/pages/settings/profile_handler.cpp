@@ -71,6 +71,27 @@ namespace FastCGI { namespace app { namespace reader {
 			name.text("family_name", tr(lng::LNG_SETTINGS_PROFILE_FAMILY_NAME));
 			name.selection("display_name", tr(lng::LNG_SETTINGS_PROFILE_DISPLAY_NAME), opts);
 			name.text("custom", std::string());
+
+			if (true)
+			{
+				auto& avatar = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_AVATAR));
+				auto engines = avatar.radio_group("avatar", tr(lng::LNG_SETTINGS_PROFILE_WHICH_AVATAR));
+
+				// TODO: actually enumerate available engines
+				struct
+				{
+					const char* id;
+					const char* name;
+					const char* url;
+				} avatar_engines[] = {
+					{ "gravatar", "Gravatar", "https://www.gravatar.com/" }
+				};
+				engines->radio("", tr(lng::LNG_SETTINGS_PROFILE_AVATAR_NONE));
+				for (auto&& engine : avatar_engines)
+				{
+					engines->radio(engine.id, tr(lng::LNG_SETTINGS_PROFILE_USE_AVATAR_FROM, engine.name, engine.url));
+				}
+			}
 		}
 	};
 

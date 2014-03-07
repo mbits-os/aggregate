@@ -13,7 +13,6 @@ def escape(str):
         .replace("\r", "\\r") \
         .replace("\t", "\\t") \
         .replace("\v", "\\v") \
-        .replace("'", "\\'") \
         .replace("\"", "\\\"")
 
 class String:

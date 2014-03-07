@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Aggregate 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-22 20:47+0200\n"
-"PO-Revision-Date: 2014-03-02 19:06+0100\n"
+"PO-Revision-Date: 2014-03-06 19:15+0100\n"
 "Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\n"
 "Language-Team: Translators <translate@midnightbits.com>\n"
 "Language: en\n"
@@ -319,6 +319,11 @@ msgctxt "LNG_SETTINGS_PROFILE"
 msgid "Profile"
 msgstr "Profile"
 
+#. It's an answer to [LNG_SETTINGS_PROFILE_WHICH_AVATAR]
+msgctxt "LNG_SETTINGS_PROFILE_AVATAR_NONE"
+msgid "None"
+msgstr "None"
+
 msgctxt "LNG_SETTINGS_PROFILE_CHANGE_PASSWORD"
 msgid "Change password"
 msgstr "Change password"
@@ -375,6 +380,10 @@ msgctxt "LNG_SETTINGS_PROFILE_PASSWORD_MAIL_HINT"
 msgid "You must supply password if you want to change e-mail"
 msgstr "You must supply password if you want to change e-mail"
 
+msgctxt "LNG_SETTINGS_PROFILE_SEC_AVATAR"
+msgid "Avatar"
+msgstr "Avatar"
+
 msgctxt "LNG_SETTINGS_PROFILE_SEC_NAME"
 msgid "Name"
 msgstr "Name"
@@ -382,6 +391,15 @@ msgstr "Name"
 msgctxt "LNG_SETTINGS_PROFILE_SEC_SIGNIN"
 msgid "Signing in"
 msgstr "Signing in"
+
+#. It's an answer to [LNG_SETTINGS_PROFILE_WHICH_AVATAR]
+msgctxt "LNG_SETTINGS_PROFILE_USE_AVATAR_FROM"
+msgid "Use <a href='%2' target='_blank'>%1</a>"
+msgstr "Use <a href='%2' target='_blank'>%1</a>"
+
+msgctxt "LNG_SETTINGS_PROFILE_WHICH_AVATAR"
+msgid "Which service do you want to use"
+msgstr "Which service do you want to use"
 
 msgctxt "LNG_SETTINGS_TITLE"
 msgid "Settings"
