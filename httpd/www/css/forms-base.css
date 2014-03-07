@@ -122,6 +122,20 @@ input[type=submit].narrow
 	text-decoration: underline;
 }
 
+.control label a
+{
+	padding: inherit;
+	display: inline;
+	color: blue;
+	text-decoration: undeline;
+}
+
+.control label a:hover
+{
+	color: #1d1d1d;
+	background: inherit;
+}
+
 .buttons
 {
 	padding: 1em 0px;
