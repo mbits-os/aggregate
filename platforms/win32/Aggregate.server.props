@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="libenv-inc.props" />
     <Import Project="libremote-inc.props" />
+    <Import Project="libgd-inc.props" />
   </ImportGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>Aggregate Server App</_PropertySheetDisplayName>
