@@ -33,7 +33,7 @@ dbtool = Project("dbtool",
 
 server = Project("server",
                  ["POSIX"],
-                 libs, [root+"server"] + common_incl, kApplication, predef)
+                 libs + ["gd"], [root+"server"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
 libremote.out = "remote"
