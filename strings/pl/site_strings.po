@@ -89,6 +89,59 @@ msgctxt "LNG_CMD_UPDATE"
 msgid "Update"
 msgstr "Uaktualnij"
 
+msgctxt "LNG_ERROR_400_INFO"
+msgid "The request your browser made was not understood."
+msgstr "Żądanie wysłane przez twoją przeglądarkę nie zostało zrozumiane."
+
+msgctxt "LNG_ERROR_400_OOPS"
+msgid "Hmm, this request looks mighty strange."
+msgstr "Hmm, to wygląda nad wyraz dziwnie"
+
+msgctxt "LNG_ERROR_400_TITLE"
+msgid "400<br/>BAD REQUEST"
+msgstr "400<br/>ZŁE ŻĄDANIE"
+
+msgctxt "LNG_ERROR_404_CONSOLATION"
+msgid "Here are some things you might be interested in:"
+msgstr "Tutaj masz kilka rzeczy, które mogą cię zainteresować:"
+
+msgctxt "LNG_ERROR_404_INFO"
+msgid ""
+"This link has nothing to show, maybe you mistyped the link or followed a bad "
+"one."
+msgstr ""
+"To łącze nie ma nic do pokazania, być może popełniłeś błąd wpisując adres, "
+"lub kliknąłeś w złe łącze."
+
+msgctxt "LNG_ERROR_404_OOPS"
+msgid "Well, that was not suppose to happen."
+msgstr "Cóż, to się nie powinno było zdarzyć."
+
+msgctxt "LNG_ERROR_404_TITLE"
+msgid "404<br/>FILE NOT FOUND"
+msgstr "404<br/>PLIK NIE ZNALEZIONY"
+
+msgctxt "LNG_ERROR_500_CONSOLATION"
+msgid "We are sorry, please come back soon. Or even <a href='/'>now</a>."
+msgstr "Przepraszamy, wróć do nas wkrótce. Albo nawet <a href='/'>teraz</a>."
+
+msgctxt "LNG_ERROR_500_INFO"
+msgid ""
+"During our work to fullfill your request some error occured. The "
+"administrators of the site has been informed."
+msgstr ""
+"Podczas naszej pracy nad wypełnieniem twojego żądania wystąpił "
+"jakiś błąd. Admninistratorzy tej strony zostali o tym "
+"poinformowani."
+
+msgctxt "LNG_ERROR_500_OOPS"
+msgid "Oops, something strange an unusal has happend."
+msgstr "Ups, stało się coś dziwnego i niezwykłego."
+
+msgctxt "LNG_ERROR_500_TITLE"
+msgid "500<br/>INTERNAL SERVER ERROR"
+msgstr "500<br/>BŁĄD WEWNĘTRZNY"
+
 msgctxt "LNG_FEED_ERROR"
 msgid "Unknown error occured while feed was downloaded"
 msgstr "Nieznany błąd wystąpił podczas pobierania kanału."

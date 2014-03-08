@@ -89,6 +89,58 @@ msgctxt "LNG_CMD_UPDATE"
 msgid "Update"
 msgstr "Update"
 
+msgctxt "LNG_ERROR_400_INFO"
+msgid "The request your browser made was not understood."
+msgstr "The request your browser made was not understood."
+
+msgctxt "LNG_ERROR_400_OOPS"
+msgid "Hmm, this request looks mighty strange."
+msgstr "Hmm, this request looks mighty strange."
+
+msgctxt "LNG_ERROR_400_TITLE"
+msgid "400<br/>BAD REQUEST"
+msgstr "400<br/>BAD REQUEST"
+
+msgctxt "LNG_ERROR_404_CONSOLATION"
+msgid "Here are some things you might be interested in:"
+msgstr "Here are some things you might be interested in:"
+
+msgctxt "LNG_ERROR_404_INFO"
+msgid ""
+"This link has nothing to show, maybe you mistyped the link or followed a bad "
+"one."
+msgstr ""
+"This link has nothing to show, maybe you mistyped the link or followed a bad "
+"one."
+
+msgctxt "LNG_ERROR_404_OOPS"
+msgid "Well, that was not suppose to happen."
+msgstr "Well, that was not suppose to happen."
+
+msgctxt "LNG_ERROR_404_TITLE"
+msgid "404<br/>FILE NOT FOUND"
+msgstr "404<br/>FILE NOT FOUND"
+
+msgctxt "LNG_ERROR_500_CONSOLATION"
+msgid "We are sorry, please come back soon. Or even <a href='/'>now</a>."
+msgstr "We are sorry, please come back soon. Or even <a href='/'>now</a>."
+
+msgctxt "LNG_ERROR_500_INFO"
+msgid ""
+"During our work to fullfill your request some error occured. The "
+"administrators of the site has been informed."
+msgstr ""
+"During our work to fullfill your request some error occured. The "
+"administrators of the site has been informed."
+
+msgctxt "LNG_ERROR_500_OOPS"
+msgid "Oops, something strange an unusal has happend."
+msgstr "Oops, something strange an unusal has happend."
+
+msgctxt "LNG_ERROR_500_TITLE"
+msgid "500<br/>INTERNAL SERVER ERROR"
+msgstr "500<br/>INTERNAL SERVER ERROR"
+
 msgctxt "LNG_FEED_ERROR"
 msgid "Unknown error occured while feed was downloaded"
 msgstr "Unknown error occured while feed was downloaded"

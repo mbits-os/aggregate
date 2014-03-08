@@ -3,6 +3,21 @@ LANGUAGE_NAME.dscr = "The name of the language in the language itself, e.g. 'Eng
 LNG_GLOBAL_SITENAME = "reedr"
 LNG_GLOBAL_PRODUCT = "reedr"
 LNG_GLOBAL_DESCRIPTION = "stay up to date"
+
+LNG_ERROR_404_TITLE = "404<br/>FILE NOT FOUND"
+LNG_ERROR_404_OOPS = "Well, that was not suppose to happen."
+LNG_ERROR_404_INFO = "This link has nothing to show, maybe you mistyped the link or followed a bad one."
+LNG_ERROR_404_CONSOLATION = "Here are some things you might be interested in:"
+
+LNG_ERROR_400_TITLE = "400<br/>BAD REQUEST"
+LNG_ERROR_400_OOPS = "Hmm, this request looks mighty strange."
+LNG_ERROR_400_INFO = "The request your browser made was not understood."
+
+LNG_ERROR_500_TITLE = "500<br/>INTERNAL SERVER ERROR"
+LNG_ERROR_500_OOPS = "Oops, something strange an unusal has happend."
+LNG_ERROR_500_INFO = "During our work to fullfill your request some error occured. The administrators of the site has been informed."
+LNG_ERROR_500_CONSOLATION = "We are sorry, please come back soon. Or even <a href='/'>now</a>."
+
 LNG_NAV_SKIP = "Skip to content"
 LNG_NAV_SEARCH = "Search"
 LNG_NAV_NEW_MENU = "Subscribe"
