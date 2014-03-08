@@ -114,8 +114,8 @@ msgstr ""
 "one."
 
 msgctxt "LNG_ERROR_404_OOPS"
-msgid "Well, that was not suppose to happen."
-msgstr "Well, that was not suppose to happen."
+msgid "Well, that was not supposed to happen."
+msgstr "Well, that was not supposed to happen."
 
 msgctxt "LNG_ERROR_404_TITLE"
 msgid "404<br/>FILE NOT FOUND"
@@ -134,8 +134,8 @@ msgstr ""
 "administrators of the site has been informed."
 
 msgctxt "LNG_ERROR_500_OOPS"
-msgid "Oops, something strange an unusal has happend."
-msgstr "Oops, something strange an unusal has happend."
+msgid "Oops, something strange and unusal has happend."
+msgstr "Oops, something strange and unusal has happend."
 
 msgctxt "LNG_ERROR_500_TITLE"
 msgid "500<br/>INTERNAL SERVER ERROR"
