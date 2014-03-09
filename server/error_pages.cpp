@@ -96,6 +96,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				"    <style type=\"text/css\">@import url(\"" << static_web << "css/tabs.css\");</style>\r\n"
 				"    <style type=\"text/css\">@import url(\"" << static_web << "css/forms-base.css\");</style>\r\n"
 				"    <style type=\"text/css\" media=\"screen and (min-width: 490px)\">@import url(\"" << static_web << "css/forms-wide.css\");</style>\r\n"
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/error_page.css\");</style>\r\n"
 				"    <script type=\"text/javascript\" src=\"" << static_web << "code/jquery-1.9.1.js\"></script>\r\n"
 				"    <script type=\"text/javascript\" src=\"" << static_web << "code/jquery.pjax.js\"></script>\r\n"
 				"    <script type=\"text/javascript\" src=\"" << static_web << "code/ajax_fragment.js\"></script>\r\n"
@@ -106,7 +107,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				"    <div class='site'><a href='/'>" << description << "</a></div>\r\n"
 				"  </div></div>\r\n"
 				"\r\n"
-				"  <div id=\"form-content\">\r\n";
+				"  <div id=\"form-content\" class=\"form\">\r\n";
 		}
 
 		virtual void footer(const SessionPtr& session, Request& request, FallbackTranslation& tr)
@@ -152,6 +153,16 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 			"<p>" << tr(nfo.info) << "</p>\r\n";
 	}
 
+	static inline void error_4xx_consolation(Request& request, FallbackTranslation& tr)
+	{
+		request << "<p>" << tr(lng::LNG_ERROR_404_CONSOLATION, "Here are some things you might be interested in:") << "</p>\r\n"
+			"<ul>\r\n"
+			"  <li><a href='/view/'>" << tr(lng::LNG_VIEW_HOME, "Home") << "</a></li>\r\n"
+			"  <li><a href='/settings/general'>" << tr(lng::LNG_SETTINGS_TITLE, "Settings") << "</a></li>\r\n"
+			"  <li><a href='/settings/profile'>" << tr(lng::LNG_SETTINGS_PROFILE, "Profile") << "</a></li>\r\n"
+			"</ul>\r\n";
+	}
+
 	class Error404 : public ErrorPageHandler
 	{
 	public:
@@ -162,6 +173,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				{ lng::LNG_ERROR_404_OOPS,  "Well, that was not supposed to happen." },
 				{ lng::LNG_ERROR_404_INFO,  "This link has nothing to show, maybe you mistyped the link or followed a bad one." }
 			});
+			error_4xx_consolation(request, tr);
 		}
 	};
 
@@ -175,6 +187,22 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				{ lng::LNG_ERROR_400_OOPS,  "Hmm, this request looks mighty strange." },
 				{ lng::LNG_ERROR_400_INFO,  "The request your browser made was not understood." }
 			});
+			error_4xx_consolation(request, tr);
+		}
+	};
+
+	class Error500 : public ErrorPageHandler
+	{
+	public:
+		void contents(int errorCode, const SessionPtr& session, Request& request, FallbackTranslation& tr) override
+		{
+			error_contents(request, tr, {
+				{ lng::LNG_ERROR_500_TITLE, "500<br/>INTERNAL SERVER ERROR" },
+				{ lng::LNG_ERROR_500_OOPS,  "Oops, something strange and unusal has happend." },
+				{ lng::LNG_ERROR_500_INFO,  "During our work to fullfill your request some error occured. The administrators of the site has been informed." }
+			});
+
+			request << "<p>" << tr(lng::LNG_ERROR_500_CONSOLATION, "We are sorry, please come back soon. Or even <a href='/'>now</a>.") << "</p>\r\n";
 		}
 	};
 
@@ -183,6 +211,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 		app.setErrorHandler(0, std::make_shared<ErrorPageHandler>());
 		app.setErrorHandler(400, std::make_shared<Error400>());
 		app.setErrorHandler(404, std::make_shared<Error404>());
+		app.setErrorHandler(500, std::make_shared<Error500>());
 	}
 
 }}}} // FastCGI::app::reader::errors
