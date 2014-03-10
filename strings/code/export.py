@@ -18,7 +18,7 @@ def main():
 
     gtt = locales.openGTTFile("./"+iso+"/"+sys.argv[2])
 
-    f = open(path+".strings", "r")
+    f = open("../platforms/"+path+".strings", "r")
     o = open(sys.argv[3], "w")
     o.write("""/*
  * Copyright (C) 2013 midnightBITS

@@ -10,7 +10,7 @@ exclude = [
     'LNG_MSG_SENT_TITLE'
     ]
 
-f = open(os.path.join(os.path.dirname(__file__), "../site_strings.txt"))
+f = open(os.path.join(os.path.dirname(__file__), "../../platforms/site_strings.txt"))
 for line in f:
     line = line.strip()
     l = line.split("=", 1)

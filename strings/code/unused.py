@@ -17,7 +17,7 @@ for d in dirs:
                     strings.append(m[5:])
             data.close()
 
-f = open(os.path.join(os.path.dirname(__file__), "../client.strings"))
+f = open(os.path.join(os.path.dirname(__file__), "../../platforms/client.strings"))
 for line in f:
     line = line.strip()
     if len(line): strings.append(line)
@@ -26,7 +26,7 @@ f.close()
 strings = set(strings)
 
 out = []
-f = open(os.path.join(os.path.dirname(__file__), "../site_strings.txt"))
+f = open(os.path.join(os.path.dirname(__file__), "../../platforms/site_strings.txt"))
 for line in f:
     line = line.strip()
     l = line.split("=", 1)

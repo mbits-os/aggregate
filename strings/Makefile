@@ -1,8 +1,10 @@
 LANGS=pl en
 DEFINES_FILE=../libenv/includes/site_strings.h
+INPUT_FILE=../platforms/site_strings.txt
 CLIENT_FILES=../httpd/www/code/lang/
 LOCALES_DIR=../httpd/data/locales
 EXPORTS=client.strings
+EXPORT_INPUT=../platforms/$(EXPORTS)
 CPS_IN= \
 	iso-8859-1 \
 	iso-8859-2 \
@@ -90,17 +92,17 @@ msgs: $(MOS)
 
 .PHONY: all clean update help check msgs
 
-$(DEFINES_FILE): site_strings.txt
+$(DEFINES_FILE): $(INPUT_FILE)
 	$(Q)$(ECHO) "[ENUM]" $(notdir $@)
 	$(Q)$(MKDIR) $(LOCALES_DIR)
-	$(Q)$(DEFINE) site_strings.txt $(DEFINES_FILE)
+	$(Q)$(DEFINE) $(INPUT_FILE) $(DEFINES_FILE)
 	@python ./code/duplicates.py
 	@python ./code/unused.py
 
-site_strings.pot: site_strings.txt
+site_strings.pot: $(INPUT_FILE)
 	$(Q)$(ECHO) "[LANG]" $@
 	$(Q)$(MKDIR) $(LOCALES_DIR)
-	$(Q)$(EXTRACT) site_strings.txt site_strings.pot
+	$(Q)$(EXTRACT) $(INPUT_FILE) site_strings.pot
 
 %.mo: %.po
 	$(Q)$(ECHO) "[ MO ]" $(call get-locale,$@)
@@ -110,14 +112,14 @@ site_strings.pot: site_strings.txt
 $(LNGS): $(MOS)
 	$(Q)$(ECHO) "[LANG]" $(call get-locale-2,$@)
 	$(Q)$(MKDIR) $(dir $@)
-	$(Q)$(DEPLOY) site_strings.txt $(subst -,_,$(call get-locale-2,$@))/site_strings.mo $@ $(call get-locale-2,$@)
+	$(Q)$(DEPLOY) $(INPUT_FILE) $(subst -,_,$(call get-locale-2,$@))/site_strings.mo $@ $(call get-locale-2,$@)
 
 init-command=$(MSGINIT) $2 $(subst _,-,$(subst /site_strings.po,,$1)) > $1
 merge-command=$(MSGMERGE) -o $1 $1 $2 2>/dev/null
 
-$(EXPORTED): $(LNGS) $(EXPORTS)
+$(EXPORTED): $(LNGS) $(EXPORT_INPUT)
 	$(Q)$(MKDIR) $(dir $@)
-	$(Q)$(EXPORT) site_strings.txt site_strings.mo $@
+	$(Q)$(EXPORT) $(INPUT_FILE) site_strings.mo $@
 
 $(POS): site_strings.pot
 	$(Q)$(ECHO) $(if $(wildcard $@),"[LANG]","[NEW ]") $(call get-locale,$@)
