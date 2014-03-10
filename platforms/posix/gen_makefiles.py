@@ -13,11 +13,11 @@ predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
 libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt"]
-common_incl = [root+"3rd/libfcgi/inc", root+"libenv/includes", root+"libremote/includes"]
+common_incl = [root+"3rdparty/libfcgi/inc", root+"libenv/includes", root+"libremote/includes"]
 
 _3rd = Project("3rdparty",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN", "HAVE_MEMMOVE"],
-               [], [root+"3rd/libfcgi/inc", root+"3rd/"], kStaticLibrary, predef)
+               [], [root+"3rdparty/libfcgi/inc", root+"3rdparty/"], kStaticLibrary, predef)
 
 libenv = Project("libenv",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],

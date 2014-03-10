@@ -33,7 +33,7 @@ class Project:
         self.bintype = bintype
         self.depends = []
 
-        self.files.read(predef, "%splatforms/%s.files" % (root, name))
+        self.files.read(predef, "%s%s/%s.files" % (root, name, name))
 
         if self.safename[0] >= "0" and self.safename[0] <= "9": self.safename = "a%s" % self.safename
 
