@@ -75,7 +75,7 @@ namespace FastCGI { namespace app { namespace reader {
 						request.on500(msg);
 					}
 
-					FastCGI::MailInfo mail{ "password-reset.txt", tr, lng::LNG_MAIL_SUBJECT_PASSWORD_RECOVERY };
+					FastCGI::MailInfo mail{ "password-reset.txt", tr, lng::LNG_MAIL_SUBJECT_PASSWORD_RECOVERY, lng::LNG_MAIL_SUPPORT };
 					mail.add_to(info.m_name, info.m_email);
 					mail.var("display_name", info.m_name);
 					mail.var("login", info.m_login);
