@@ -31,4 +31,5 @@ server/pages/settings/folders_handler.cpp
 server/pages/settings/general_handler.cpp
 server/pages/settings/profile_handler.cpp
 server/pages/settings/settings.cpp
-strings/site_strings.txt
+platforms/site_strings.txt
+platforms/client.strings
