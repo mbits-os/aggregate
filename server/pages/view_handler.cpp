@@ -24,6 +24,7 @@
 
 #include "pch.h"
 #include <handlers.hpp>
+#include "pages.hpp"
 
 namespace FastCGI { namespace app { namespace reader {
 

@@ -7,6 +7,8 @@ server/avatar.hpp
 server/error_pages.cpp
 server/server_config.hpp
 server/pages/debug_handler.cpp
+server/pages/pages.cpp
+server/pages/pages.hpp
 server/pages/reader_form.hpp
 server/pages/icon_handler.cpp
 server/pages/view_handler.cpp

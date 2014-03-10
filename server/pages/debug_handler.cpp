@@ -27,6 +27,7 @@
 #include <crypt.hpp>
 #include "data/api_handler.hpp"
 #include <iomanip>
+#include "pages.hpp"
 
 #if DEBUG_CGI
 
