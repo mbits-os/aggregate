@@ -26,21 +26,17 @@
   <ItemGroup>
     <None Include="..\..\strings\client.strings" />
     <None Include="..\..\strings\site_strings.txt" />
-    <None Include="..\3rdparty.files" />
-    <None Include="..\dbtool.files" />
-    <None Include="..\libenv.files" />
-    <None Include="..\libremote.files" />
-    <None Include="..\server.files" />
+    <None Include="..\..\3rdparty\3rdparty.files" />
+    <None Include="..\..\dbtool\dbtool.files" />
+    <None Include="..\..\libenv\libenv.files" />
+    <None Include="..\..\libremote\libremote.files" />
+    <None Include="..\..\server\server.files" />
     <CustomBuild Include="projects.cmd">
       <FileType>Document</FileType>
-      <Command>@python create_projects.py ../../ server Application 93A32A2E-A7A6-4ABF-9505-BB6A76A2F358
-</Command>
       <Message>Building projects</Message>
-      <AdditionalInputs>%(Directory)\..\server.files;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs>%(Directory)\server.vcxproj;%(Directory)\server.vcxproj.filters</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Directory)\3rdparty.vcxproj;%(Directory)\3rdparty.vcxproj.filters;%(Directory)\server.vcxproj;%(Directory)\server.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Directory)\..\3rdparty.files;%(Directory)\..\server.files;%(Directory)\..\libenv.files;%(Directory)\..\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
+      <Command>call "%(FullPath)"</Command>
+      <Outputs>%(Directory)\3rdparty.vcxproj;%(Directory)\3rdparty.vcxproj.filters;%(Directory)\server.vcxproj;%(Directory)\server.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
+      <AdditionalInputs>%(Directory)\..\..\3rdparty\3rdparty.files;%(Directory)\..\..\server\server.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <None Include="create_projects.py" />
   </ItemGroup>

@@ -4,8 +4,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_PropertySheetDisplayName>GD 2.0.33-1 Library API</_PropertySheetDisplayName>
-    <IncludePath>$(SolutionDir)..\..\3rd\gd-2.0.33-1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\..\3rd\gd-2.0.33-1\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\..\3rdparty\gd-2.0.33-1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\..\3rdparty\gd-2.0.33-1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
