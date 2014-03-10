@@ -1,0 +1,12 @@
+[submodule "libenv"]
+	path = libenv
+	url = https://github.com/mbits-os/libenv.git
+[submodule "libremote"]
+	path = libremote
+	url = https://github.com/mbits-os/libremote.git
+[submodule "libmalloc"]
+	path = libmalloc
+	url = https://github.com/mbits-os/libmalloc.git
+[submodule "strings"]
+	path = strings
+	url = https://github.com/mbits-os/strings.git
