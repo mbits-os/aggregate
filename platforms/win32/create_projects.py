@@ -145,6 +145,7 @@ def print_project(files, outname, root, bintype, basename, guid):
     if files.file_fresh(outname): return
     print outname
     out = open(outname, "w")
+    bbasename = """..\%s\win32\%s""" % (basename, basename)
     print >>out, """<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
@@ -193,18 +194,28 @@ def print_project(files, outname, root, bintype, basename, guid):
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(SolutionDir)\Aggregate.props" Condition="exists('$(SolutionDir)\Aggregate.props')" />
-    <Import Project="$(SolutionDir)\Aggregate.$(Platform).props" Condition="exists('$(SolutionDir)\Aggregate.$(Platform).props')" />
-    <Import Project="$(SolutionDir)\Aggregate.$(Configuration).props" Condition="exists('$(SolutionDir)\Aggregate.$(Configuration).props')" />
-    <Import Project="$(SolutionDir)\Aggregate.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\Aggregate.$(Platform).$(Configuration).props')" />
-    <Import Project="$(SolutionDir)\Aggregate.%s.props" Condition="exists('$(SolutionDir)\Aggregate.%s.props')" />
-    <Import Project="$(SolutionDir)\Aggregate.%s.$(Platform).props" Condition="exists('$(SolutionDir)\Aggregate.%s.$(Platform).props')" />
-    <Import Project="$(SolutionDir)\Aggregate.%s.$(Configuration).props" Condition="exists('$(SolutionDir)\Aggregate.%s.$(Configuration).props')" />
-    <Import Project="$(SolutionDir)\Aggregate.%s.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\Aggregate.%s.$(Platform).$(Configuration).props')" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />""" % (
+    <Import Project="$(SolutionDir)\..\solver\win32\$(Platform).props" Condition="exists('$(SolutionDir)\..\solver\win32\$(Platform).props')" />
+    <Import Project="$(SolutionDir)\..\solver\win32\$(Configuration).props" Condition="exists('$(SolutionDir)\..\solver\win32\$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\..\solver\win32\$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\..\solver\win32\$(Platform).$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\solution.props" Condition="exists('$(SolutionDir)\solution.props')" />
+    <Import Project="$(SolutionDir)\solution.$(Platform).props" Condition="exists('$(SolutionDir)\solution.$(Platform).props')" />
+    <Import Project="$(SolutionDir)\solution.$(Configuration).props" Condition="exists('$(SolutionDir)\solution.$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\solution.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\solution.$(Platform).$(Configuration).props')" />"""
+    print >>out, """    <Import Project="$(SolutionDir)\%s.props" Condition="exists('$(SolutionDir)\%s.props')" />
+    <Import Project="$(SolutionDir)\%s.$(Platform).props" Condition="exists('$(SolutionDir)\%s.$(Platform).props')" />
+    <Import Project="$(SolutionDir)\%s.$(Configuration).props" Condition="exists('$(SolutionDir)\%s.$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\%s.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\%s.$(Platform).$(Configuration).props')" />""" % (
+      bbasename, bbasename, bbasename, bbasename, bbasename, bbasename, bbasename, bbasename
+      )
+    print >>out, """    <Import Project="$(SolutionDir)\%s.props" Condition="exists('$(SolutionDir)\%s.props')" />
+    <Import Project="$(SolutionDir)\%s.$(Platform).props" Condition="exists('$(SolutionDir)\%s.$(Platform).props')" />
+    <Import Project="$(SolutionDir)\%s.$(Configuration).props" Condition="exists('$(SolutionDir)\%s.$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\%s.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\%s.$(Platform).$(Configuration).props')" />""" % (
       basename, basename, basename, basename, basename, basename, basename, basename
       )
+    print >>out, """
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />"""
     print_file(out, files, "None", root, files.datafiles)
     print_file(out, files, "ClCompile", root, files.cfiles + files.cppfiles)
     print_file(out, files, "ClInclude", root, files.includes)

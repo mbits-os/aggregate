@@ -3,13 +3,12 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_PropertySheetDisplayName>Remote Library API</_PropertySheetDisplayName>
-    <IncludePath>$(SolutionDir)..\..\libremote\includes;$(IncludePath)</IncludePath>
+    <_PropertySheetDisplayName>Solution AMD64 settings</_PropertySheetDisplayName>
   </PropertyGroup>
-  <ItemGroup />
   <ItemDefinitionGroup>
-    <Link>
-      <AdditionalDependencies>libremote.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>OPENSSL_NO_ASM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
+  <ItemGroup />
 </Project>
