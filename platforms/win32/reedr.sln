@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "server.vcxproj", "{93A32A2E-A7A6-4ABF-9505-BB6A76A2F358}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reedr", "reedr.vcxproj", "{93A32A2E-A7A6-4ABF-9505-BB6A76A2F358}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BD334C61-C2F4-4D62-B08C-DBB562F0BA43} = {BD334C61-C2F4-4D62-B08C-DBB562F0BA43}
 		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0} = {76C6A49A-2917-49D0-9AC5-DFBF5C3983E0}
@@ -35,6 +35,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libremote", "libremote.vcxp
 	ProjectSection(ProjectDependencies) = postProject
 		{D7E65FE3-ADE5-46AE-B9EE-0AA0996C8A2F} = {D7E65FE3-ADE5-46AE-B9EE-0AA0996C8A2F}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{B8E95E25-281E-43D5-9BC6-FE3691EAD47C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{6B47BF90-6BED-4A66-877A-2B8F1AA3D12D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,7 +98,10 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		QtVersion = $(DefaultQtVersion)
+	GlobalSection(NestedProjects) = preSolution
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0} = {B8E95E25-281E-43D5-9BC6-FE3691EAD47C}
+		{76C6A49A-2917-49D0-9AC5-DFBF5C3983E0} = {B8E95E25-281E-43D5-9BC6-FE3691EAD47C}
+		{93A32A2E-A7A6-4ABF-9505-BB6A76A2F358} = {6B47BF90-6BED-4A66-877A-2B8F1AA3D12D}
+		{1B38F6B4-1D10-4076-AB73-0F8B5B652ED8} = {6B47BF90-6BED-4A66-877A-2B8F1AA3D12D}
 	EndGlobalSection
 EndGlobal

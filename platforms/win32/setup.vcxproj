@@ -26,17 +26,16 @@
   <ItemGroup>
     <None Include="..\..\strings\client.strings" />
     <None Include="..\..\strings\site_strings.txt" />
-    <None Include="..\..\3rdparty\3rdparty.files" />
-    <None Include="..\..\dbtool\dbtool.files" />
-    <None Include="..\..\libenv\libenv.files" />
-    <None Include="..\..\libremote\libremote.files" />
-    <None Include="..\..\server\server.files" />
+    <None Include="..\..\apps\dbtool\dbtool.files" />
+    <None Include="..\..\libs\libenv\libenv.files" />
+    <None Include="..\..\libs\libremote\libremote.files" />
+    <None Include="..\..\apps\reedr\reedr.files" />
     <CustomBuild Include="projects.cmd">
       <FileType>Document</FileType>
       <Message>Building projects</Message>
       <Command>call "%(FullPath)"</Command>
-      <Outputs>%(Directory)\3rdparty.vcxproj;%(Directory)\3rdparty.vcxproj.filters;%(Directory)\server.vcxproj;%(Directory)\server.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
-      <AdditionalInputs>%(Directory)\..\..\3rdparty\3rdparty.files;%(Directory)\..\..\server\server.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>%(Directory)\reedr.vcxproj;%(Directory)\reedr.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
+      <AdditionalInputs>%(Directory)\..\..\reedr\reedr.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <None Include="create_projects.py" />
   </ItemGroup>

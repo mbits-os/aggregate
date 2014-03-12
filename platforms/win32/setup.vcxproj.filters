@@ -1,14 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <None Include="..\..\3rdparty\3rdparty.files" />
-    <None Include="..\..\server\server.files" />
+    <None Include="..\..\apps\reedr\reedr.files" />
     <None Include="create_projects.py" />
-    <None Include="..\..\dbtool\dbtool.files" />
-    <None Include="..\..\libenv\libenv.files" />
+    <None Include="..\..\apps\dbtool\dbtool.files" />
+    <None Include="..\..\libs\libenv\libenv.files" />
     <None Include="..\..\strings\site_strings.txt" />
     <None Include="..\..\strings\client.strings" />
-    <None Include="..\..\libremote\libremote.files" />
+    <None Include="..\..\libs\libremote\libremote.files" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="projects.cmd" />
