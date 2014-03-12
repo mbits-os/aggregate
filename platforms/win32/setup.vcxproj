@@ -37,7 +37,7 @@
       <Outputs>%(Directory)\reedr.vcxproj;%(Directory)\reedr.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
       <AdditionalInputs>%(Directory)\..\..\reedr\reedr.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
-    <None Include="create_projects.py" />
+    <None Include="..\solver\win32\create_projects.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

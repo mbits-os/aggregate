@@ -4,3 +4,9 @@
 [submodule "platforms/solver"]
 	path = platforms/solver
 	url = https://github.com/mbits-os/solver.git
+[submodule "libs/libremote"]
+	path = libs/libremote
+	url = https://github.com/mbits-os/libremote.git
+[submodule "libs/libenv"]
+	path = libs/libenv
+	url = https://github.com/mbits-os/libenv.git

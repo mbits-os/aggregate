@@ -1,5 +1,5 @@
-dbtool/dbtool.cpp
-dbtool/schema.hpp
-dbtool/schema.cpp
-dbtool/fetch.cpp
-dbtool/refresh.cpp
+dbtool.cpp
+schema.hpp
+schema.cpp
+fetch.cpp
+refresh.cpp
