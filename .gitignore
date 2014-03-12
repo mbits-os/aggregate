@@ -53,7 +53,7 @@ httpd/data/locales/charset.db
 *.lng
 *.pot
 client-*.js
-/libenv/includes/site_strings.h
-/libenv/includes/__file__.win32.hpp
+/translate/site_strings.hpp
+/libs/libenv/includes/__file__.win32.hpp
 
 Thumbs.db

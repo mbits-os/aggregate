@@ -34,7 +34,7 @@
 
 #include <stdlib.h>
 
-#include "site_strings.h"
+#include "../../translate/site_strings.hpp"
 
 #if !defined(DEBUG_CGI)
 #ifdef NDEBUG
