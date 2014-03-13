@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\3rdparty-inc.$(Platform).props" Condition="exists('$(SolutionDir)\3rdparty-inc.$(Platform).props')" />
+    <Import Project="$(SolutionDir)\3rdparty-inc.$(Configuration).props" Condition="exists('$(SolutionDir)\3rdparty-inc.$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\3rdparty-inc.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\3rdparty-inc.$(Platform).$(Configuration).props')" />
+  </ImportGroup>
+  <PropertyGroup>
+    <_PropertySheetDisplayName>3rd Party Libraries</_PropertySheetDisplayName>
+    <LibraryPath>$(OPEN_SOURCE_HOME)\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(OPEN_SOURCE_HOME)\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>libmysql.lib;libgd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;CURL_STATICLIB;XML_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemGroup />
+</Project>

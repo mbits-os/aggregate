@@ -4,22 +4,22 @@
     <Import Project="..\..\libs\libenv\win32\libenv-inc.props" />
     <Import Project="..\..\libs\libremote\win32\libremote-inc.props" />
     <Import Project="libgd-inc.props" />
-	<Import Project="bin_copy.props" />
+    <Import Project="3rdparty-inc.props" />
+    <Import Project="bin_copy.props" />
   </ImportGroup>
   <PropertyGroup>
     <_PropertySheetDisplayName>reedr</_PropertySheetDisplayName>
-    <LibraryPath>$(SolutionDir)..\..\3rdparty\mysql.bin\win32\lib\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\..\apps\reedr;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;COMPILED_FROM_DSP;XML_STATIC;CURL_STATICLIB;CURL_NO_OLDIES;ZLIB_WINAPI;ZLIB;OPENSSL_THREADS;DSO_WIN32;OPENSSL_SYSNAME_WIN32;WIN32_LEAN_AND_MEAN;L_ENDIAN;_CRT_SECURE_NO_DEPRECATE;OPENSSL_BN_ASM_PART_WORDS;OPENSSL_IA32_SSE2;OPENSSL_BN_ASM_MONT;SHA1_ASM;SHA512_ASM;MD5_ASM;RMD160_ASM;AES_ASM;WHIRLPOOL_ASM;OPENSSL_NO_RC5;OPENSSL_NO_MD2;OPENSSL_NO_KRB5;OPENSSL_NO_JPAKE;OPENSSL_NO_DYNAMIC_ENGINE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\server;$(SolutionDir)..\..\3rdparty\libfcgi\inc;$(SolutionDir)..\..\3rdparty\curl\include;$(SolutionDir)..\..\3rdparty\libzlib\inc;$(SolutionDir)..\..\3rdparty\libexpat\inc;$(SolutionDir)..\..\3rdparty\openssl;$(SolutionDir)..\..\3rdparty\openssl\tmp32;$(SolutionDir)..\..\3rdparty\openssl\inc32</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;DLLAPI=;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;crypt32.lib;3rdparty.lib;libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
