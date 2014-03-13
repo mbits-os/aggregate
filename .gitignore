@@ -34,14 +34,12 @@ obj
 .DS_Store
 .deps
 
-*.mo
 *.pyc
 build
 ipch
 output
 bin
 package
-httpd/libmysql.dll
 # removing a file with a password from a public repo
 httpd/config/connection.ini
 httpd/config/smtp.ini
@@ -52,6 +50,7 @@ httpd/reedr.pid
 httpd/data/locales/charset.db
 *.lng
 *.pot
+*.mo
 client-*.js
 /translate/site_strings.hpp
 /libs/libenv/includes/__file__.win32.hpp
