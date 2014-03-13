@@ -36,7 +36,7 @@
 #include <http.hpp>
 #include <fast_cgi/application.hpp>
 #include <wiki.hpp>
-#include "../server/server_config.hpp"
+#include "../reedr/server_config.hpp"
 
 #ifdef WIN32
 #include <windows.h>
