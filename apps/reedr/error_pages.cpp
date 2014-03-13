@@ -112,10 +112,23 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 
 		virtual void footer(const SessionPtr& session, Request& request, FallbackTranslation& tr)
 		{
+#if DEBUG_CGI
+			request <<
+				"\r\n"
+				"    <div class=\"debug-icons\">\r\n"
+				"      <div>\r\n"
+				"        <a class=\"debug-icon\" href=\"/debug/\"><span>[D]</span></a>\r\n";
+			std::string icicle = request.getIcicle();
+			if (!icicle.empty())
+				request << "        <a class=\"frozen-icon\" href=\"/debug/?frozen=" << url::encode(icicle) << "\"><span>[F]</span></a>\r\n";
+			request <<
+				"      </div>\r\n"
+				"    </div>\r\n";
+#endif
 			request << "\r\n"
 				"  </div> <!-- form-content -->\r\n"
 				"  </body>\r\n"
-				"</html\r\n";
+				"</html>\r\n";
 		}
 
 		virtual void contents(int errorCode, const SessionPtr& session, Request& request, FallbackTranslation& tr)
@@ -148,19 +161,25 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 
 	static inline void error_contents(Request& request, FallbackTranslation& tr, const ErrorInfo& nfo)
 	{
-		request << "<h1>" << tr(nfo.title) << "</h1>\r\n"
-			"<p class='oops'>" << tr(nfo.oops) << "</p>\r\n"
-			"<p>" << tr(nfo.info) << "</p>\r\n";
+		request << "    <h1>" << tr(nfo.title) << "</h1>\r\n"
+			"    <section id='message'>\r\n"
+			"      <h2>" << tr(nfo.oops) << "</h2>\r\n"
+			"      <p>" << tr(nfo.info) << "</p>\r\n";
+	}
+
+	static inline void error_contents_end(Request& request, FallbackTranslation& tr)
+	{
+		request << "    </section> <!-- #message -->\r\n";
 	}
 
 	static inline void error_4xx_consolation(Request& request, FallbackTranslation& tr)
 	{
-		request << "<p>" << tr(lng::LNG_ERROR_404_CONSOLATION, "Here are some things you might be interested in:") << "</p>\r\n"
-			"<ul>\r\n"
-			"  <li><a href='/view/'>" << tr(lng::LNG_VIEW_HOME, "Home") << "</a></li>\r\n"
-			"  <li><a href='/settings/general'>" << tr(lng::LNG_SETTINGS_TITLE, "Settings") << "</a></li>\r\n"
-			"  <li><a href='/settings/profile'>" << tr(lng::LNG_SETTINGS_PROFILE, "Profile") << "</a></li>\r\n"
-			"</ul>\r\n";
+		request << "      <p>" << tr(lng::LNG_ERROR_404_CONSOLATION, "Here are some things you might be interested in:") << "</p>\r\n"
+			"      <ul>\r\n"
+			"        <li><a href='/view/'>" << tr(lng::LNG_VIEW_HOME, "Home") << "</a></li>\r\n"
+			"        <li><a href='/settings/general'>" << tr(lng::LNG_SETTINGS_TITLE, "Settings") << "</a></li>\r\n"
+			"        <li><a href='/settings/profile'>" << tr(lng::LNG_SETTINGS_PROFILE, "Profile") << "</a></li>\r\n"
+			"      </ul>\r\n";
 	}
 
 	class Error404 : public ErrorPageHandler
@@ -174,6 +193,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				{ lng::LNG_ERROR_404_INFO,  "This link has nothing to show, maybe you mistyped the link or followed a bad one." }
 			});
 			error_4xx_consolation(request, tr);
+			error_contents_end(request, tr);
 		}
 	};
 
@@ -188,6 +208,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				{ lng::LNG_ERROR_400_INFO,  "The request your browser made was not understood." }
 			});
 			error_4xx_consolation(request, tr);
+			error_contents_end(request, tr);
 		}
 	};
 
@@ -202,7 +223,8 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				{ lng::LNG_ERROR_500_INFO,  "During our work to fullfill your request some error occured. The administrators of the site has been informed." }
 			});
 
-			request << "<p>" << tr(lng::LNG_ERROR_500_CONSOLATION, "We are sorry, please come back soon. Or even <a href='/'>now</a>.") << "</p>\r\n";
+			request << "  <p>" << tr(lng::LNG_ERROR_500_CONSOLATION, "We are sorry, please come back soon. Or even <a href='/'>now</a>.") << "</p>\r\n";
+			error_contents_end(request, tr);
 		}
 	};
 

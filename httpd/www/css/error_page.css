@@ -11,14 +11,24 @@ h1:first-line
 	line-height: 133%;
 }
 
-p
+#message h2
 {
-	padding: 0.5em;
+	font-size: 1.3em;
+	margin: 0px 0px 1em;
+	background: transparent;
+	border: none;
+	padding: 0px;
+	font-style: italic;
 }
 
-.oops
+#message
 {
 	background: #ffffe1;
 	border: solid 1px #bfbfaa;
 	color: #000023;
+	padding: 1.3em;
+	margin-bottom: 1em;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
 }
