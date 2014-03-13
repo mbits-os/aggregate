@@ -12,40 +12,33 @@ predef.add_macro("EXTERNAL_EXPAT", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
-libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt"]
-common_incl = [root+"3rdparty/libfcgi/inc", root+"libenv/includes", root+"libremote/includes"]
-
-_3rd = Project("3rdparty",
-               ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN", "HAVE_MEMMOVE"],
-               [], [root+"3rdparty/libfcgi/inc", root+"3rdparty/"], kStaticLibrary, predef)
+libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++"]
+common_incl = [root+"libs/libenv/includes", root+"libs/libremote/includes"]
 
 libenv = Project("libenv",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
-               [], [root+"libenv"] + common_incl, kStaticLibrary, predef)
+               [], [root+"libs/libenv"] + common_incl, kStaticLibrary, predef)
 
 libremote = Project("libremote",
                ["POSIX"],
-               [], [root+"libremote"] + common_incl, kStaticLibrary, predef)
+               [], [root+"libs/libremote"] + common_incl, kStaticLibrary, predef)
 
 dbtool = Project("dbtool", 
                  ["POSIX"],
-                 libs, [root+"dbtool"] + common_incl, kApplication, predef)
+                 libs, [root+"apps/dbtool"] + common_incl, kApplication, predef)
 
-server = Project("server",
+reedr = Project("reedr",
                  ["POSIX"],
-                 libs + ["gd"], [root+"server"] + common_incl, kApplication, predef)
+                 libs + ["gd"], [root+"apps/reedr"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
 libremote.out = "remote"
 
-libenv.depends_on(_3rd)
 dbtool.depends_on(libenv)
-dbtool.depends_on(_3rd)
-server.depends_on(libremote)
-server.depends_on(libenv)
-server.depends_on(_3rd)
+reedr.depends_on(libremote)
+reedr.depends_on(libenv)
 
-projects = [_3rd, libenv, libremote, dbtool, server]
+projects = [libenv, libremote, dbtool, reedr]
 
 print "include common.mak"
 print
@@ -91,13 +84,13 @@ print """$(DIRS):
 # INSTALL
 ############################################
 
-preinstall: $(PREFIX) strings $(PREFIX)/dbtool $(PREFIX)/server
+preinstall: $(PREFIX) strings $(PREFIX)/dbtool $(PREFIX)/reedr
 
 $(PREFIX)/dbtool: $(OUT)/dbtool
 \t@echo '[ CP ] $@'; cp '$(OUT)/dbtool' '$(PREFIX)';
 
-$(PREFIX)/server: $(OUT)/server
-\t@echo '[ CP ] $@'; cp '$(OUT)/server' '$(PREFIX)';
+$(PREFIX)/reedr: $(OUT)/reedr
+\t@echo '[ CP ] $@'; cp '$(OUT)/reedr' '$(PREFIX)';
 
 clean_strings:
 \t@$(MAKE) -C '$(ROOT)/strings' clean

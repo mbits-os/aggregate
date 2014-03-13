@@ -1,9 +1,8 @@
 FILES = \
-	../../3rdparty/3rdparty.files \
-	../../dbtool/dbtool.files \
-	../../libenv/libenv.files \
-	../../libremote/libremote.files \
-	../../server/server.files
+	../../apps/dbtool/dbtool.files \
+	../../libs/libenv/libenv.files \
+	../../libs/libremote/libremote.files \
+	../../apps/reedr/reedr.files
 
 all clean preinstall install clean_strings strings all_a3rdparty all_libenv all_libremote all_dbtool all_server clean_distro: Makefile.gen
 	@$(MAKE) -C . -f Makefile.gen $@

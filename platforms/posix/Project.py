@@ -32,8 +32,11 @@ class Project:
         self.includes = includes + ["/opt/local/include"]
         self.bintype = bintype
         self.depends = []
+        self.group = "libs"
+        if bintype == kApplication:
+            self.group = "apps"
 
-        self.files.read(predef, "%s%s/%s.files" % (root, name, name))
+        self.files.read(predef, "%s%s/%s/%s.files" % (root, self.group, name, name))
 
         if self.safename[0] >= "0" and self.safename[0] <= "9": self.safename = "a%s" % self.safename
 
@@ -82,10 +85,11 @@ class Project:
         print "%s_CPP_COMPILE = $(CPP_COMPILE) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_CPPFLAGS) $(%s_DEFS)" % (n, n, n, n, n)
         print "%s_C_MAKEDEPEND = $(C_MAKEDEPEND) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_DEFS)" % (n, n, n, n)
         print "%s_CPP_MAKEDEPEND = $(CPP_MAKEDEPEND) $(%s_INCLUDES) $(%s_CFLAGS) $(%s_CPPFLAGS) $(%s_DEFS)" % (n, n, n, n, n)
+        print "%s_DIR = $(ROOT)/%s/%s" % (n, self.group, self.name)
         print "%s_TMP = $(TMP)/%s" % (n, self.name)
         print "%s_FILES = %s" % (n, """ \\
 \t""".join(self.get_code()))
-        print "%s_SRC = $(addprefix $(ROOT), $(%s_FILES))" % (n, n)
+        print "%s_SRC = $(addprefix $(%s_DIR)/, $(%s_FILES))" % (n, n, n)
         print "%s_OBJ = $(patsubst %%.c,%%.o,$(patsubst %%.cpp,%%.o,$(addprefix $(%s_TMP)/, $(%s_FILES))))" % (n, n, n)
         print "%s_DEP = $(patsubst %%.c,%%.d,$(patsubst %%.cpp,%%.d,$(addprefix $(%s_TMP)/, $(%s_FILES))))" % (n, n, n)
         print
@@ -111,7 +115,7 @@ class Project:
         n = self.safename.upper()
         print "# compile"
 
-        print "$(%s_TMP)%%.o: $(ROOT)%%.c" % n
+        print "$(%s_TMP)%%.o: $(%s_DIR)%%.c" % (n, n)
         print "\t@echo [ CC ] $<"
         print "\t@mkdir -p $(dir $@)"
         print "\t@echo -n $(dir $@) > $(patsubst %.o,%.d,$@)"
@@ -120,7 +124,7 @@ class Project:
 
         print "-include $(%s_DEP)\n" % n
 
-        print "$(%s_TMP)%%.o: $(ROOT)%%.cpp" % n
+        print "$(%s_TMP)%%.o: $(%s_DIR)%%.cpp" % (n, n)
         print "\t@echo [ CC ] $<"
         print "\t@mkdir -p $(dir $@)"
         print "\t@echo -n $(dir $@) > $(patsubst %.o,%.d,$@)"
