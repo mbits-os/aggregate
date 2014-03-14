@@ -16,16 +16,29 @@ h1:first-line
 	font-size: 1.3em;
 	margin: 0px 0px 1em;
 	background: transparent;
+	color: #525263;
 	border: none;
 	padding: 0px;
 	font-style: italic;
 }
 
+#message a
+{
+	color: #525263;
+	text-decoration: none;
+}
+
+#message a:hover
+{
+	color: #5252b1;
+	text-decoration: underline;
+}
+
 #message
 {
-	background: #ffffe1;
-	border: solid 1px #bfbfaa;
-	color: #000023;
+	background: #fcf8e3;
+	border: solid 1px #faebcc;
+	color: #8a6d3b;
 	padding: 1.3em;
 	margin-bottom: 1em;
 	-webkit-border-radius: 5px;

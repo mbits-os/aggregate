@@ -288,6 +288,15 @@ namespace FastCGI { namespace app { namespace reader {
 		bool restrictedPage() override { return false; }
 		const char* getPageTitle(Request&, PageTranslation&) override { return "Debug"; }
 
+		void visit(Request& request) override
+		{
+			auto force500 = request.getVariable("500");
+			if (force500)
+				request.on500("Debug forced to respond with 500");
+
+			PageHandler::visit(request);
+		}
+
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			param_t loop = request.getVariable("loop");
