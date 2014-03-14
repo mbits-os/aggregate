@@ -5,7 +5,7 @@ DISTRO_GRP = www-data
 
 DISTRO_FILES = \
 	$(ROOT)/httpd/bin/dbtool \
-	$(ROOT)/httpd/bin/server
+	$(ROOT)/httpd/bin/reedr
 
 DISTRO_FILES_ETC = \
 	$(ROOT)/httpd/config/reedr.conf \
