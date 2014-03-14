@@ -108,8 +108,8 @@ namespace FastCGI { namespace app { namespace reader {
 
 		static void penv(FastCGI::Request& request, const char * const * envp)
 		{
-			request << "<table class='env'>\n";
-			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
+			request << "<table class='env'>\r\n";
+			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\r\n";
 			size_t counter = 0;
 			for ( ; *envp; ++envp)
 			{
@@ -139,20 +139,20 @@ namespace FastCGI { namespace app { namespace reader {
 					{
 						while (*c != 0 && *c != SEP) ++c;
 						request << url::htmlQuotes(prev, c - prev);
-						if (*c != 0) request << "<br/>\n";
+						if (*c != 0) request << "<br/>\r\n";
 						if (*c != 0) ++c;
 						prev = c;
 					}
 				}
-				request << "</td></tr>\n";
+				request << "</td></tr>\r\n";
 			}
-			request << "</table>\n";
+			request << "</table>\r\n";
 		}
 
 		static void handlers(FastCGI::Request& request, const HandlerMap& map)
 		{
-			request << "<table class='handlers'>\n";
-			request << "<thead><tr><th>URL</th><th>Action</th><th>File</th></tr><thead><tbody>\n";
+			request << "<table class='handlers'>\r\n";
+			request << "<thead><tr><th>URL</th><th>Action</th><th>File</th></tr><thead><tbody>\r\n";
 			size_t counter = 0;
 			for (auto&& item : map)
 			{
@@ -162,15 +162,15 @@ namespace FastCGI { namespace app { namespace reader {
 				request
 					<< "><td><nobr><a href='" << item.first << "'>" << item.first << "</a></nobr></td>"
 					<< "<td><nobr>" << item.second.ptr->name() << "</nobr></td><td>" << item.second.file << ":"
-					<< item.second.line << "</td></tr>\n";
+					<< item.second.line << "</td></tr>\r\n";
 			}
-			request << "</tbody></table>\n";
+			request << "</tbody></table>\r\n";
 		}
 
 		static void handlers(FastCGI::Request& request, const api::OperationMap& map)
 		{
-			request << "<table class='operations'>\n";
-			request << "<thead><tr><th>Name</th><th>Query</th><th>File</th></tr><thead><tbody>\n";
+			request << "<table class='operations'>\r\n";
+			request << "<thead><tr><th>Name</th><th>Query</th><th>File</th></tr><thead><tbody>\r\n";
 			size_t counter = 0;
 			for (auto&& item : map)
 			{
@@ -195,15 +195,15 @@ namespace FastCGI { namespace app { namespace reader {
 
 				request
 					<< "</nobr></td><td>" << item.second.file << ":"
-					<< item.second.line << "</td></tr>\n";
+					<< item.second.line << "</td></tr>\r\n";
 			}
-			request << "</tbody></table>\n";
+			request << "</tbody></table>\r\n";
 		}
 
 		static void requests(FastCGI::Request& request, const FastCGI::Application::ReqList& list)
 		{
-			request << "<table class='requests'>\n";
-			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th><th>Frozen</th></tr><thead><tbody>\n";
+			request << "<table class='requests'>\r\n";
+			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th><th>Frozen</th></tr><thead><tbody>\r\n";
 
 			size_t counter = 0;
 			for (auto&& item : list)
@@ -239,15 +239,15 @@ namespace FastCGI { namespace app { namespace reader {
 						request << "<a href='/debug/?frozen=" + url::encode(item.icicle) + "' title='Took -.---ms'>Icicle</a>";
 				}
 				request
-					<< "</td></tr>\n";
+					<< "</td></tr>\r\n";
 			}
-			request << "</tbody></table>\n";
+			request << "</tbody></table>\r\n";
 		}
 
 		static void threads(FastCGI::Request& request, const std::list<FastCGI::ThreadPtr>& threadList)
 		{
-			request << "<table class='threads'>\n";
-			request << "<thead><tr><th>Thread ID</th><th>Requests</th><thead><tbody>\n";
+			request << "<table class='threads'>\r\n";
+			request << "<thead><tr><th>Thread ID</th><th>Requests</th><thead><tbody>\r\n";
 			size_t counter = 0;
 			for (auto&& thread : threadList)
 			{
@@ -256,15 +256,15 @@ namespace FastCGI { namespace app { namespace reader {
 					request << " class='even'";
 				request
 					<< "><td><nobr>0x" << std::hex << thread->threadId() << std::dec << "</nobr></td>"
-					<< "<td>" << thread->getLoad() << "</td></tr>\n";
+					<< "<td>" << thread->getLoad() << "</td></tr>\r\n";
 			};
-			request << "</tbody></table>\n";
+			request << "</tbody></table>\r\n";
 		}
 
 		static void cookies(FastCGI::Request& request, const std::map<std::string, std::string>& list)
 		{
-			request << "<table class='cookies'>\n";
-			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\n";
+			request << "<table class='cookies'>\r\n";
+			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\r\n";
 
 			size_t counter = 0;
 			for (auto&& pair : list)
@@ -280,25 +280,20 @@ namespace FastCGI { namespace app { namespace reader {
 					request << " class='even'";
 				request
 					<< "><td><nobr>" << url::htmlQuotes(pair.first) << "</nobr></td>"
-					<< "<td>" << value << "</td></tr>\n";
+					<< "<td>" << value << "</td></tr>\r\n";
 			}
-			request << "</tbody></table>\n";
+			request << "</tbody></table>\r\n";
 		}
 
 		bool restrictedPage() override { return false; }
 		const char* getPageTitle(Request&, PageTranslation&) override { return "Debug"; }
 
-		void visit(Request& request) override
+		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			auto force500 = request.getVariable("500");
 			if (force500)
 				request.on500("Debug forced to respond with 500");
 
-			PageHandler::visit(request);
-		}
-
-		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
-		{
 			param_t loop = request.getVariable("loop");
 			if (loop)
 			{
@@ -327,6 +322,55 @@ namespace FastCGI { namespace app { namespace reader {
 			}
 		}
 
+		void header(const SessionPtr& session, Request& request, PageTranslation& tr) override
+		{
+			request << "<!DOCTYPE html "
+				"PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" "
+				"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n"
+				"<html>\r\n"
+				"  <head>\r\n"
+				"    <title>" << getTitle(request, tr) << "</title>\r\n"
+				"    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n"
+				"    <meta name=\"viewport\" content=\"width=device-width, user-scalable=no\"/>\r\n"
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/site.css\");</style>\r\n"
+#if DEBUG_CGI
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/fd_icons.css\");</style>\r\n"
+#endif
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/site-logo-big.css\");</style>\r\n"
+				"    <style type=\"text/css\">@import url(\"" << static_web << "css/debug.css\");</style>\r\n"
+				"    <style type=\"text/css\" media=\"screen and (min-width: 700px)\">@import url(\"" << static_web << "css/debug-wide.css\");</style>\r\n"
+				"  </head>\r\n"
+				"  <body>\r\n"
+				"    <div class='site-logo'>\r\n"
+				"      <div>\r\n"
+				"        <div class='logo'><a href='/'><img src='" << static_web << "images/auth_logo.png' alt='" << tr(lng::LNG_GLOBAL_PRODUCT) << "'/></a></div>\r\n"
+				"        <div class='site'><a href='/'>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</a></div>\r\n"
+				"      </div>\r\n"
+				"    </div>\r\n"
+				"    <div id='content' class='form'>\r\n";
+		}
+
+		void footer(const SessionPtr& session, Request& request, PageTranslation& tr) override
+		{
+#if DEBUG_CGI
+			request <<
+				"\r\n"
+				"    <div class=\"debug-icons\">\r\n"
+				"      <div>\r\n"
+				"        <a class=\"debug-icon\" href=\"/debug/\"><span>[D]</span></a>\r\n";
+			std::string icicle = request.getIcicle();
+			if (!icicle.empty())
+				request << "        <a class=\"frozen-icon\" href=\"/debug/?frozen=" << url::encode(icicle) << "\"><span>[F]</span></a>\r\n";
+			request <<
+				"      </div>\r\n"
+				"    </div>\r\n";
+#endif
+			request <<
+				"    </div> <!-- #content -->\r\n"
+				"  </body>\r\n"
+				"</html>\r\n";
+		}
+
 		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
 			auto icicle = request.getVariable("frozen");
@@ -344,33 +388,25 @@ namespace FastCGI { namespace app { namespace reader {
 		{
 			bool all = request.getVariable("all") != nullptr;
 
-			request << "<style type='text/css'>\n"
-				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
-				"div#content { width: 650px; margin: 0px auto }\n"
-				"th, td { text-align: left; vertical-align: top; padding: 0.2em 0.5em }\n"
-				".even td { background: #ddd }\n"
-				"th { font-weight: normal; color: white; background: #444; }\n"
-				"table { width: auto; max-width: 650px }\n"
-				"</style>\n"
-				"<title>Debug page</title>\n<div id='content'>\n"
-				"<h1>Debug page</h1>\n"
-				"<h2>Table of Contents</h2>\n"
-				"<ol>\n";
+			request << 
+				"<h1>Debug page</h1>\r\n"
+				"<h2>Table of Contents</h2>\r\n"
+				"<ol>\r\n";
 			if (all) request <<
-				"<li><a href='#request'>Environment</a></li>\n"
+				"<li><a href='#request'>Environment</a></li>\r\n"
 				;
 			request <<
-				"<li><a href='#handlers'>Page Handlers</a></li>\n"
-				"<li><a href='#operations'>Operation Handlers</a></li>\n"
-				"<li><a href='#requests'>Requests</a></li>\n"
-				"<li><a href='#threads'>Thread Load</a></li>\n"
-				"<li><a href='#variables'>Variables</a></li>\n"
-				"<li><a href='#cookies'>Cookies</a></li>\n"
-				"<li><a href='#session'>Session</a></li>\n"
-				"</ol>\n"
-				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\n"
-				"<h2>Thread: <em>" << mt::Thread::currentId() << "</em></h2>\n"
-				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\n";
+				"<li><a href='#handlers'>Page Handlers</a></li>\r\n"
+				"<li><a href='#operations'>Operation Handlers</a></li>\r\n"
+				"<li><a href='#requests'>Requests</a></li>\r\n"
+				"<li><a href='#threads'>Thread Load</a></li>\r\n"
+				"<li><a href='#variables'>Variables</a></li>\r\n"
+				"<li><a href='#cookies'>Cookies</a></li>\r\n"
+				"<li><a href='#session'>Session</a></li>\r\n"
+				"</ol>\r\n"
+				"<h2>PID: <em>" << request.app().pid() << "</em></h2>\r\n"
+				"<h2>Thread: <em>" << mt::Thread::currentId() << "</em></h2>\r\n"
+				"<h2>Request Number: <em>" << request.app().requs().size() << "</em></h2>\r\n";
 			FastCGI::RequestStatePtr statePtr = request.getRequestState();
 			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
 			if (state && state->m_contentSize > 0)
@@ -381,45 +417,45 @@ namespace FastCGI { namespace app { namespace reader {
 				request << "</em></h2>\n<pre>";
 				for (long long i = 0; i < state->m_read; i++)
 					request << state->m_buffer[i];
-				request << "</pre>\n";
+				request << "</pre>\r\n";
 			}
 
 			if (all) {
-				request << "<h2 class='head'><a name='request'></a>Environment</h2>\n";
+				request << "<h2 class='head'><a name='request'></a>Environment</h2>\r\n";
 				penv(request, request.envp());
 			}
 
-			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\n";
+			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\r\n";
 			handlers(request, app::Handlers::handlers());
 
-			request << "<h2 class='head'><a name='operations'></a>Operation Handlers</h2>\n";
+			request << "<h2 class='head'><a name='operations'></a>Operation Handlers</h2>\r\n";
 			handlers(request, api::Operations::operations());
 
-			request << "<h2 class='head'><a name='requests'></a>Requests</h2>\n";
+			request << "<h2 class='head'><a name='requests'></a>Requests</h2>\r\n";
 			requests(request, request.app().requs());
 
-			request << "<h2 class='threads'><a name='threads'></a>Thread Load</h2>\n";
+			request << "<h2 class='threads'><a name='threads'></a>Thread Load</h2>\r\n";
 			threads(request, request.app().getThreads());
 
-			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\n";
+			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\r\n";
 			cookies(request, request.varDebugData());
 
-			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\n";
+			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\r\n";
 			cookies(request, request.cookieDebugData());
 
-			request << "<h2 class='head'><a name='session'></a>Session</h2>\n";
+			request << "<h2 class='head'><a name='session'></a>Session</h2>\r\n";
 
 			if (session.get())
 			{
 				char time[100];
 				tyme::strftime(time, "%a, %d-%b-%Y %H:%M:%S GMT", tyme::gmtime(session->getStartTime()));
 				request
-					<< "<p>Current user: <a href=\"mailto:" << session->getEmail() << "\">" << session->getLogin() << " (" << session->getName() << ")</a><br/>\n"
+					<< "<p>Current user: <a href=\"mailto:" << session->getEmail() << "\">" << session->getLogin() << " (" << session->getName() << ")</a><br/>\r\n"
 					<< "The session has started on " << time << ".</p>";
 			}
 			else
 			{
-				request << "<p>There is no session in progress currently.</p>\n";
+				request << "<p>There is no session in progress currently.</p>\r\n";
 			}
 		}
 
@@ -436,27 +472,18 @@ namespace FastCGI { namespace app { namespace reader {
 			char timebuf[100];
 			tyme::strftime(timebuf, "%a, %d-%b-%Y %H:%M:%S GMT", gmt);
 
-			request << "<style type='text/css'>\n"
-				"body, td, th { font-family: Helvetica, Arial, sans-serif; font-size: 10pt }\n"
-				"div#content { width: 650px; margin: 0px auto }\n"
-				"th, td { text-align: left; vertical-align: top; padding: 0.2em 0.5em }\n"
-				".even td { background: #ddd }\n"
-				"th { font-weight: normal; color: white; background: #444; }\n"
-				"table { width: auto; max-width: 650px }\n"
-				"dt { font-weight: bold }\n"
-				"</style>\n"
-				"<title>Frozen debug page</title>\n<div id='content'>\n"
-				"<h1>Frozen debug page</h1>\n"
-				"<h2>Table of Contents</h2>\n"
-				"<ol>\n"
-				"<li><a href='#request'>Environment</a></li>\n"
-				"<li><a href='#variables'>Variables</a></li>\n"
-				"<li><a href='#cookies'>Cookies</a></li>\n"
-				"<li><a href='#session'>Session</a></li>\n"
-				"</ol>\n"
-				"<h2>Resource:</h2>\n"
-				"<dl>\n<dt>URI:</dt><dd><a href='http://" << item_server << item_resource << "'>" << item_resource << "</a></dd>\n<dt>Remote end:</dt><dd>" << item_remote_addr << ":" << item_remote_port << "</dd><dd>" << timebuf << "</dd>\n"
-				"<dt>Rendered in:</dt><dd>" << item_duration << "</dd>\n</dl>\n";
+			request << "<div id='content'>\r\n"
+				"<h1>Frozen debug page</h1>\r\n"
+				"<h2>Table of Contents</h2>\r\n"
+				"<ol>\r\n"
+				"<li><a href='#request'>Environment</a></li>\r\n"
+				"<li><a href='#variables'>Variables</a></li>\r\n"
+				"<li><a href='#cookies'>Cookies</a></li>\r\n"
+				"<li><a href='#session'>Session</a></li>\r\n"
+				"</ol>\r\n"
+				"<h2>Resource:</h2>\r\n"
+				"<dl>\n<dt>URI:</dt><dd><a href='http://" << item_server << item_resource << "'>" << item_resource << "</a></dd>\n<dt>Remote end:</dt><dd>" << item_remote_addr << ":" << item_remote_port << "</dd><dd>" << timebuf << "</dd>\r\n"
+				"<dt>Rendered in:</dt><dd>" << item_duration << "</dd>\n</dl>\r\n";
 #if 0
 			FastCGI::RequestStatePtr statePtr = request.getRequestState();
 			DebugRequestState* state = static_cast<DebugRequestState*>(statePtr.get());
@@ -468,30 +495,30 @@ namespace FastCGI { namespace app { namespace reader {
 				request << "</em></h2>\n<pre>";
 				for (long long i = 0; i < state->m_read; i++)
 					request << state->m_buffer[i];
-				request << "</pre>\n";
+				request << "</pre>\r\n";
 			}
 #endif
 
-			request << "<h2 class='head'><a name='request'></a>Environment</h2>\n";
+			request << "<h2 class='head'><a name='request'></a>Environment</h2>\r\n";
 			cookies(request, frozen->environment());
 
-			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\n";
+			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\r\n";
 			cookies(request, frozen->get());
 
-			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\n";
+			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\r\n";
 			cookies(request, frozen->cookies());
 
-			request << "<h2 class='head'><a name='session'></a>Session</h2>\n";
+			request << "<h2 class='head'><a name='session'></a>Session</h2>\r\n";
 
 			auto id = frozen->session_user();
 			if (!id.empty())
 			{
 				request
-					<< "<p>User logged in: " << id << "<br/>\n";
+					<< "<p>User logged in: " << id << "<br/>\r\n";
 			}
 			else
 			{
-				request << "<p>There was no session in progress at that time.</p>\n";
+				request << "<p>There was no session in progress at that time.</p>\r\n";
 			}
 		}
 	};
