@@ -223,6 +223,13 @@ struct Main
 			return version();
 
 #ifdef CONFIG_DBG
+		fs::path cfg{ args.config };
+		if (cfg.empty())
+			cfg = CONFIG_FILE;
+
+		if (cfg.is_relative())
+			cfg = fs::absolute(cfg);
+
 		std::cout << "Config is: " << fs::canonical(cfg).native() << std::endl;
 #endif
 

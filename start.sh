@@ -1,4 +1,4 @@
 #!/bin/bash
 
-/usr/share/reedr/bin/server -k start
+/usr/share/reedr/bin/reedr -k start
 
