@@ -285,6 +285,30 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "</tbody></table>\r\n";
 		}
 
+		static void string_pair_list(FastCGI::Request& request, const std::vector<std::pair<std::string, std::string>>& list)
+		{
+			request << "<table class='cookies'>\r\n";
+			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\r\n";
+
+			size_t counter = 0;
+			for (auto&& pair : list)
+			{
+				std::string value;
+				if (pair.second.empty())
+					value = "<em style=\"color: silver\">empty</em>";
+				else
+					value = url::htmlQuotes(pair.second);
+
+				request << "<tr";
+				if (counter++ % 2)
+					request << " class='even'";
+				request
+					<< "><td><nobr>" << url::htmlQuotes(pair.first) << "</nobr></td>"
+					<< "<td>" << value << "</td></tr>\r\n";
+			}
+			request << "</tbody></table>\r\n";
+		}
+
 		bool restrictedPage() override { return false; }
 		const char* getPageTitle(Request&, PageTranslation&) override { return "Debug"; }
 
@@ -387,6 +411,7 @@ namespace FastCGI { namespace app { namespace reader {
 		void render_basic(const SessionPtr& session, Request& request, PageTranslation& tr)
 		{
 			bool all = request.getVariable("all") != nullptr;
+			auto frozen = request.app().frozen(request.getIcicle());
 
 			request << 
 				"<h1>Debug page</h1>\r\n"
@@ -394,6 +419,9 @@ namespace FastCGI { namespace app { namespace reader {
 				"<ol>\r\n";
 			if (all) request <<
 				"<li><a href='#request'>Environment</a></li>\r\n"
+				;
+			if (all && frozen) request <<
+				"<li><a href='#response'>Response</a></li>\r\n"
 				;
 			request <<
 				"<li><a href='#handlers'>Page Handlers</a></li>\r\n"
@@ -420,9 +448,16 @@ namespace FastCGI { namespace app { namespace reader {
 				request << "</pre>\r\n";
 			}
 
-			if (all) {
+			if (all)
+			{
 				request << "<h2 class='head'><a name='request'></a>Environment</h2>\r\n";
 				penv(request, request.envp());
+
+				if (frozen)
+				{
+					request << "<h2 class='head'><a name='response'></a>Response</h2>\r\n";
+					string_pair_list(request, frozen->response());
+				}
 			}
 
 			request << "<h2 class='head'><a name='handlers'></a>Page Handlers</h2>\r\n";
@@ -477,6 +512,7 @@ namespace FastCGI { namespace app { namespace reader {
 				"<h2>Table of Contents</h2>\r\n"
 				"<ol>\r\n"
 				"<li><a href='#request'>Environment</a></li>\r\n"
+				"<li><a href='#response'>Response</a></li>\r\n"
 				"<li><a href='#variables'>Variables</a></li>\r\n"
 				"<li><a href='#cookies'>Cookies</a></li>\r\n"
 				"<li><a href='#session'>Session</a></li>\r\n"
@@ -501,6 +537,9 @@ namespace FastCGI { namespace app { namespace reader {
 
 			request << "<h2 class='head'><a name='request'></a>Environment</h2>\r\n";
 			cookies(request, frozen->environment());
+
+			request << "<h2 class='head'><a name='response'></a>Response</h2>\r\n";
+			string_pair_list(request, frozen->response());
 
 			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\r\n";
 			cookies(request, frozen->get());
