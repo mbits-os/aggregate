@@ -211,7 +211,7 @@ namespace FastCGI { namespace app { namespace reader {
 		static void requests(FastCGI::Request& request, const FastCGI::Application::ReqList& list)
 		{
 			request << "<table class='requests'>\r\n";
-			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th><th>Frozen</th></tr><thead><tbody>\r\n";
+			request << "<thead><tr><th>URL</th><th>Remote Addr</th><th>Time (GMT)</th><th>User</th><th>Frozen</th></tr><thead><tbody>\r\n";
 
 			size_t counter = 0;
 			for (auto&& item : list)
@@ -233,7 +233,18 @@ namespace FastCGI { namespace app { namespace reader {
 
 				request
 					<< "><td><nobr><a href='http://" << item.server << item.resource << "' title='" << item.resource << "'>" << short_res << "</a></nobr></td>"
-					<< "<td><nobr>" << item.remote_addr << ":" << item.remote_port << "</nobr></td><td>" << timebuf << "</td><td>";
+					<< "<td><nobr>" << item.remote_addr << ":" << item.remote_port << "</nobr></td><td><nobr>" << timebuf << "</nobr></td><td>";
+
+				std::string login;
+				auto frozen = request.app().frozen(item.icicle);
+				if (frozen)
+					login = frozen->session_user();
+				if (login.empty())
+					request << "<em style=\"color: silver\">-</em>";
+				else
+					request << url::htmlQuotes(login);
+				request
+					<< "</td><td>";
 
 				if (item.icicle.empty())
 					request << "<em style=\"color: silver\">empty</em>";
@@ -280,7 +291,7 @@ namespace FastCGI { namespace app { namespace reader {
 			return false;
 		}
 
-		static void cookies(FastCGI::Request& request, const std::map<std::string, std::string>& list, const std::string& uri = std::string())
+		static void string_list(FastCGI::Request& request, const std::map<std::string, std::string>& list, const std::string& uri = std::string())
 		{
 			request << "<table class='cookies'>\r\n";
 			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\r\n";
@@ -502,10 +513,10 @@ namespace FastCGI { namespace app { namespace reader {
 					uri = it;
 			}
 
-			cookies(request, request.varDebugData());
+			string_list(request, request.varDebugData());
 
 			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\r\n";
-			cookies(request, request.cookieDebugData());
+			string_list(request, request.cookieDebugData());
 
 			request << "<h2 class='head'><a name='session'></a>Session</h2>\r\n";
 
@@ -520,6 +531,17 @@ namespace FastCGI { namespace app { namespace reader {
 			else
 			{
 				request << "<p>There is no session in progress currently.</p>\r\n";
+			}
+
+			if (frozen)
+			{
+
+				auto culture = frozen->culture();
+				if (culture.empty()) culture = "-";
+				request << "<p>Language selected: <em>" << culture << "</em>";
+				if (frozen->culture_from_db())
+					request << " (from preferences)";
+				request << ".</p>\r\n";
 			}
 		}
 
@@ -565,7 +587,7 @@ namespace FastCGI { namespace app { namespace reader {
 #endif
 
 			request << "<h2 class='head'><a name='request'></a>Environment</h2>\r\n";
-			cookies(request, frozen->environment());
+			string_list(request, frozen->environment());
 
 			request << "<h2 class='head'><a name='response'></a>Response</h2>\r\n";
 			string_pair_list(request, frozen->response());
@@ -579,23 +601,25 @@ namespace FastCGI { namespace app { namespace reader {
 					uri = it->second;
 			}
 
-			cookies(request, frozen->get(), uri);
+			string_list(request, frozen->get(), uri);
 
 			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\r\n";
-			cookies(request, frozen->cookies());
+			string_list(request, frozen->cookies());
 
 			request << "<h2 class='head'><a name='session'></a>Session</h2>\r\n";
 
 			auto id = frozen->session_user();
 			if (!id.empty())
-			{
-				request
-					<< "<p>User logged in: " << id << "<br/>\r\n";
-			}
+				request << "<p>User logged in: <em>" << id << "</em>.</p>\r\n";
 			else
-			{
 				request << "<p>There was no session in progress at that time.</p>\r\n";
-			}
+
+			auto culture = frozen->culture();
+			if (culture.empty()) culture = "-";
+			request << "<p>Language selected: <em>" << culture << "</em>";
+			if (frozen->culture_from_db())
+				request << " (from preferences)";
+			request << ".</p>\r\n";
 		}
 	};
 }}} // FastCGI::app::reader
