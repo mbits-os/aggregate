@@ -76,6 +76,14 @@ namespace FastCGI { namespace app { namespace reader {
 		return request << ticks / second << '.' << std::setw(3) << std::setfill('0') << (ticks * 1000 / second) % 1000 << freq;
 	}
 
+	struct
+	{
+		const char* uri;
+		const char* variable;
+	} redacted[] = {
+		{ "/auth/login", "password" }
+	};
+
 	class DebugPageHandler: public PageHandler
 	{
 		std::string m_service_url;
@@ -261,7 +269,18 @@ namespace FastCGI { namespace app { namespace reader {
 			request << "</tbody></table>\r\n";
 		}
 
-		static void cookies(FastCGI::Request& request, const std::map<std::string, std::string>& list)
+		static bool redact(const std::string& uri, const std::string& var)
+		{
+			for (auto&& rule : redacted)
+			{
+				if (uri == rule.uri && var == rule.variable)
+					return true;
+			}
+
+			return false;
+		}
+
+		static void cookies(FastCGI::Request& request, const std::map<std::string, std::string>& list, const std::string& uri = std::string())
 		{
 			request << "<table class='cookies'>\r\n";
 			request << "<thead><tr><th>Name</th><th>Value</th></tr><thead><tbody>\r\n";
@@ -272,6 +291,8 @@ namespace FastCGI { namespace app { namespace reader {
 				std::string value;
 				if (pair.second.empty())
 					value = "<em style=\"color: silver\">empty</em>";
+				else if (redact(uri, pair.first))
+					value = "<em style=\"color: #c88\">redacted</em>";
 				else
 					value = url::htmlQuotes(pair.second);
 
@@ -473,6 +494,14 @@ namespace FastCGI { namespace app { namespace reader {
 			threads(request, request.app().getThreads());
 
 			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\r\n";
+			std::string uri;
+
+			{
+				auto it = request.getParam("DOCUMENT_URI");
+				if (it)
+					uri = it;
+			}
+
 			cookies(request, request.varDebugData());
 
 			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\r\n";
@@ -542,7 +571,15 @@ namespace FastCGI { namespace app { namespace reader {
 			string_pair_list(request, frozen->response());
 
 			request << "<h2 class='variables'><a name='variables'></a>Variables</h2>\r\n";
-			cookies(request, frozen->get());
+			std::string uri;
+
+			{
+				auto it = frozen->environment().find("DOCUMENT_URI");
+				if (it != frozen->environment().end())
+					uri = it->second;
+			}
+
+			cookies(request, frozen->get(), uri);
 
 			request << "<h2 class='head'><a name='cookies'></a>Cookies</h2>\r\n";
 			cookies(request, frozen->cookies());
