@@ -48,6 +48,9 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 	void render_tabs(const SessionPtr& session, Request& request, PageTranslation& tr, PAGE here)
 	{
+		xhr_section relative{ request, "pages-container" };
+		xhr_section absolute{ request, "pages" };
+
 		request <<
 			"<div class='tabs' id='tabs'>\r\n"
 			"<ul>\r\n";
@@ -66,7 +69,7 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 			if ((PAGE)i == here)
 				request << "<li class='selected'>" << tr(tab.title) << "</li>\r\n";
 			else
-				request << "<li><a href='" << tab.url << "' data-pjax='#fragment'>" << tr(tab.title) << "</a></li>\r\n";
+				request << "<li><a href='" << tab.url << "' " ATTR_X_AJAX_FRAGMENT "='fragment'>" << tr(tab.title) << "</a></li>\r\n"; // data-pjax='#fragment'
 			++i;
 			//if (tab.)
 		}

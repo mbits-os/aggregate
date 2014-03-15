@@ -51,6 +51,19 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 	void start_xhr_section(Request& request, const char* name);
 	void end_xhr_section(Request& request);
 
+	struct xhr_section
+	{
+		Request& request;
+		xhr_section(Request& request, const char* name) : request(request)
+		{
+			start_xhr_section(request, name);
+		}
+		~xhr_section()
+		{
+			end_xhr_section(request);
+		}
+	};
+
 	template <typename Container>
 	class SettingsFormBase : public FormImpl<VerticalRenderer, Container, Content>
 	{
@@ -94,22 +107,29 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 			render_tabs(session, request, tr, this->m_page_type);
 
-			start_xhr_section(request, "messages");
+			{
+				xhr_section relative{ request, "messages-container" };
+				xhr_section absolute{ request, "messages" };
 
-			renderer.getMessagesString(request, this->m_messages);
+				renderer.getMessagesString(request, this->m_messages);
 
-			if (!this->m_error.empty())
-				renderer.getErrorString(request, this->m_error);
+				if (!this->m_error.empty())
+					renderer.getErrorString(request, this->m_error);
+			}
 
-			end_xhr_section(request);
+			{
+				xhr_section relative{ request, "controls-container" };
+				xhr_section absolute{ request, "controls" };
 
-			start_xhr_section(request, "controls");
-			ControlsT::renderControls(request, renderer);
-			end_xhr_section(request);
+				ControlsT::renderControls(request, renderer);
+			}
 
-			start_xhr_section(request, "buttons");
-			ButtonsT::renderControls(request, renderer);
-			end_xhr_section(request);
+			{
+				xhr_section relative{ request, "buttons-container" };
+				xhr_section absolute{ request, "buttons" };
+
+				ButtonsT::renderControls(request, renderer);
+			}
 
 			renderer.getFormEnd(request);
 			FormBase::formEnd(session, request, tr);
