@@ -103,7 +103,7 @@ namespace FastCGI { namespace app { namespace reader { namespace errors {
 				"  </head>\r\n"
 				"  <body>\r\n"
 				"  <div class='site-logo'><div>\r\n"
-				"    <div class='logo'><a href='/'><img src='" << static_web << "images/auth_logo.png' /></a></div>\r\n"
+				"    <div class='logo'><a href='/'><img src='" << static_web << "images/site-logo-big.svg' /></a></div>\r\n"
 				"    <div class='site'><a href='/'>" << description << "</a></div>\r\n"
 				"  </div></div>\r\n"
 				"\r\n"

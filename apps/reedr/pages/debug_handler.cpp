@@ -399,7 +399,7 @@ namespace FastCGI { namespace app { namespace reader {
 				"  <body>\r\n"
 				"    <div class='site-logo'>\r\n"
 				"      <div>\r\n"
-				"        <div class='logo'><a href='/'><img src='" << static_web << "images/auth_logo.png' alt='" << tr(lng::LNG_GLOBAL_PRODUCT) << "'/></a></div>\r\n"
+				"        <div class='logo'><a href='/'><img src='" << static_web << "images/site-logo-big.svg' alt='" << tr(lng::LNG_GLOBAL_PRODUCT) << "'/></a></div>\r\n"
 				"        <div class='site'><a href='/'>" << tr(lng::LNG_GLOBAL_DESCRIPTION) << "</a></div>\r\n"
 				"      </div>\r\n"
 				"    </div>\r\n"
