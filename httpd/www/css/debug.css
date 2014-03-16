@@ -88,25 +88,25 @@ tr:last-child>td:last-child
 	border-bottom-right-radius: 3px;
 }
 
-a
+.form a
 {
 	color: #33c;
 	text-decoration: none;
 }
 
-a:hover
+.form a:hover
 {
 	color: #33f;
 	text-decoration: underline;
 }
 
-a:visited
+.form a:visited
 {
 	color: #c33;
 	text-decoration: none;
 }
 
-a:visited:hover
+.form a:visited:hover
 {
 	color: #f33;
 	text-decoration: underline;
