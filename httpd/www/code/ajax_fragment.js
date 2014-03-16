@@ -85,6 +85,14 @@
 		$("#dump").append($clone);
 	}
 
+	function ajax_block_resize(name)
+	{
+		var $block = $("#" + name);
+		var $cont = $("#" + name + "-container");
+		$block.width($cont.innerWidth());
+		$cont.innerHeight($block.height());
+	}
+
 	function ajax_replace(event, xhr)
 	{
 		var icicle = null;
@@ -149,4 +157,5 @@
 	$(document).on('pjax:pushstate', ajax_prepare);
 	$(document).on('pjax:end', ajax_replace);
 	$(document).on('pjax:popstate', ajax_replace);
+	$(window).on('resize', function() { $.fn.xhr_sections_each(ajax_block_resize); });
 })(jQuery);
