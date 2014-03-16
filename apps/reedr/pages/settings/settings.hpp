@@ -51,6 +51,29 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 	void start_xhr_section(Request& request, const char* name);
 	void end_xhr_section(Request& request);
 
+	inline void xhr_js_sections_helper(Request& request) {}
+
+	template <typename T>
+	inline void xhr_js_sections_helper(Request& request, T&& name)
+	{
+		request << '"' << name << '"';
+	}
+
+	template <typename T1, typename T2, typename... Rest>
+	inline void xhr_js_sections_helper(Request& request, T1&& name1, T2&& name2, Rest&&... rest)
+	{
+		request << '"' << name1 << "\", ";
+		xhr_js_sections_helper(request, std::forward<T2>(name2), std::forward<Rest>(rest)...);
+	}
+
+	template <typename... Names>
+	inline void xhr_js_sections(Request& request, Names&&... names)
+	{
+		request << "<script type=\"text/javascript\">$(function(){\r\n\t$.fn.xhr_sections(";
+		xhr_js_sections_helper(request, std::forward<Names>(names)...);
+		request << ");\r\n});</script>\r\n";
+	}
+
 	struct xhr_section
 	{
 		Request& request;
@@ -135,6 +158,9 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 			FormBase::formEnd(session, request, tr);
 
 			end_xhr_fragment(request);
+
+			if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
+				xhr_js_sections(request, "pages", "messages", "controls", "buttons");
 		}
 	};
 

@@ -82,7 +82,9 @@
 
 	function ajax_replace(event, xhr)
 	{
-		var icicle = xhr.getResponseHeader("X-Debug-Icicle");
+		var icicle = null;
+		if (xhr)
+			icicle = xhr.getResponseHeader("X-Debug-Icicle");
 		var $frozen = $("a.frozen-icon");
 		if (icicle == null)
 		{
@@ -93,25 +95,31 @@
 			$frozen.css({display: "block"});
 			$frozen.attr("href", "/debug/?frozen=" + icicle); // TODO: escape the icicle value
 		}
-		//alert(s);
-		ajax_block_replace("pages");
-		ajax_block_replace("messages");
-		ajax_block_replace("controls");
-		ajax_block_replace("buttons");
+
+		$.fn.xhr_sections_each(ajax_block_replace);
 		$("#dump").html("");
 	}
 
-	window.onload = function () {
-		if (!$.support.pjax)
-			return;
+	$.fn.extend({
+		xhr_sections_each: function(f)
+		{
+			var count = $.section_names.length;
+			for (i = 0; i < count; ++i)
+			{
+				f($.section_names[i]);
+			}
+		},
 
-		ajax_block_attach("pages");
-		ajax_block_attach("messages");
-		ajax_block_attach("controls");
-		ajax_block_attach("buttons");
-		$("body").append("<div id='dump' style='display: none'></div>");
-		$("h1").after("<div id='log'>");
-	}
+		xhr_sections: function()
+		{
+			if (!$.support.pjax)
+				return;
+
+			$("body").append("<div id='dump' style='display: none'></div>");
+			$.section_names = arguments;
+			$.fn.xhr_sections_each(ajax_block_attach);
+		}
+	});
 
 	$(document).on('click', 'a[x-ajax-fragment]', ajax_click);
 	$(document).on('pjax:end', ajax_replace);
