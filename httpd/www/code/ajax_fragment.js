@@ -59,21 +59,22 @@
 		ajax_animate($target, $block);
 	}
 
-	function ajax_animate($target, $block)
+	function ajax_animate($from, $to)
 	{
-		$cont = $target.parent();
-		$block.css({position: "absolute"});
-		$block.offset($target.offset());
-		$block.width($target.width());
-		$block.css({opacity: 0});
-		$target.css({background: "white"});
+		$cont = $from.parent();
+		$to.css({position: "absolute"});
+		$to.offset($from.offset());
+		$to.width($from.width());
+		$to.css({opacity: 0});
+		$from.css({background: "white"});
 
-		$cont.animate({height: $block.height()}, { queue: false });
-		$target.animate({opacity: 0}, {
-			always: function () { $target.detach(); },
-			queue: false
+		$cont.animate({height: $to.height()}, { queue: false, duration: 300 });
+		$from.animate({opacity: 0}, {
+			always: function () { $from.detach(); },
+			queue: false,
+			duration: 300
 		});
-		$block.animate({opacity: 1}, { queue: false });
+		$to.animate({opacity: 1}, { queue: false, duration: 300 });
 	}
 
 	function ajax_block_prepare(name)
