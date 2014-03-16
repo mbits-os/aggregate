@@ -334,6 +334,8 @@ function pjax(options) {
 
   if (xhr.readyState > 0) {
     if (options.push && !options.replace) {
+      fire('pjax:pushstate')
+
       // Cache current container element before replacing it
       cachePush(pjax.state.id, context.clone().contents())
 
