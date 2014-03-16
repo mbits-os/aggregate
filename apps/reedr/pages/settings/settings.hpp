@@ -121,18 +121,21 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 		const char* getFormTitle(PageTranslation& tr) override { return tr(lng::LNG_SETTINGS_TITLE); }
 		void render(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
-			start_xhr_fragment(request);
-
 			RendererT renderer;
-			FormBase::formStart(session, request, tr);
 
-			renderer.getFormStart(request, getFormTitle(tr));
+			bool fromXHR = request.forAjaxFragment();
+
+			if (!fromXHR)
+			{
+				start_xhr_fragment(request);
+				FormBase::formStart(session, request, tr);
+				renderer.getFormStart(request, getFormTitle(tr));
+			}
 
 			render_tabs(session, request, tr, this->m_page_type);
 
 			{
-				xhr_section relative{ request, "messages-container" };
-				xhr_section absolute{ request, "messages" };
+				xhr_section section{ request, "messages" };
 
 				renderer.getMessagesString(request, this->m_messages);
 
@@ -141,26 +144,24 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 			}
 
 			{
-				xhr_section relative{ request, "controls-container" };
-				xhr_section absolute{ request, "controls" };
+				xhr_section section{ request, "controls" };
 
 				ControlsT::renderControls(request, renderer);
 			}
 
 			{
-				xhr_section relative{ request, "buttons-container" };
-				xhr_section absolute{ request, "buttons" };
+				xhr_section section{ request, "buttons" };
 
 				ButtonsT::renderControls(request, renderer);
 			}
 
-			renderer.getFormEnd(request);
-			FormBase::formEnd(session, request, tr);
-
-			end_xhr_fragment(request);
-
-			if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
+			if (!fromXHR)
+			{
+				renderer.getFormEnd(request);
+				FormBase::formEnd(session, request, tr);
+				end_xhr_fragment(request);
 				xhr_js_sections(request, "pages", "messages", "controls", "buttons");
+			}
 		}
 	};
 

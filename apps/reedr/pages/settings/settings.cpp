@@ -48,8 +48,7 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 	void render_tabs(const SessionPtr& session, Request& request, PageTranslation& tr, PAGE here)
 	{
-		xhr_section relative{ request, "pages-container" };
-		xhr_section absolute{ request, "pages" };
+		xhr_section section{ request, "pages" };
 
 		request <<
 			"<div class='tabs' id='tabs'>\r\n"
@@ -81,24 +80,29 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 
 	void start_xhr_fragment(Request& request)
 	{
-		if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
-			request << "<div id='fragment'>\r\n";
+		request << "<div id='fragment'>\r\n";
 	}
 
 	void end_xhr_fragment(Request& request)
 	{
-		if (!request.getParam(HTTP_X_AJAX_FRAGMENT))
-			request << "</div> <!-- #fragment -->\r\n";
+		request << "</div> <!-- #fragment -->\r\n";
 	}
 
 	void start_xhr_section(Request& request, const char* name)
 	{
-		request << "<section id='" << name << "'>\r\n";
+		request << "<section id='" << name;
+		if (request.forAjaxFragment())
+			request << "-xhr";
+		else
+			request << "-container'>\r\n<section id='" << name;
+		request << "'>\r\n";
 	}
 
 	void end_xhr_section(Request& request)
 	{
 		request << "</section>\r\n";
+		if (!request.forAjaxFragment())
+			request << "</section>\r\n"; // container
 	}
 
 }}}} // FastCGI::app::reader::settings

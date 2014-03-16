@@ -44,47 +44,61 @@
 
 	function ajax_block_replace(name)
 	{
-		var $block = null;
-		$("#dump section").each(function () {
-			if ($(this).attr("id") == name)
-			{
-				$block = $(this);
-			}
-		});
+		var $block = $("#" + name + "-xhr");
 		
-		if ($block == null)
+		if ($block.length != 1)
 			return;
 
-		// remove both from #dump
-		$block.parent().detach();
 		$block.detach();
 
-		$target = $("#" + name);
+		var $target = $("#" + name);
 		$target.attr("id", name + "-target");
-		$cont = $target.parent();
-
-		$block.css({position: "absolute"});
-		$block.offset({left:0,top:0});
-		$block.width($cont.innerWidth());
-		$block.css({opacity: 0});
+		$block.attr("id", name);
 		$target.before($block);
+
+		ajax_animate($target, $block);
+	}
+
+	function ajax_animate($target, $block)
+	{
+		$cont = $target.parent();
+		$block.css({position: "absolute"});
+		$block.offset($target.offset());
+		$block.width($target.width());
+		$block.css({opacity: 0});
+		$target.css({background: "white"});
 
 		$cont.animate({height: $block.height()}, { queue: false });
 		$target.animate({opacity: 0}, {
-			always: function ()
-			{
-			$("#" + name + "-target").remove();
-			},
+			always: function () { $target.detach(); },
 			queue: false
 		});
 		$block.animate({opacity: 1}, { queue: false });
+	}
+
+	function ajax_block_prepare(name)
+	{
+		var $section = $("#" + name);
+		var $clone = $section.clone();
+		$clone.attr("id", name + "-xhr");
+		$("#dump").append($clone);
 	}
 
 	function ajax_replace(event, xhr)
 	{
 		var icicle = null;
 		if (xhr)
+		{
 			icicle = xhr.getResponseHeader("X-Debug-Icicle");
+			if (icicle != null)
+				icicle = "/debug/?frozen=" + icicle // TODO: escape the icicle value
+		}
+		else
+		{
+			var $link = $("#dump link[rel=X-Debug-Icicle]");
+			icicle = $link.attr("href");
+		}
+
 		var $frozen = $("a.frozen-icon");
 		if (icicle == null)
 		{
@@ -93,11 +107,20 @@
 		else
 		{
 			$frozen.css({display: "block"});
-			$frozen.attr("href", "/debug/?frozen=" + icicle); // TODO: escape the icicle value
+			$frozen.attr("href", icicle);
 		}
 
 		$.fn.xhr_sections_each(ajax_block_replace);
 		$("#dump").html("");
+	}
+
+	function ajax_prepare(event)
+	{
+		$("#dump").html("");
+		$.fn.xhr_sections_each(ajax_block_prepare);
+		var $frozen = $("a.frozen-icon");
+		var node = "<link rel=\"X-Debug-Icicle\" href=\"" + $frozen.attr("href") + "\" />";
+		$("#dump").append(node);
 	}
 
 	$.fn.extend({
@@ -122,5 +145,7 @@
 	});
 
 	$(document).on('click', 'a[x-ajax-fragment]', ajax_click);
+	$(document).on('pjax:pushstate', ajax_prepare);
 	$(document).on('pjax:end', ajax_replace);
+	$(document).on('pjax:popstate', ajax_replace);
 })(jQuery);

@@ -36,7 +36,7 @@ namespace FastCGI { namespace app {
 		if (!tr.init(session, request))
 			request.on500("No translation found for the PageHandler");
 
-		bool fromXHR = request.getParam(HTTP_X_AJAX_FRAGMENT) != nullptr;
+		bool fromXHR = request.forAjaxFragment();
 
 		prerender(session, request, tr);
 #if DEBUG_CGI
