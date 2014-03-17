@@ -341,14 +341,14 @@ int user(int argc, char* argv[], const db::ConnectionPtr& conn)
 
 int user_add(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 {
-	if (argc < 4)
+	if (argc < 5)
 	{
 		fprintf(stderr, "user: not enough params\n");
-		fprintf(stderr, "user add <login> <mail> <name>\n");
+		fprintf(stderr, "user add <login> <mail> <name> <family-name>\n");
 		return 1;
 	}
 
-	if (!db::model::Schema(dbConn).addUser(argv[1], argv[2], argv[3]))
+	if (!db::model::Schema(dbConn).addUser(argv[1], argv[2], argv[3], argv[4]))
 	{
 		fprintf(stderr, "user: error adding new user\n");
 		return 1;
@@ -362,7 +362,7 @@ int user_remove(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 	if (argc < 2)
 	{
 		fprintf(stderr, "user: not enough params\n");
-		fprintf(stderr, "user remove <mail>\n");
+		fprintf(stderr, "user remove <login>\n");
 		return 1;
 	}
 
@@ -415,7 +415,7 @@ int user_passwd(int argc, char* argv[], const db::ConnectionPtr& dbConn)
 	if (argc < 2)
 	{
 		fprintf(stderr, "user: not enough params\n");
-		fprintf(stderr, "user passwd <mail>\n");
+		fprintf(stderr, "user passwd <login>\n");
 		return 1;
 	}
 

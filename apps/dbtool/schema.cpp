@@ -188,18 +188,22 @@ namespace db
 			return transaction.commit();
 		}
 
-		bool Schema::addUser(const char* login, const char* mail, const char* name)
+		bool Schema::addUser(const char* login, const char* mail, const char* name, const char* family_name)
 		{
 			char pass[13];
 			Crypt::newSalt(pass);
 			Crypt::password_t hash;
 			Crypt::password(pass, hash);
 
-			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=? OR login=?");
+			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM profile WHERE email=? OR login=?");
 			if (!select.get())
 				return false;
 
-			db::StatementPtr insert = m_conn->prepare("INSERT INTO user (login, name, email, passphrase) VALUES (?, ?, ?, ?)");
+			db::StatementPtr insert = m_conn->prepare("INSERT INTO profile (login, email, passphrase, name, family_name, display_name) VALUES (?, ?, ?, ?, ?, ?)");
+			if (!insert.get())
+				return false;
+
+			db::StatementPtr insert_user = m_conn->prepare("INSERT INTO user (login) VALUES (?)");
 			if (!insert.get())
 				return false;
 
@@ -219,9 +223,13 @@ namespace db
 			if (!select->bind(1, login)) return false;
 
 			if (!insert->bind(0, login)) return false;
-			if (!insert->bind(1, name)) return false;
-			if (!insert->bind(2, mail)) return false;
-			if (!insert->bind(3, hash)) return false;
+			if (!insert->bind(1, mail)) return false;
+			if (!insert->bind(2, hash)) return false;
+			if (!insert->bind(3, name)) return false;
+			if (!insert->bind(4, family_name)) return false;
+			if (!insert->bind(5, std::string(name) + " " + family_name)) return false;
+
+			if (!insert_user->bind(0, login)) return false;
 
 			if (!query->bind(0, login)) return false;
 
@@ -275,6 +283,7 @@ namespace db
 				return false;
 			}
 			if (!insert->execute()) return false;
+			if (!insert_user->execute()) return false;
 
 			long long _id = -1;
 			c = query->query();
@@ -294,18 +303,23 @@ namespace db
 			return transaction.commit();
 		}
 
-		bool Schema::removeUser(const char* mail)
+		bool Schema::removeUser(const char* login)
 		{
-			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM user WHERE email=?");
+			db::StatementPtr select = m_conn->prepare("SELECT count(*) FROM profile WHERE login=?");
 			if (!select.get())
 				return false;
 
-			db::StatementPtr del = m_conn->prepare("DELETE FROM user WHERE email=?");
+			db::StatementPtr del = m_conn->prepare("DELETE FROM profile WHERE login=?");
 			if (!del.get())
 				return false;
 
-			if (!select->bind(0, mail)) return false;
-			if (!del->bind(0, mail)) return false;
+			db::StatementPtr del_user = m_conn->prepare("DELETE FROM user WHERE login=?");
+			if (!del_user.get())
+				return false;
+
+			if (!select->bind(0, login)) return false;
+			if (!del->bind(0, login)) return false;
+			if (!del_user->bind(0, login)) return false;
 
 			db::Transaction transaction(m_conn);
 			if (!transaction.begin())
@@ -317,32 +331,33 @@ namespace db
 			long count = c->getLong(0);
 			if (count == 0)
 			{
-				fprintf(stderr, "error: no such user\n", mail);
+				fprintf(stderr, "error: %s: no such user\n", login);
 				return false;
 			}
+			if (!del_user->execute()) return false;
 			if (!del->execute()) return false;
 
 			return transaction.commit();
 		}
 
-		bool Schema::changePasswd(const char* mail, const char* passwd)
+		bool Schema::changePasswd(const char* login, const char* passwd)
 		{
 			Crypt::password_t hash;
 			Crypt::password(passwd, hash);
 
-			db::StatementPtr update = m_conn->prepare("UPDATE user SET passphrase=? WHERE email=?");
+			db::StatementPtr update = m_conn->prepare("UPDATE profile SET passphrase=? WHERE login=?");
 			if (!update.get())
 				return false;
 
 			if (!update->bind(0, hash)) return false;
-			if (!update->bind(1, mail)) return false;
+			if (!update->bind(1, login)) return false;
 
 			return update->execute();
 		}
 
 		bool Schema::getUsers(Users& users)
 		{
-			db::StatementPtr select = m_conn->prepare("SELECT login, name, email FROM user");
+			db::StatementPtr select = m_conn->prepare("SELECT login, display_name, email FROM profile");
 			if (!select.get())
 				return false;
 

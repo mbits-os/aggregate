@@ -282,9 +282,9 @@ namespace db
 			Schema(const ConnectionPtr& conn) : m_conn(conn) {}
 			bool install();
 			bool downgrade();
-			bool addUser(const char* login, const char* mail, const char* name);
-			bool removeUser(const char* mail);
-			bool changePasswd(const char* mail, const char* passwd);
+			bool addUser(const char* login, const char* mail, const char* name, const char* family_name);
+			bool removeUser(const char* login);
+			bool changePasswd(const char* login, const char* passwd);
 			bool getUsers(Users& users);
 			bool force_schema_config();
 			long version();
