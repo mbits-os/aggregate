@@ -29,6 +29,7 @@
 
 #include <string>
 #include <list>
+#include <functional>
 
 namespace db
 {
@@ -90,11 +91,16 @@ namespace db
 			return Attributes(left) | right;
 		}
 
-		namespace VERSION { enum { SAME_AS_PARENT = -1, CURRENT = 2 }; }
+		namespace VERSION { enum { SAME_AS_PARENT = -1, CURRENT = 3 }; }
 
 		static inline bool version_valid(long currVersion, long newVersion, long version)
 		{
 			return currVersion < version && version <= newVersion;
+		}
+
+		static inline bool should_drop(long currVersion, long newVersion, long max_version)
+		{
+			return currVersion <= max_version && max_version < newVersion;
 		}
 
 		class Field
@@ -105,6 +111,7 @@ namespace db
 			std::string m_ref;
 			int m_length;
 			long m_version;
+			long m_max_version;
 		public:
 			Field(const std::string& name, FIELD_TYPE fld_type, Attributes attributes, const std::string& ref = std::string(), long version = VERSION::SAME_AS_PARENT)
 				: m_name(name)
@@ -113,10 +120,13 @@ namespace db
 				, m_ref(ref)
 				, m_length(-1)
 				, m_version(version)
+				, m_max_version(-1)
 			{
 			}
-			bool altered(long currVersion, long newVersion) const { return version_valid(currVersion, newVersion, m_version); }
+			bool altered(long currVersion, long newVersion) const { return version_valid(currVersion, newVersion, m_version) || should_drop(currVersion, newVersion, m_max_version); }
 			long version() const { return m_version; }
+			long max_version() const { return m_max_version; }
+			void max_version(long value) { m_max_version = value; }
 			const std::string& name() const { return m_name; }
 			std::string repr(bool alter = false) const;
 			void constraints(std::list<std::string>& cos) const;
@@ -176,11 +186,24 @@ namespace db
 				return *this;
 			}
 
+			Table& max_version(const std::string& name, long value)
+			{
+				for (auto&& fld : m_fields)
+				{
+					if (fld.name() == name)
+					{
+						fld.max_version(value);
+						break;
+					}
+				}
+				return *this;
+			}
+
 			long version() const { return m_version; }
 			bool altered(long currVersion, long newVersion) const;
 			std::string drop() const;
 			std::string create(long newVersion) const;
-			void alter(long currVersion, long newVersion, std::list<std::string>& program) const;
+			void alter(long currVersion, long newVersion, bool add, std::list<std::string>& program) const;
 			void alter_drop(long currVersion, long newVersion, std::list<std::string>& program) const;
 		};
 
@@ -196,10 +219,13 @@ namespace db
 			std::string create() const;
 		};
 
+		using TransferCallback = std::function<void(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program)>;
+
 		class SchemaDefinition
 		{
 			std::list<Table> m_tables;
 			std::list<View> m_views;
+			std::list<std::pair<TransferCallback, long>> m_transfers;
 		public:
 			Table& table(const std::string& name, long version = 1)
 			{
@@ -210,6 +236,11 @@ namespace db
 			{
 				m_views.push_back(View(name, select, version));
 				return m_views.back();
+			}
+
+			void transfer(TransferCallback cb, long version)
+			{
+				m_transfers.emplace_back(cb, version);
 			}
 
 			template <typename Cont>
@@ -228,6 +259,9 @@ namespace db
 			void drop(long currVersion, long newVersion, std::list<std::string>& program) const;
 			void drop_columns(long currVersion, long newVersion, std::list<std::string>& program) const;
 			void create(long currVersion, long newVersion, std::list<std::string>& program) const;
+			void transfer(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program) const;
+			void alter_add(long currVersion, long newVersion, std::list<std::string>& program) const;
+			void alter_drop(long currVersion, long newVersion, std::list<std::string>& program) const;
 
 			static SchemaDefinition& schema();
 		};

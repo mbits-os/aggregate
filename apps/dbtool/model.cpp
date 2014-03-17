@@ -146,13 +146,30 @@ namespace db
 			return sql += "\n)";
 		}
 
-		void Table::alter(long currVersion, long newVersion, std::list<std::string>& program) const
+		void Table::alter(long currVersion, long newVersion, bool add, std::list<std::string>& program) const
 		{
 			std::list<std::string> cos;
 
 			for (auto&& field : m_fields)
 			{
 				if (!field.altered(currVersion, newVersion))
+					continue;
+
+				if (should_drop(currVersion, newVersion, field.max_version()))
+				{
+					if (add)
+						continue;
+
+					std::string sql = "ALTER TABLE ";
+					sql.append(m_name);
+					sql.append(" DROP COLUMN ");
+					sql.append(field.name());
+					program.push_back(sql);
+
+					continue;
+				}
+
+				if (!add)
 					continue;
 
 				std::string sql = "ALTER TABLE ";
@@ -231,16 +248,43 @@ namespace db
 				{
 					program.push_back(t.create(newVersion));
 				}
-				else if (t.version() <= currVersion && t.altered(currVersion, newVersion))
-				{
-					t.alter(currVersion, newVersion, program);
-				}
 			}
 
 			for (auto && v : m_views)
 			{
 				if (version_valid(currVersion, newVersion, v.version()))
 					program.push_back(v.create());
+			}
+		}
+
+		void SchemaDefinition::transfer(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto&& pair : m_transfers)
+			{
+				if (currVersion < pair.second && newVersion >= pair.second)
+					pair.first(conn, currVersion, newVersion, program);
+			}
+		}
+
+		void SchemaDefinition::alter_add(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto && t : m_tables)
+			{
+				if (t.version() <= currVersion && t.altered(currVersion, newVersion))
+				{
+					t.alter(currVersion, newVersion, true, program);
+				}
+			}
+		}
+
+		void SchemaDefinition::alter_drop(long currVersion, long newVersion, std::list<std::string>& program) const
+		{
+			for (auto && t : m_tables)
+			{
+				if (t.version() <= currVersion && t.altered(currVersion, newVersion))
+				{
+					t.alter(currVersion, newVersion, false, program);
+				}
 			}
 		}
 

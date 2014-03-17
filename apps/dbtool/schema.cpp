@@ -48,6 +48,9 @@ namespace db
 
 			sd.drop(currVersion, newVersion, program);
 			sd.create(currVersion, newVersion, program);
+			sd.alter_add(currVersion, newVersion, program);
+			sd.transfer(conn, currVersion, newVersion, program);
+			sd.alter_drop(currVersion, newVersion, program);
 
 #if 0 // DRY-RUN
 			printf("\n-- ########################################################\n");
