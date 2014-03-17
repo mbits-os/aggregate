@@ -3,3 +3,6 @@ schema.hpp
 schema.cpp
 fetch.cpp
 refresh.cpp
+model.cpp
+schema_builder.hpp
+schema_builder.cpp
