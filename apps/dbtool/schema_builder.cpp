@@ -190,6 +190,12 @@ namespace db
 				.field("avatar_type", "1", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT)
 				;
 
+			sd.table("recovery", 3)
+				.add(_id)
+				.refer("profile")
+				.field("started", std::string(), FIELD_TYPE::TIME)
+				;
+
 			sd.transfer(move_to_profile, 3);
 
 		}

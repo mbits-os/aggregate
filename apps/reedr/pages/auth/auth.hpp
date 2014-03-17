@@ -95,8 +95,8 @@ namespace FastCGI { namespace app { namespace reader {
 			UserInfo out;
 
 			db::StatementPtr query = db->prepare(
-				"SELECT _id, login, name, passphrase "
-				"FROM user "
+				"SELECT _id, login, display_name, passphrase "
+				"FROM profile "
 				"WHERE email=?"
 				);
 
@@ -114,8 +114,8 @@ namespace FastCGI { namespace app { namespace reader {
 				else
 				{
 					query = db->prepare(
-						"SELECT _id, name, email, passphrase "
-						"FROM user "
+						"SELECT _id, display_name, email, passphrase "
+						"FROM profile "
 						"WHERE login=?"
 						);
 
@@ -142,21 +142,21 @@ namespace FastCGI { namespace app { namespace reader {
 			out.m_id = -1;
 
 			db::StatementPtr query = db->prepare(
-				"SELECT passphrase "
-				"FROM user "
-				"WHERE _id=?"
+				"SELECT _id, display_name, email, passphrase "
+				"FROM profile "
+				"WHERE login=?"
 				);
 
-			if (query && query->bind(0, session->getId()))
+			if (query && query->bind(0, session->getLogin()))
 			{
 				db::CursorPtr c = query->query();
 				if (c && c->next())
 				{
-					out.m_id = session->getId();
+					out.m_id = c->getLongLong(0);
 					out.m_login = session->getLogin();
-					out.m_name = session->getName();
-					out.m_email = session->getEmail();
-					out.m_hash = c->getText(0);
+					out.m_name = c->getText(1);
+					out.m_email = c->getText(2);
+					out.m_hash = c->getText(3);
 				}
 			}
 			return out;
@@ -172,12 +172,12 @@ namespace FastCGI { namespace app { namespace reader {
 			Crypt::password_t hash;
 			Crypt::password(passwd, hash);
 
-			db::StatementPtr update = db->prepare("UPDATE user SET passphrase=? WHERE email=?");
+			db::StatementPtr update = db->prepare("UPDATE profile SET passphrase=? WHERE login=?");
 			if (!update)
 				return false;
 
 			if (!update->bind(0, hash)) return false;
-			if (!update->bind(1, m_email.c_str())) return false;
+			if (!update->bind(1, m_login.c_str())) return false;
 
 			return update->execute();
 		}
@@ -189,8 +189,8 @@ namespace FastCGI { namespace app { namespace reader {
 			out.m_id = -1;
 
 			auto select = db->prepare(
-				"SELECT user._id, user.login, user.name, user.email, user.passphrase, recovery.started "
-				"FROM recovery LEFT JOIN user ON (recovery.user_id = user._id) "
+				"SELECT profile._id, profile.login, profile.display_name, profile.email, profile.passphrase, recovery.started "
+				"FROM recovery LEFT JOIN profile ON (recovery.profile_id = profile._id) "
 				"WHERE recovery._id=?"
 				);
 
@@ -221,7 +221,7 @@ namespace FastCGI { namespace app { namespace reader {
 			tyme::time_t now = tyme::now();
 			std::string sessionId = digest<Crypt::SHA512Hash>() + "_" + digest<Crypt::MD5Hash>();
 
-			auto insert = db->prepare("INSERT INTO recovery (_id, user_id, started) VALUES (?, ?, ?)");
+			auto insert = db->prepare("INSERT INTO recovery (_id, profile_id, started) VALUES (?, ?, ?)");
 
 			if (insert &&
 				insert->bind(0, sessionId) &&

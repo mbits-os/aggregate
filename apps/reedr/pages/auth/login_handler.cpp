@@ -70,7 +70,7 @@ namespace FastCGI { namespace app { namespace reader {
 						content->setError(tr(lng::LNG_LOGIN_ERROR_MISMATCHED)); 
 					else
 					{
-						SessionPtr session = request.startSession(set_cookie, info.m_email.c_str());
+						SessionPtr session = request.startSession(set_cookie, info.m_login.c_str());
 						if (session)
 							onPageDone(request);
 						else

@@ -96,7 +96,7 @@ namespace FastCGI { namespace app { namespace reader {
 					if (!user.changePasswd(request.dbConn(), new_pass->getData().c_str()))
 						request.on500("Could not change the email");
 
-					SessionPtr session = request.startSession(false, user.m_email.c_str());
+					SessionPtr session = request.startSession(false, user.m_login.c_str());
 					if (session)
 						onPageDone(request);
 					else
