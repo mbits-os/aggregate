@@ -23,11 +23,14 @@
  */
 
 #include "schema_builder.hpp"
+#include <sstream>
 
 namespace db
 {
 	namespace model
 	{
+		static void move_to_profile(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program);
+
 		SDBuilder::SDBuilder()
 		{
 
@@ -51,6 +54,10 @@ namespace db
 				.field("is_admin", "0", FIELD_TYPE::BOOLEAN)
 				.add(language) // version 2
 				.field("prefs", "0", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT, 2)
+				.max_version("name", 2)
+				.max_version("email", 2)
+				.max_version("passphrase", 2)
+				.max_version("lang", 2)
 				;
 
 			//hash is built from email and new salt
@@ -164,6 +171,105 @@ namespace db
 				.refer("user")
 				.field("started", std::string(), FIELD_TYPE::TIME)
 				;
+
+			/////////////////////////////////////////////////////////////////////////////
+			//
+			//          VERSION 3
+			//
+			/////////////////////////////////////////////////////////////////////////////
+
+			sd.table("profile", 3)
+				._id()
+				.field("login")
+				.field("email")
+				.field("passphrase")
+				.field("name")
+				.field("family_name")
+				.field("display_name")
+				.nullable("lang")
+				.field("avatar_type", "1", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT)
+				;
+
+			sd.transfer(move_to_profile, 3);
+
+		}
+
+		static std::string safe_apos(const std::string& s, bool nullable = false)
+		{
+			if (nullable && s.empty()) return "NULL";
+
+			size_t len = 0;
+			for (auto&& c : s)
+			{
+				if (c == '\'') len++;
+			}
+
+			std::string tmp;
+			tmp.reserve(s.length() + 3 + len);
+
+			tmp.push_back('\'');
+
+			if (len)
+			{
+				for (auto&& c : s)
+				{
+					if (c == '\'') tmp.append("''");
+					else tmp.push_back(c);
+				}
+			}
+			else
+			{
+				tmp.append(s);
+			}
+
+			tmp.push_back('\'');
+			return tmp;
+		}
+
+		static void move_to_profile(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program)
+		{
+			auto stmt = conn->prepare("SELECT _id, login, name, email, passphrase, lang FROM user");
+			if (!stmt) return;
+
+			auto c = stmt->query();
+			if (!c) return;
+
+			std::ostringstream o;
+			o << "INSERT INTO profile (_id, login, email, passphrase, name, family_name, display_name, lang) VALUES";
+
+			bool first = true;
+			while (c->next())
+			{
+				auto _id = c->getLongLong(0);
+				std::string login = c->getText(1);
+				std::string display_name = c->getText(2);
+				std::string email = c->getText(3);
+				std::string passphrase = c->getText(4);
+				const char* _lang = c->getText(5);
+				std::string lang;
+				if (_lang)
+					lang = _lang;
+
+				std::string name, family_name;
+
+				auto pos = display_name.find(' ');
+				if (pos == std::string::npos)
+				{
+					name = display_name;
+				}
+				else
+				{
+					name = display_name.substr(0, pos);
+					family_name = display_name.substr(pos + 1);
+				}
+
+				if (first) first = false;
+				else o << ',';
+				o << " (" << _id << ',' << safe_apos(login) << ',' << safe_apos(email) << ',' << safe_apos(passphrase) << ','
+					<< safe_apos(name) << ',' << safe_apos(family_name) << ',' << safe_apos(display_name) << ',' << safe_apos(lang, true) << ')';
+			}
+			if (!first)
+				program.push_back(o.str());
 		}
 
 		void SDBuilder::schema_config(SchemaDefinition& sd)
