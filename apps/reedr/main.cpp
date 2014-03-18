@@ -36,6 +36,7 @@
 #include <remote/signals.hpp>
 #include <remote/pid.hpp>
 #include <remote/identity.hpp>
+#include <user_info.hpp>
 
 namespace fs = filesystem;
 
@@ -332,7 +333,7 @@ struct Main
 			mail::PostOffice::init(config.connection.smtp);
 
 			FastCGI::Application app;
-			RETURN_IF_ERROR(app.init(config.data.locales));
+			RETURN_IF_ERROR(app.init(config.data.locales, std::make_shared<FastCGI::app::UserInfoFactory>()));
 
 			FastCGI::app::reader::errors::setErrorHandlers(app);
 

@@ -1,2 +1,5 @@
 pch.h
 pch.cpp=pch:1
+
+includes/user_info.hpp
+src/user_info.cpp
