@@ -32,7 +32,6 @@
 
 struct Args
 {
-	std::string uri;
 	std::string command;
 	std::string config;
 
@@ -41,7 +40,7 @@ struct Args
 	template <typename Action>
 	int args(getopt::options::active_options<Action> action)
 	{
-		if (!action.add_arg("u", uri).add_arg("k", command).add("v", version).add_arg("c", config).act())
+		if (!action.add_arg("k", command).add("v", version).add_arg("c", config).act())
 		{
 			switch (action.cause())
 			{

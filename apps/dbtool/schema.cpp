@@ -26,18 +26,6 @@
 #include "schema_builder.hpp"
 #include <crypt.hpp>
 
-#ifdef __CYGWIN__
-namespace std
-{
-	inline std::string to_string(int i)
-	{
-		char buffer[64];
-		sprintf(buffer, "%d", i);
-		return buffer;
-	}
-}
-#endif
-
 namespace db
 {
 	namespace model

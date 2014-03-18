@@ -239,9 +239,6 @@ struct Main
 		if (!args.command.empty())
 			return commands(argc, argv);
 
-		if (!args.uri.empty())
-			return run<Debug>();
-
 		return run<FCGI>();
 	}
 
@@ -363,21 +360,6 @@ struct Main
 			return 1;
 		}
 	}
-
-	struct Debug
-	{
-		static int run(Main& service, FastCGI::Application& app)
-		{
-			Thread local(service.args.uri.c_str());
-			local.setApplication(app);
-
-			app.addStlSession();
-
-			std::cout << "Enter the input stream and finish with ^Z:" << std::endl;
-			local.handleRequest();
-			return 0;
-		}
-	};
 
 	struct FCGI
 	{
