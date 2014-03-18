@@ -223,9 +223,9 @@ int status(int, char*[], const db::ConnectionPtr& db)
 		db::model::Schema schema{ db };
 		auto ver = schema.version();
 		if (ver == db::model::VERSION::CURRENT)
-			printf("status: connection established (schema version: %d, current)\n", ver);
+			printf("status: connection established (schema version: %d, current): %s\n", ver, db->getURI().c_str());
 		else
-			printf("status: connection established (schema version: %d)\n", ver);
+			printf("status: connection established (schema version: %d): %s\n", ver, db->getURI().c_str());
 
 		if (ver < db::model::VERSION::CURRENT)
 		{
