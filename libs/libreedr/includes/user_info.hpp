@@ -69,7 +69,7 @@ namespace FastCGI
 			FastCGI::UserInfoPtr fromLogin(const db::ConnectionPtr& db, const std::string& login) override;
 		};
 
-		class UserInfo : public FastCGI::UserInfo
+		class UserInfo : public FastCGI::UserInfo, FlagsHelper
 		{
 			long long m_userId = -1;
 			std::string m_login;
@@ -78,12 +78,12 @@ namespace FastCGI
 		public:
 			UserInfo() {}
 			UserInfo(long long id, const std::string& login, long long rootFolder, bool isAdmin, uint32_t flags)
-				: m_userId(id)
+				: FlagsHelper(flags)
+				, m_userId(id)
 				, m_login(login)
 				, m_rootFolder(rootFolder)
 				, m_isAdmin(isAdmin)
 			{
-				m_flags = flags;
 			}
 
 			long long userId() const override { return m_userId; }
