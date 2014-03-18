@@ -29,6 +29,7 @@
 #include <feed_parser.hpp>
 #include "api_handler.hpp"
 #include "json.hpp"
+#include <user_info.hpp>
 
 namespace FastCGI { namespace app { namespace api
 {
@@ -83,6 +84,8 @@ namespace FastCGI { namespace app { namespace api
 		void render(SessionPtr session, Request& request, PageTranslation& tr) override
 		{
 #if 1
+			auto user = userInfo(session);
+
 			SubscribeAnswer answer;
 			JsonError err;
 			param_t url = request.getVariable("url");
@@ -90,7 +93,7 @@ namespace FastCGI { namespace app { namespace api
 			else
 			{
 				db::ConnectionPtr db = request.dbConn();
-				answer.feed = session->subscribe(db, url);
+				answer.feed = user->subscribe(db, url);
 				if (answer.feed < 0)
 				{
 					switch(answer.feed)
@@ -110,7 +113,7 @@ namespace FastCGI { namespace app { namespace api
 				auto select = db->prepare("SELECT folder_id, ord FROM subscription WHERE feed_id=? AND folder_id IN (SELECT _id FROM folder WHERE user_id=?)");
 				if (!select) request.on500(db->errorMessage());
 				if (!select->bind(0, answer.feed)) request.on500(select->errorMessage());
-				if (!select->bind(1, session->getId())) request.on500(select->errorMessage());
+				if (!select->bind(1, user->userId())) request.on500(select->errorMessage());
 
 				auto c = select->query();
 				if (!c || !c->next()) request.on500(select->errorMessage());

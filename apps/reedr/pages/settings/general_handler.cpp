@@ -41,9 +41,10 @@ namespace FastCGI { namespace app { namespace reader {
 			if (request.getVariable("posted"))
 			{
 				std::string newLang = request.getVariable("lang");
-				if (newLang != session->preferredLanguage())
+				auto profile = session->profile();
+				if (newLang != profile->preferredLanguage())
 				{
-					session->preferredLanguage(newLang);
+					profile->preferredLanguage(newLang);
 
 					// empty preferred language means "only look into Accept-Languages, when there is nothing loaded"
 					// so we must behave as if nothing was loaded...
@@ -85,10 +86,13 @@ namespace FastCGI { namespace app { namespace reader {
 
 			Strings data;
 
-			data["lang"]  = session->preferredLanguage();
-			data["feed"]  = session->viewOnlyUnread()  ? "unread" : "all";
-			data["posts"] = session->viewOnlyTitles()  ? "list"   : "exp";
-			data["sort"]  = session->viewOldestFirst() ? "oldest" : "newest";
+			auto userInfo = FastCGI::userInfo(session);
+			auto profile = session->profile();
+
+			data["lang"]  = profile->preferredLanguage();
+			data["feed"]  = userInfo->viewOnlyUnread()  ? "unread" : "all";
+			data["posts"] = userInfo->viewOnlyTitles()  ? "list"   : "exp";
+			data["sort"]  = userInfo->viewOldestFirst() ? "oldest" : "newest";
 
 			content->bind(request, data);
 
@@ -96,14 +100,14 @@ namespace FastCGI { namespace app { namespace reader {
 				return;
 
 			if (feeds->hasUserData())
-				session->setViewOnlyUnread(feeds->getData() == "unread");
+				userInfo->setViewOnlyUnread(feeds->getData() == "unread");
 			if (posts->hasUserData())
-				session->setViewOnlyTitles(posts->getData() == "list");
+				userInfo->setViewOnlyTitles(posts->getData() == "list");
 			if (sort->hasUserData())
-				session->setViewOldestFirst(sort->getData() == "oldest");
+				userInfo->setViewOldestFirst(sort->getData() == "oldest");
 
-			session->storeLanguage(request.dbConn());
-			session->storeFlags(request.dbConn());
+			profile->storeLanguage(request.dbConn());
+			userInfo->storeFlags(request.dbConn());
 		}
 	};
 

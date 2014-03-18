@@ -139,7 +139,7 @@ namespace FastCGI { namespace avatar {
 	{
 		if (session)
 		{
-			auto email = std::tolower(session->getEmail());
+			auto email = std::tolower(session->profile()->email());
 			Crypt::MD5Hash::digest_t hash;
 			if (Crypt::MD5Hash::simple(email.c_str(), email.length(), hash))
 			{

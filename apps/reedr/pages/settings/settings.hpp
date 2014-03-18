@@ -31,6 +31,7 @@
 #include <crypt.hpp>
 #include <map>
 #include <forms/vertical_renderer.hpp>
+#include <user_info.hpp>
 #include "../reader_form.hpp"
 
 namespace FastCGI { namespace app { namespace reader { namespace settings {

@@ -75,7 +75,7 @@ namespace json
 
 #define SELECT(stmt, QUERY) \
 	auto stmt = db->prepare(QUERY); \
-	if (!stmt || !stmt->bind(0, session->getId())) \
+	if (!stmt || !stmt->bind(0, userId)) \
 	{ \
 		request.on500(stmt ? stmt->errorMessage() : db->errorMessage()); \
 	} \
@@ -96,6 +96,7 @@ namespace FastCGI { namespace app { namespace api {
 			db::ConnectionPtr db = request.dbConn();
 			json::Subscriptions subs;
 
+			auto userId = session->userInfoRaw()->userId();
 			SELECT(folders, "SELECT _id, name, parent FROM folder WHERE user_id=?");
 			SELECT(feeds,   "SELECT feed_id, feed, feed_url, folder_id, count FROM ordered_stats WHERE user_id=? AND type=0");
 			SELECT(unread,  "SELECT entry_id FROM state WHERE user_id=? AND type=0 ORDER BY entry_id ASC");

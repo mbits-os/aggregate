@@ -89,7 +89,7 @@ namespace FastCGI { namespace app { namespace reader {
 				Strings data;
 				if (session)
 				{
-					data["email"] = session->getEmail();
+					data["email"] = session->profile()->email();
 					content->addMessage(tr(lng::LNG_LOGIN_UI_STALE));
 				}
 				email->bind(request, data);

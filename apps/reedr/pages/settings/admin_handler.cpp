@@ -37,7 +37,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		void prerender(const SessionPtr& session, Request& request, PageTranslation& tr) override
 		{
-			if (!session || !session->isAdmin())
+			if (!session || !userInfo(session)->isAdmin())
 				request.on404();
 
 			auto content = std::make_shared<settings::SimpleForm>(settings::PAGE::ADMIN);

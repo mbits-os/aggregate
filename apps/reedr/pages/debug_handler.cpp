@@ -524,8 +524,9 @@ namespace FastCGI { namespace app { namespace reader {
 			{
 				char time[100];
 				tyme::strftime(time, "%a, %d-%b-%Y %H:%M:%S GMT", tyme::gmtime(session->getStartTime()));
+				auto profile = session->profile();
 				request
-					<< "<p>Current user: <a href=\"mailto:" << session->getEmail() << "\">" << session->getLogin() << " (" << session->getName() << ")</a><br/>\r\n"
+					<< "<p>Current user: <a href=\"mailto:" << profile->email() << "\">" << profile->login() << " (" << profile->displayName() << ")</a><br/>\r\n"
 					<< "The session has started on " << time << ".</p>";
 			}
 			else

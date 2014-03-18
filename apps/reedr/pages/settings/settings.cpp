@@ -54,7 +54,7 @@ namespace FastCGI { namespace app { namespace reader { namespace settings {
 			"<div class='tabs' id='tabs'>\r\n"
 			"<ul>\r\n";
 
-		bool isAdmin = session && session->isAdmin();
+		bool isAdmin = session && userInfo(session)->isAdmin();
 
 		int i = 0;
 		for (auto&& tab : tabs)

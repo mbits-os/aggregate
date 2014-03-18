@@ -65,9 +65,14 @@ namespace FastCGI { namespace app { namespace reader { namespace auth {
 		return out;
 	}
 
+	inline std::string format_username(const ProfilePtr& profile)
+	{
+		return format_username(profile->displayName(), profile->login());
+	}
+
 	inline std::string format_username(const SessionPtr& session)
 	{
-		return format_username(session->getName(), session->getLogin());
+		return format_username(session->profile());
 	}
 
 }}}} // FastCGI::app::reader::auth
@@ -147,13 +152,14 @@ namespace FastCGI { namespace app { namespace reader {
 				"WHERE login=?"
 				);
 
-			if (query && query->bind(0, session->getLogin()))
+			auto login = session->profile()->login();
+			if (query && query->bind(0, login))
 			{
 				db::CursorPtr c = query->query();
 				if (c && c->next())
 				{
 					out.m_id = c->getLongLong(0);
-					out.m_login = session->getLogin();
+					out.m_login = login;
 					out.m_name = c->getText(1);
 					out.m_email = c->getText(2);
 					out.m_hash = c->getText(3);
