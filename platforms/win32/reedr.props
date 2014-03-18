@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="..\..\libs\libenv\win32\libenv-inc.props" />
     <Import Project="..\..\libs\libremote\win32\libremote-inc.props" />
+    <Import Project="..\..\libs\libreedr\win32\libreedr-inc.props" />
     <Import Project="libgd-inc.props" />
     <Import Project="3rdparty-inc.props" />
     <Import Project="bin_copy.props" />

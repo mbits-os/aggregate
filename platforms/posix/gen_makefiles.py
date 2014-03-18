@@ -13,11 +13,15 @@ predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
 libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++"]
-common_incl = [root+"libs/libenv/includes", root+"libs/libremote/includes"]
+common_incl = [root+"libs/libenv/includes", root+"libs/libreedr/includes", root+"libs/libremote/includes"]
 
 libenv = Project("libenv",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
                [], [root+"libs/libenv"] + common_incl, kStaticLibrary, predef)
+
+libreedr = Project("libreedr",
+               ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
+               [], [root+"libs/libreedr"] + common_incl, kStaticLibrary, predef)
 
 libremote = Project("libremote",
                ["POSIX"],
@@ -32,13 +36,17 @@ reedr = Project("reedr",
                  libs + ["gd"], [root+"apps/reedr"] + common_incl, kApplication, predef)
 
 libenv.out = "env"
+libreedr.out = "reedr"
 libremote.out = "remote"
 
 dbtool.depends_on(libenv)
+dbtool.depends_on(libreedr)
 reedr.depends_on(libremote)
+reedr.depends_on(libreedr)
 reedr.depends_on(libenv)
+libreedr.depends_on(libenv)
 
-projects = [libenv, libremote, dbtool, reedr]
+projects = [libenv, libreedr, libremote, dbtool, reedr]
 
 print "include common.mak"
 print

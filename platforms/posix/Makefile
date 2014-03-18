@@ -1,6 +1,7 @@
 FILES = \
 	../../apps/dbtool/dbtool.files \
 	../../libs/libenv/libenv.files \
+	../../libs/libreedr/libreedr.files \
 	../../libs/libremote/libremote.files \
 	../../apps/reedr/reedr.files
 

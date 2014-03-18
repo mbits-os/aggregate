@@ -29,13 +29,14 @@
     <None Include="..\..\apps\dbtool\dbtool.files" />
     <None Include="..\..\libs\libenv\libenv.files" />
     <None Include="..\..\libs\libremote\libremote.files" />
+    <None Include="..\..\libs\libreedr\libreedr.files" />
     <None Include="..\..\apps\reedr\reedr.files" />
     <CustomBuild Include="projects.cmd">
       <FileType>Document</FileType>
       <Message>Building projects</Message>
       <Command>call "%(FullPath)"</Command>
-      <Outputs>%(Directory)\reedr.vcxproj;%(Directory)\reedr.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
-      <AdditionalInputs>%(Directory)\..\..\reedr\reedr.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs>%(Directory)\reedr.vcxproj;%(Directory)\reedr.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\libreedr.vcxproj;%(Directory)\libreedr.vcxproj.filters;%(Directory)\libremote.vcxproj;%(Directory)\libremote.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
+      <AdditionalInputs>%(Directory)\..\..\reedr\reedr.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\libs\libreedr\libreedr.files;%(Directory)\..\..\libs\libremote\libremote.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <None Include="..\solver\win32\create_projects.py" />
   </ItemGroup>
