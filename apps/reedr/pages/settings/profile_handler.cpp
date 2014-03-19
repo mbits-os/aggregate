@@ -46,6 +46,23 @@ namespace FastCGI { namespace app { namespace reader {
 		}
 	};
 
+	class Avatar : public Control
+	{
+	public:
+		Avatar(const std::string& name, const std::string& label, const std::string& hint)
+			: Control(name, label, hint)
+		{
+			setAttr("src", "/icon.png?s=96");
+			setAttr("width", "96");
+			setAttr("height", "96");
+		}
+
+		void getControlString(Request& request, BasicRenderer& renderer) override
+		{
+			renderer.getControlString(request, this, "img", m_hasError);
+		}
+	};
+
 	class ProfileSettingsPageHandler : public SettingsPageHandler
 	{
 	public:
@@ -97,7 +114,9 @@ namespace FastCGI { namespace app { namespace reader {
 			if (avatars.size() > 1) // if there is anything more installed, than the default engine
 			{
 				auto& avatar = content->section(tr(lng::LNG_SETTINGS_PROFILE_SEC_AVATAR));
+				avatar.control<Avatar>("icon");
 				engines = avatar.radio_group("avatar", tr(lng::LNG_SETTINGS_PROFILE_WHICH_AVATAR));
+				auto script = avatar.control<Verbatim>("script");
 
 				engines->radio("default", tr(lng::LNG_SETTINGS_PROFILE_AVATAR_NONE));
 				for (auto&& engine : avatars)
@@ -107,6 +126,29 @@ namespace FastCGI { namespace app { namespace reader {
 					if (!e->name()) continue;
 					engines->radio(engine.first, tr(lng::LNG_SETTINGS_PROFILE_USE_AVATAR_FROM, e->name(), e->homePage()));
 				}
+
+				script->text(R"(<script type='text/javascript'>
+$(function ()
+{
+	var original_uri = $("#icon").attr("src");
+
+	$("input[name=avatar]").change(function()
+	{
+		$("#icon").attr("src", original_uri + "&force_avatar=" + $(this).val());
+	});
+});
+</script>
+<style type="text/css">
+#icon
+{
+	-webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
+	box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
+	padding: 4px;
+	border-radius: 27px;
+}
+</style>
+)");
 			}
 
 			auto profile = session->profile();
