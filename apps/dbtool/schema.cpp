@@ -187,7 +187,7 @@ namespace db
 			if (!select.get())
 				return false;
 
-			db::StatementPtr insert = m_conn->prepare("INSERT INTO profile (login, email, passphrase, name, family_name, display_name) VALUES (?, ?, ?, ?, ?, ?)");
+			db::StatementPtr insert = m_conn->prepare("INSERT INTO profile (login, email, passphrase, name, family_name, display_name, avatar_engine) VALUES (?, ?, ?, ?, ?, ?, 'gravatar')");
 			if (!insert.get())
 				return false;
 

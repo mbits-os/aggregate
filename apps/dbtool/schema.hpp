@@ -91,7 +91,7 @@ namespace db
 			return Attributes(left) | right;
 		}
 
-		namespace VERSION { enum { SAME_AS_PARENT = -1, CURRENT = 3 }; }
+		namespace VERSION { enum { SAME_AS_PARENT = -1, CURRENT = 2 }; }
 
 		static inline bool version_valid(long currVersion, long newVersion, long version)
 		{

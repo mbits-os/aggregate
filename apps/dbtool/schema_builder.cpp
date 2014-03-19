@@ -29,7 +29,7 @@ namespace db
 {
 	namespace model
 	{
-		static void move_to_profile(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program);
+		static void set_gravatar(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program);
 
 		SDBuilder::SDBuilder()
 		{
@@ -42,22 +42,34 @@ namespace db
 
 			schema_config(sd);
 
-			Field language("lang", FIELD_TYPE::TEXT, att::NONE, std::string(), 2);
+			sd.table("profile")
+				._id()
+				.field("login")
+				.field("email")
+				.field("passphrase")
+				.field("name")
+				.field("family_name")
+				.field("display_name")
+				.nullable("lang")
+				.field("avatar_type", "1", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT)
+				.field("avatar_engine", std::string(), FIELD_TYPE::TEXT, Attributes(), 2)
+				.max_version("avatar_type", 1)
+				;
+			sd.transfer(set_gravatar, 2);
+
+			Field _id{ "_id", FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY };
+			sd.table("recovery")
+				.add(_id)
+				.refer("profile")
+				.field("started", std::string(), FIELD_TYPE::TIME)
+				;
 
 			sd.table("user")
 				._id()
 				.field("login")
-				.field("name")
-				.field("email")
-				.field("passphrase")
 				.field("root_folder", "0", FIELD_TYPE::KEY)
 				.field("is_admin", "0", FIELD_TYPE::BOOLEAN)
-				.add(language) // version 2
-				.field("prefs", "0", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT, 2)
-				.max_version("name", 2)
-				.max_version("email", 2)
-				.max_version("passphrase", 2)
-				.max_version("lang", 2)
+				.field("prefs", "0", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT)
 				;
 
 			//hash is built from email and new salt
@@ -157,47 +169,6 @@ namespace db
 				"FROM feed "
 				"LEFT JOIN trending ON (trending.feed_id = feed._id) "
 				"ORDER BY popularity DESC, last_update ASC");
-
-			/////////////////////////////////////////////////////////////////////////////
-			//
-			//          VERSION 2
-			//
-			/////////////////////////////////////////////////////////////////////////////
-
-			Field _id{ "_id", FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY };
-			_id.length(150);
-			sd.table("recovery", 2)
-				.add(_id)
-				.refer("user")
-				.field("started", std::string(), FIELD_TYPE::TIME)
-				;
-
-			/////////////////////////////////////////////////////////////////////////////
-			//
-			//          VERSION 3
-			//
-			/////////////////////////////////////////////////////////////////////////////
-
-			sd.table("profile", 3)
-				._id()
-				.field("login")
-				.field("email")
-				.field("passphrase")
-				.field("name")
-				.field("family_name")
-				.field("display_name")
-				.nullable("lang")
-				.field("avatar_type", "1", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT)
-				;
-
-			sd.table("recovery", 3)
-				.add(_id)
-				.refer("profile")
-				.field("started", std::string(), FIELD_TYPE::TIME)
-				;
-
-			sd.transfer(move_to_profile, 3);
-
 		}
 
 		static std::string safe_apos(const std::string& s, bool nullable = false)
@@ -276,6 +247,11 @@ namespace db
 			}
 			if (!first)
 				program.push_back(o.str());
+		}
+
+		static void set_gravatar(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program)
+		{
+			program.push_back("UPDATE profile SET avatar_engine='gravatar'");
 		}
 
 		void SDBuilder::schema_config(SchemaDefinition& sd)
