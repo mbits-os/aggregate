@@ -38,7 +38,7 @@ namespace FastCGI { namespace app { namespace reader {
 			if (request.getVariable("close"))
 				onPageDone(request);
 
-			if (request.getVariable("posted"))
+			if (request.getVariable("posted") && request.getVariable("lang"))
 			{
 				std::string newLang = request.getVariable("lang");
 				auto profile = session->profile();
