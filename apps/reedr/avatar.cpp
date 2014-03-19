@@ -26,6 +26,7 @@
 #include "avatar.hpp"
 #include <http.hpp>
 #include <crypt.hpp>
+#include <filesystem.hpp>
 
 namespace gd
 {
@@ -68,7 +69,59 @@ namespace gd
 		}
 	};
 
-	gdImagePtr loadPng(const filesystem::path& path)
+	gdImagePtr loadImage(int size, void* data)
+	{
+#if 0
+		Crypt::MD5Hash::digest_t hash;
+		char salt[20];
+		Crypt::newSalt(salt);
+		if (Crypt::MD5Hash::simple(salt, sizeof(salt), hash))
+		{
+			std::string path;
+			static const char alphabet[] = "0123456789abcdef";
+			for (auto d : hash)
+			{
+				path.push_back(alphabet[(d >> 4) & 0xF]);
+				path.push_back(alphabet[d & 0xF]);
+			}
+			path += ".png";
+			auto fname = filesystem::canonical(path);
+			FLOG << "Icon saved as: " << fname;
+			auto f = fopen(fname.native().c_str(), "wb");
+			if (f)
+			{
+				fwrite(ptr->getResponseText(), 1, ptr->getResponseTextLength(), f);
+				fclose(f);
+			}
+			else
+			{
+				FLOG << "   Could not open.";
+			}
+		}
+#endif
+
+#ifdef WIN32
+#define CALLTYPE _stdcall
+#else
+#define CALLTYPE
+#endif
+		using creator_t = gdImagePtr(CALLTYPE*)(int size, void *data);
+		creator_t creators[] = {
+			gdImageCreateFromPngPtr,
+			gdImageCreateFromJpegPtr,
+			gdImageCreateFromGifPtr
+		};
+
+		for (auto&& creator : creators)
+		{
+			auto ret = creator(size, data);
+			if (ret)
+				return ret;
+		}
+		return nullptr;
+	}
+
+	gdImagePtr loadImage(const filesystem::path& path)
 	{
 
 		File f{ fopen(path.native().c_str(), "rb") };
@@ -86,12 +139,12 @@ namespace gd
 		if (f.read(buffer.ptr, buffer.size) != buffer.size)
 			return nullptr;
 
-		return gdImageCreateFromPngPtr(buffer.size, buffer.ptr);
+		return loadImage(buffer.size, buffer.ptr);
 	}
 
-	gdImagePtr loadPng(const http::XmlHttpRequestPtr& ptr)
+	gdImagePtr loadImage(const http::XmlHttpRequestPtr& ptr)
 	{
-		return gdImageCreateFromPngPtr(ptr->getResponseTextLength(), (char*)ptr->getResponseText());
+		return loadImage(ptr->getResponseTextLength(), (char*)ptr->getResponseText());
 	}
 }
 
@@ -100,12 +153,14 @@ namespace FastCGI { namespace avatar {
 	IconEnginePtr Engines::_handler(Request& request)
 	{
 		auto session = request.getSession(false);
-		// TODO: session->getAvatarEngine
-		std::string id = "default";
+		std::string id;
 		if (session)
-			id = "gravatar";
+			id = session->profile()->avatarEngine();
+		if (request.getVariable("force_avatar"))
+			id = request.getVariable("force_avatar");
 
 		auto _it = m_handlers.find(id);
+		if (_it == m_handlers.end()) _it = m_handlers.find("default");
 		if (_it == m_handlers.end()) return nullptr;
 		return engine(*_it);
 	}
@@ -128,7 +183,7 @@ namespace FastCGI { namespace avatar {
 
 	GdImage DefaultEngine::loadIcon(const SessionPtr& session, Request& request, int max_size)
 	{
-		GdImage img{ gd::loadPng(request.app().getDataDir() / "images/public.png") };
+		GdImage img{ gd::loadImage(request.app().getDataDir() / "images/public.png") };
 		if (max_size > 0)
 			img.resample(max_size, max_size);
 
@@ -150,13 +205,17 @@ namespace FastCGI { namespace avatar {
 					url.push_back(alphabet[(d >> 4) & 0xF]);
 					url.push_back(alphabet[d & 0xF]);
 				}
-				url += ".png?d=404";
 
 				if (max_size > 0)
 				{
-					url.append("&s=");
+					url.append("?s=");
 					url.append(std::to_string(max_size));
 				}
+
+#if 0
+				url.push_back(max_size > 0 ? '&' : '?');
+				url.append("d=404");
+#endif
 
 				auto xhr = http::XmlHttpRequest::Create();
 				xhr->open(http::HTTP_GET, url, false);
@@ -164,7 +223,7 @@ namespace FastCGI { namespace avatar {
 				int statusClass = xhr->getStatus() / 100;
 				if (statusClass == 2)
 				{
-					GdImage img{ gd::loadPng(xhr) };
+					GdImage img{ gd::loadImage(xhr) };
 					if (img)
 					{
 						if (max_size > 0) // in case the service didn't do it..

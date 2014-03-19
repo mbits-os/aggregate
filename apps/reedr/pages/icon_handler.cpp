@@ -83,7 +83,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 			main.alphaBlending(true);
 
-			gd::GdImage mask{ gd::loadPng(request.app().getDataDir() / "images/mask.png") };
+			gd::GdImage mask{ gd::loadImage(request.app().getDataDir() / "images/mask.png") };
 
 			if (mask)
 			{

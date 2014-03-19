@@ -135,8 +135,9 @@ namespace gd
 		}
 	};
 
-	gdImagePtr loadPng(const filesystem::path& path);
-	gdImagePtr loadPng(const http::XmlHttpRequestPtr& ptr);
+	gdImagePtr loadImage(int size, void* data);
+	gdImagePtr loadImage(const filesystem::path& path);
+	gdImagePtr loadImage(const http::XmlHttpRequestPtr& ptr);
 };
 
 namespace FastCGI { namespace avatar {
