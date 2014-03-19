@@ -50,7 +50,7 @@ namespace FastCGI { namespace app { namespace reader {
 			auto& controls = content->controls();
 			auto password = controls.text("pasword", tr(lng::LNG_CHNGPASS_CURRENT), true);
 			auto new_pass = controls.text("new-pass", tr(lng::LNG_CHNGPASS_NEW), true);
-			auto retype = controls.text("restype", tr(lng::LNG_CHNGPASS_RETYPE), true);
+			auto retype = controls.text("retype", tr(lng::LNG_CHNGPASS_RETYPE), true);
 
 			content->buttons().submit("submit", tr(lng::LNG_CMD_UPDATE));
 			content->buttons().submit("cancel", tr(lng::LNG_CMD_CLOSE), ButtonType::Narrow);

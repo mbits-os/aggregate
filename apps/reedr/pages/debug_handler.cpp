@@ -81,7 +81,11 @@ namespace FastCGI { namespace app { namespace reader {
 		const char* uri;
 		const char* variable;
 	} redacted[] = {
-		{ "/auth/login", "password" }
+		{ "/auth/login", "password" },
+		{ "/settings/profile", "password" },
+		{ "/auth/change", "new-pass" },
+		{ "/auth/change", "pasword" },
+		{ "/auth/change", "retype" },
 	};
 
 	class DebugPageHandler: public PageHandler

@@ -95,7 +95,7 @@ namespace FastCGI { namespace app { namespace reader {
 
 		UserInfo(): m_id(0) {}
 
-		static UserInfo fromDB(db::ConnectionPtr db, const char* email)
+		static UserInfo fromDB(const db::ConnectionPtr& db, const char* email, bool strict = false)
 		{
 			UserInfo out;
 
@@ -116,7 +116,7 @@ namespace FastCGI { namespace app { namespace reader {
 					out.m_email = email;
 					out.m_hash = c->getText(3);
 				}
-				else
+				else if (!strict)
 				{
 					query = db->prepare(
 						"SELECT _id, display_name, email, passphrase "
@@ -141,7 +141,7 @@ namespace FastCGI { namespace app { namespace reader {
 			return out;
 		}
 
-		static UserInfo fromSession(db::ConnectionPtr db, const SessionPtr& session)
+		static UserInfo fromSession(const db::ConnectionPtr& db, const SessionPtr& session)
 		{
 			UserInfo out;
 			out.m_id = -1;
