@@ -29,8 +29,6 @@ namespace db
 {
 	namespace model
 	{
-		static void set_gravatar(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program);
-
 		SDBuilder::SDBuilder()
 		{
 
@@ -51,11 +49,8 @@ namespace db
 				.field("family_name")
 				.field("display_name")
 				.nullable("lang")
-				.field("avatar_type", "1", FIELD_TYPE::INTEGER, att::NOTNULL | att::DEFAULT)
-				.field("avatar_engine", std::string(), FIELD_TYPE::TEXT, Attributes(), 2)
-				.max_version("avatar_type", 1)
+				.nullable("avatar_engine")
 				;
-			sd.transfer(set_gravatar, 2);
 
 			Field _id{ "_id", FIELD_TYPE::TEXT_KEY, att::NOTNULL | att::KEY };
 			sd.table("recovery")
@@ -201,57 +196,6 @@ namespace db
 
 			tmp.push_back('\'');
 			return tmp;
-		}
-
-		static void move_to_profile(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program)
-		{
-			auto stmt = conn->prepare("SELECT _id, login, name, email, passphrase, lang FROM user");
-			if (!stmt) return;
-
-			auto c = stmt->query();
-			if (!c) return;
-
-			std::ostringstream o;
-			o << "INSERT INTO profile (_id, login, email, passphrase, name, family_name, display_name, lang) VALUES";
-
-			bool first = true;
-			while (c->next())
-			{
-				auto _id = c->getLongLong(0);
-				std::string login = c->getText(1);
-				std::string display_name = c->getText(2);
-				std::string email = c->getText(3);
-				std::string passphrase = c->getText(4);
-				const char* _lang = c->getText(5);
-				std::string lang;
-				if (_lang)
-					lang = _lang;
-
-				std::string name, family_name;
-
-				auto pos = display_name.find(' ');
-				if (pos == std::string::npos)
-				{
-					name = display_name;
-				}
-				else
-				{
-					name = display_name.substr(0, pos);
-					family_name = display_name.substr(pos + 1);
-				}
-
-				if (first) first = false;
-				else o << ',';
-				o << " (" << _id << ',' << safe_apos(login) << ',' << safe_apos(email) << ',' << safe_apos(passphrase) << ','
-					<< safe_apos(name) << ',' << safe_apos(family_name) << ',' << safe_apos(display_name) << ',' << safe_apos(lang, true) << ')';
-			}
-			if (!first)
-				program.push_back(o.str());
-		}
-
-		static void set_gravatar(const ConnectionPtr& conn, long currVersion, long newVersion, std::list<std::string>& program)
-		{
-			program.push_back("UPDATE profile SET avatar_engine='gravatar'");
 		}
 
 		void SDBuilder::schema_config(SchemaDefinition& sd)
