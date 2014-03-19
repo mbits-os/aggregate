@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Aggregate 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-22 20:47+0200\n"
-"PO-Revision-Date: 2014-03-06 19:15+0100\n"
+"PO-Revision-Date: 2014-03-19 12:31+0100\n"
 "Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\n"
 "Language-Team: Translators <translate@midnightbits.com>\n"
 "Language: en\n"
@@ -420,6 +420,50 @@ msgctxt "LNG_SETTINGS_PROFILE_EMAIL"
 msgid "E-Mail"
 msgstr "E-Mail"
 
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_AVATAR_MISSING"
+msgid "Avatar service must be selected."
+msgstr "Avatar service must be selected."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_CUSTOM_NEEDED"
+msgid "Custom display name must be filled out."
+msgstr "Custom display name must be filled out."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_EMAIL_ALREADY_USED"
+msgid "E-mail address used by different account."
+msgstr "E-mail address used by different account."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_EMAIL_FILLED"
+msgid "E-mail address must be filled out."
+msgstr "E-mail address must be filled out."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_FAMILY_NAME_REQUIRED"
+msgid "User family name must be filled out."
+msgstr "User family name must be filled out."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_INVALID_PASSWORD"
+msgid "Current password is invalid."
+msgstr "Current password is invalid."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_NAME_REQUIRED"
+msgid "User name must be filled out."
+msgstr "User name must be filled out."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_NO_OPTION"
+msgid "Display name type must be selected."
+msgstr "Display name type must be selected."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_OPTION_OUTSIDE"
+msgid "Display name type is unknown."
+msgstr "Display name type is unknown."
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_SOME_ISSUES"
+msgid "There were some issues:"
+msgstr "There were some issues:"
+
+msgctxt "LNG_SETTINGS_PROFILE_ERROR_UNKNOWN_AVATAR"
+msgid "Selected avatar service is unknown."
+msgstr "Selected avatar service is unknown."
+
 msgctxt "LNG_SETTINGS_PROFILE_FAMILY_NAME"
 msgid "Family name"
 msgstr "Family name"
@@ -446,8 +490,8 @@ msgstr "Signing in"
 
 #. It's an answer to [LNG_SETTINGS_PROFILE_WHICH_AVATAR]
 msgctxt "LNG_SETTINGS_PROFILE_USE_AVATAR_FROM"
-msgid "Use <a href='%2' target='_blank'>%1</a>"
-msgstr "Use <a href='%2' target='_blank'>%1</a>"
+msgid "Use <a href='%2' target='_blank'>%1</a>."
+msgstr "Use <a href='%2' target='_blank'>%1</a> service."
 
 msgctxt "LNG_SETTINGS_PROFILE_WHICH_AVATAR"
 msgid "Which service do you want to use"
@@ -478,26 +522,6 @@ msgstr "The URL parameter is missing."
 msgctxt "LNG_USER_HELLO"
 msgid "Hello, %1!"
 msgstr "Hello, %1!"
-
-msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_ALREADY_USED"
-msgid "E-mail address used by different account."
-msgstr "E-mail address used by different account."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_EMAIL_FILLED"
-msgid "E-mail address must be filled out."
-msgstr "E-mail address must be filled out."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_INVALID_PASSWORD"
-msgid "Current password is invalid."
-msgstr "Current password is invalid."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_NAME_REQUIRED"
-msgid "User name must be filled out."
-msgstr "User name must be filled out."
-
-msgctxt "LNG_USER_SETTINGS_ERROR_SOME_ISSUES"
-msgid "There were some issues:"
-msgstr "There were some issues:"
 
 msgctxt "LNG_VIEW_ALL_ITEMS"
 msgid "All items"
