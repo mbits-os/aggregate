@@ -83,6 +83,34 @@ namespace FastCGI { namespace app {
 		bodyStart(session, request, tr);
 	}
 
+	class UserBadge : public TopMenu::MenuItem
+	{
+		std::string m_name;
+		std::string m_email;
+	public:
+		UserBadge(const std::string& id, const std::string& name, const std::string& email)
+			: TopMenu::MenuItem(id)
+			, m_name(name)
+			, m_email(email)
+		{
+		}
+
+		void echoCSS(Request& request, const std::string& topbarId, const std::string& menuId)
+		{
+			request << "    @import url(\"" << static_web << "css/badge.css\");\r\n";
+		}
+
+		void echoMarkupContent(Request& request, const std::string&, const std::string&, const std::string& pre)
+		{
+			request <<
+				"  <div id=\"user-badge\" class=\"user-badge\">\r\n"
+				"    <div id=\"user-icon\" class=\"user-icon\"><img src=\"/icon.png?s=40\" /></div>\r\n"
+				"    <div id=\"user-name\" class=\"user-name\" title=\"" << url::htmlQuotes(m_name) << "\">" << url::htmlQuotes(m_name) << "</div>\r\n"
+				"    <div id=\"user-mail\" class=\"user-mail\" title=\"" << url::htmlQuotes(m_email) << "\">" << url::htmlQuotes(m_email) << "</div>\r\n"
+				"  </div>\r\n";
+		}
+	};
+
 	void PageHandler::buildTopMenu(TopMenu::TopBar& menu, const SessionPtr& session, Request& request, PageTranslation& tr)
 	{
 		std::string display_name;
@@ -97,6 +125,14 @@ namespace FastCGI { namespace app {
 		}
 #endif
 
+		std::string user_name, user_mail;
+		if (session)
+		{
+			auto profile = session->profile();
+			user_name = profile->displayName();
+			user_mail = profile->email();
+		}
+
 		auto user = std::make_shared<TopMenu::UserMenu>("user", "user-menu", display_name);
 		user->setIcon("/icon.png?s=24");
 		menu.left().home("home", 0, tr(lng::LNG_GLOBAL_PRODUCT), tr(lng::LNG_GLOBAL_DESCRIPTION));
@@ -105,7 +141,7 @@ namespace FastCGI { namespace app {
 			.item("new", 1, tr(lng::LNG_NAV_NEW_MENU), tr(lng::LNG_NAV_NEW_MENU_TIP))
 			.item("refesh", 3, std::string(), tr(lng::LNG_NAV_REFRESH))
 			.add_raw(user);
-		user->item("badge", -1, "Here be badger")
+		user->add<UserBadge>("badge", user_name, user_mail)
 			.separator()
 			.item("settings", -1, tr(lng::LNG_SETTINGS_TITLE))
 			.item("profile", -1, tr(lng::LNG_SETTINGS_PROFILE))
@@ -127,6 +163,7 @@ namespace FastCGI { namespace app {
 			"    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\r\n"
 			"    <style type=\"text/css\">@import url(\"" << static_web << "css/site.css\");</style>\r\n"
 			"    <style type=\"text/css\">@import url(\"" << static_web << "css/topbar.css\");</style>\r\n"
+			"    <style type=\"text/css\">@import url(\"" << static_web << "css/badge.css\");</style>\r\n"
 			"    <script type=\"text/javascript\" src=\"" << static_web << "code/jquery-1.9.1.js\"></script>\r\n"
 			"    <script type=\"text/javascript\" src=\"" << static_web << "code/topbar.js\"></script>\r\n"
 			//"    <style type=\"text/css\">@import url(\"" << static_web << "css/topbar_icons.css\");</style>\r\n"
