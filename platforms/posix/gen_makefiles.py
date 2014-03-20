@@ -12,7 +12,7 @@ predef.add_macro("EXTERNAL_EXPAT", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
-libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++"]
+libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++", "htmlcxx"]
 common_incl = [root+"libs/libenv/includes", root+"libs/libreedr/includes", root+"libs/libremote/includes"]
 
 libenv = Project("libenv",
