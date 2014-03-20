@@ -1,0 +1,44 @@
+#user-badge
+{
+	position: relative;
+	width: 200px;
+	height: 48px;
+	border-bottom: solid 1px #ccc;
+	cursor: default;
+}
+
+#user-icon, #user-name, #user-mail
+{
+	position: absolute;
+	left: 48px;
+	top: 0px;
+	padding: 4px;
+	width: 144px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#user-icon
+{
+	left: 0px;
+	width: 40px;
+	background: #eee;
+}
+
+#user-name
+{
+	font-weight: bold;
+	font: bold 14px/14px sans-serif;
+	padding-top: 10px;
+	padding-bottom: 0px;
+}
+
+#user-mail
+{
+	top: 26px;
+	font: normal 11px/11px sans-serif;
+	color: #aaa;
+	padding-bottom: 0px;
+	padding-top: 0px;
+}
