@@ -168,11 +168,12 @@
 
 .popup hr 
 {
-    border: 0px;
-    width: 80%;
-    color: #666;
-    background-color: #666;
-    height: 10px;
+	border: none !important;
+	width: 100% !important;
+	color: #666 !important;
+	background-color: #ccc !important;
+	height: 1px !important;
+	margin: 0 !important;
 }
 
 .popup .tb-sub-wrapper {
@@ -190,8 +191,10 @@
 }
 
 .popup .visible-popup {
-    display: block;
-    float: none;
+	display: block;
+	float: none;
+	position: absolute !important;
+	z-index: 1000000000;
 }
 
 .tb-submenu > li, .tb-submenu {

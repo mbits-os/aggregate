@@ -142,10 +142,10 @@ namespace FastCGI { namespace app {
 			.item("refesh", 3, std::string(), tr(lng::LNG_NAV_REFRESH))
 			.add_raw(user);
 		user->add<UserBadge>("badge", user_name, user_mail)
-			.separator()
 			.item("settings", -1, tr(lng::LNG_SETTINGS_TITLE))
 			.item("profile", -1, tr(lng::LNG_SETTINGS_PROFILE))
 			.item("help", -1, tr(lng::LNG_NAV_HELP))
+			.separator()
 			.item("logout", -1, tr(lng::LNG_NAV_SIGNOUT));
 		menu.right()
 			.setItemUrl("search", "javascript:search();")
