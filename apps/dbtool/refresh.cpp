@@ -565,6 +565,11 @@ int refresh(int, char*[], const db::ConnectionPtr& db)
 
 	printf("Refreshing %llu feeds\n\n", (unsigned long long)length);
 	fflush(stdout);
+	fprintf(stderr, 
+		". - known\n"
+		"# - new\n"
+		"! - changed\n\n");
+	fflush(stderr);
 
 	int digits = 0;
 	while (length > 0)
