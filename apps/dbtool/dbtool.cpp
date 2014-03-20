@@ -99,6 +99,7 @@ int restore(int, char*[], const db::ConnectionPtr&);
 int refresh(int, char*[], const db::ConnectionPtr&); // in refresh.cpp
 int fetch(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int opml_cmd(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
+int discover(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int user(int, char*[], const db::ConnectionPtr&);
 int wiki_cmd(int, char*[], const db::ConnectionPtr&);
 
@@ -112,6 +113,7 @@ Command commands[] = {
 	Command("refresh", refresh),
 	Command("fetch", fetch, false),
 	Command("opml", opml_cmd, false),
+	Command("discover", discover, false),
 	Command("user", user),
 	Command("wiki", wiki_cmd, false),
 };

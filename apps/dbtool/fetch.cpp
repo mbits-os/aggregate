@@ -32,6 +32,12 @@
 #include <feed_parser.hpp>
 #include <opml.hpp>
 
+#include <sstream>
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 std::string stripws(const std::string& n)
 {
 	std::string out;
@@ -100,6 +106,10 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 
 		if (state == http::XmlHttpRequest::DONE && (xhr->getStatus() / 100 == 2))
 		{
+#ifdef WIN32
+			auto win32_cp = GetConsoleCP();
+			SetConsoleCP(CP_UTF8);
+#endif
 			printf("CONTENTS:\n---------\n");
 			auto xml = xhr->getResponseXml();
 			if (xml)
@@ -110,7 +120,7 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 					if (!feed.m_feed.m_title.empty()) std::cout << "\"" << stripws(feed.m_feed.m_title) << "\"" << std::endl;
 					else std::cout << "(no title)" << std::endl;
 					if (!feed.m_feed.m_url.empty()) std::cout << "href: " << feed.m_feed.m_url << std::endl;
-					if (!feed.m_description.empty()) std::cout << feed.m_description << std::endl;
+					if (!feed.m_description.empty()) printf("%s\n", feed.m_description.c_str());
 					if (!feed.m_author.m_name.empty() || !feed.m_author.m_email.empty())
 					{
 						std::cout << "by " << feed.m_author.m_name;
@@ -209,6 +219,9 @@ class OnReadyStateChange: public http::XmlHttpRequest::OnReadyStateChange
 			else
 				fwrite(xhr->getResponseText(), xhr->getResponseTextLength(), 1, stdout);
 			printf("\n");
+#ifdef WIN32
+			SetConsoleCP(win32_cp);
+#endif
 		}
 	}
 public:
@@ -275,6 +288,270 @@ int opml_cmd(int argc, char* argv[], const db::ConnectionPtr&)
 		{
 			printOutline(outline);
 		};
+	}
+
+	return 0;
+}
+
+class Ticker : public http::XmlHttpRequest::OnReadyStateChange
+{
+	size_t m_read;
+	void onReadyStateChange(http::XmlHttpRequest* xhr)
+	{
+		putc('.', stdout); fflush(stdout);
+	}
+public:
+	Ticker() : m_read(0) {}
+};
+
+enum class FEED {
+	SITE_ATOM,
+	ATOM,
+	CLASS,
+	SITE_RSS = CLASS,
+	RSS,
+};
+
+std::ostream& operator << (std::ostream& o, FEED type)
+{
+	switch (type)
+	{
+	case FEED::SITE_ATOM: return o << "Atom (site)";
+	case FEED::ATOM: return o << "Atom";
+	case FEED::SITE_RSS: return o << "RSS (site)";
+	case FEED::RSS: return o << "RSS";
+	}
+	return o << (int)type;
+}
+
+struct Link
+{
+	std::string href;
+	std::string title;
+	std::string feed;
+	FEED type;
+};
+
+std::string htmlTitle(const dom::XmlDocumentPtr& doc)
+{
+	putc('#', stdout); fflush(stdout);
+	std::string title;
+	auto titles = doc->getElementsByTagName("title");
+	if (titles && titles->length())
+	{
+		auto e = titles->element(titles->length() - 1);
+		title = std::trim(e->innerText());
+	}
+
+	return title;
+}
+
+std::string getFeedTitle(const std::string& url)
+{
+	putc('-', stdout); fflush(stdout);
+	auto xhr = http::XmlHttpRequest::Create();
+	if (!xhr)
+		return std::string();
+
+	Ticker tick;
+	xhr->onreadystatechange(&tick);
+	xhr->open(http::HTTP_GET, url, false);
+	xhr->send();
+	auto xml = xhr->getResponseXml();
+	if (!xml)
+		return std::string();
+
+	feed::Feed feed;
+	if (!feed::parse(xml, feed))
+		return std::string();
+
+	return std::move(feed.m_feed.m_title);
+}
+
+std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const std::string& server, const filesystem::path& urn, const std::string& pageTitle)
+{
+	putc('#', stdout); fflush(stdout);
+	std::vector<Link> out;
+
+	auto links = doc->getElementsByTagName("link");
+	if (!links)
+		return out;
+
+	size_t count = links->length();
+	for (size_t i = 0; i < count; ++i)
+	{
+		auto e = links->element(i);
+		if (!e) continue;
+		auto rel = e->getAttributeNode("rel");
+		if (!rel) continue;
+
+		bool alternate = false;
+		bool home = false;
+		auto node = std::tolower(rel->nodeValue());
+		if (node == "alternate")
+			alternate = true;
+		else if (node == "alternate home")
+			home = alternate = true;
+
+		if (!alternate) continue;
+
+		std::string type = e->getAttribute("type");
+		std::tolower(type);
+
+		if (type != "text/xml" && type != "application/rss+xml" && type != "application/atom+xml")
+			continue;
+
+		Link link =
+		{
+			e->getAttribute("href"),
+			e->getAttribute("title"),
+			std::string(),
+			(type == "application/atom+xml") ? (home ? FEED::SITE_ATOM : FEED::ATOM) : (home ? FEED::SITE_RSS : FEED::RSS)
+		};
+
+		if (link.title.empty())
+			link.title = pageTitle;
+
+		if (std::tolower(link.href.substr(0, 7)) != "http://" &&
+			std::tolower(link.href.substr(0, 8)) != "https://")
+		{
+			auto path = filesystem::canonical(link.href, urn);
+			if (path.has_root_name())
+				path = path.string().substr(path.root_name().string().length());
+			link.href = server + path.string();
+		}
+		link.feed = getFeedTitle(link.href);
+		out.push_back(link);
+	}
+
+	std::stable_sort(out.begin(), out.end(), [](const Link& lhs, const Link& rhs){
+		return lhs.type < rhs.type;
+	});
+	return out;
+}
+
+std::vector<Link> reduce(const std::vector<Link>& list)
+{
+	std::vector<Link> links;
+
+	for (auto&& link : list)
+	{
+		// if there are two links with the same feed title
+		// and the type is different, prefer SITE_ATOM to SITE_RSS
+		// and ATOM to RSS
+		if (link.feed.empty())
+		{
+			links.push_back(link);
+			continue;
+		}
+
+		bool found = false;
+		for (auto&& check : links)
+		{
+			// this will add an RSS link, even if there is already SITE_ATOM with the same title,
+			// but will not add SITE_RSS in this situation, nor will it add the RSS link if there
+			// already is an ATOM one.
+			if (check.feed == link.feed && // same feed title
+				check.type < link.type && // and the added link has higher type
+				((int)link.type - (int)check.type) == (int)FEED::CLASS) // and the types are exactly class apart
+			{
+				found = true; // don't add this link
+				break;
+			}
+		}
+
+		if (found) continue;
+		links.push_back(link);
+	}
+
+	return links;
+}
+
+void fixTitles(std::vector<Link>& links)
+{
+	size_t count = links.size();
+	for (size_t i = 0; i < count; ++i)
+	{
+		Link& link = links[i];
+		if (link.feed.empty()) continue;
+
+		bool atLeastOneChanged = false;
+		for (size_t j = 0; j < count; ++j)
+		{
+			if (i == j) continue;
+			Link& check = links[j];
+			if (link.feed == check.feed)
+			{
+				atLeastOneChanged = true;
+				if (!check.title.empty())
+					check.feed += " (" + check.title + ")";
+			}
+		}
+
+		if (atLeastOneChanged)
+		{
+			if (!link.title.empty())
+				link.feed += " (" + link.title + ")";
+		}
+	}
+
+	for (auto&& link : links)
+	{
+		if (link.feed.empty())
+			link.feed = link.title;
+
+		if (link.feed.empty())
+			link.feed = "(no title)";
+	}
+}
+
+int discover(int argc, char* argv[], const db::ConnectionPtr&)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "discover: not enough params\n");
+		fprintf(stderr, "discover <url>\n");
+		return 1;
+	}
+
+	auto xhr = http::XmlHttpRequest::Create();
+	if (!xhr)
+		return 1;
+
+	Ticker tick;
+	xhr->onreadystatechange(&tick);
+	xhr->open(http::HTTP_GET, argv[1], false);
+	xhr->send();
+
+	auto doc = xhr->getResponseXml();
+	if (!doc)
+		doc = xhr->getResponseHtml();
+	if (doc)
+	{
+		std::string title = htmlTitle(doc);
+
+		std::string server = argv[1];
+		auto pos = server.find("://");
+		// TODO: pos == -1
+		pos = server.find('/', pos + 3);
+		// TODO: pos == -1
+		auto urn = filesystem::path{ server.substr(pos) }.remove_filename();
+		server = server.substr(0, pos);
+
+		auto links = feedLinks(doc, server, urn, title);
+		putc('#', stdout); fflush(stdout);
+
+		links = reduce(links);
+		putc('#', stdout); fflush(stdout);
+
+		fixTitles(links);
+		printf("\n");
+
+		if (links.empty())
+			std::cout << "Warning: no feeds found in the page\n";
+
+		for (auto&& link : links)
+			std::cout << '[' << link.type << "] \"" << link.feed << "\" " << link.href << "\n";
 	}
 
 	return 0;
