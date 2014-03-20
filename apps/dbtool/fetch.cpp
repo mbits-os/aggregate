@@ -476,9 +476,8 @@ void fixTitles(std::vector<Link>& links)
 		if (link.feed.empty()) continue;
 
 		bool atLeastOneChanged = false;
-		for (size_t j = 0; j < count; ++j)
+		for (size_t j = i + 1; j < count; ++j)
 		{
-			if (i == j) continue;
 			Link& check = links[j];
 			if (link.feed == check.feed)
 			{
@@ -532,20 +531,26 @@ int discover(int argc, char* argv[], const db::ConnectionPtr&)
 
 		std::string server = argv[1];
 		auto pos = server.find("://");
-		// TODO: pos == -1
+		if (pos == std::string::npos)
+		{
+			server = "http://" + server;
+			pos = server.find("://");
+		}
 		pos = server.find('/', pos + 3);
-		// TODO: pos == -1
-		auto urn = filesystem::path{ server.substr(pos) }.remove_filename();
+		auto urn = pos != std::string::npos ? filesystem::path{ server.substr(pos) }.remove_filename() : "/";
 		server = server.substr(0, pos);
 
 		auto links = feedLinks(doc, server, urn, title);
 		putc('#', stdout); fflush(stdout);
+		printf("\n");
+
+		for (auto&& link : links)
+			std::cout << '[' << link.type << "] \"" << link.feed << "\" (" << link.title << ") " << link.href << "\n";
 
 		links = reduce(links);
-		putc('#', stdout); fflush(stdout);
+		printf("# reduced...\n"); fflush(stdout);
 
 		fixTitles(links);
-		printf("\n");
 
 		if (links.empty())
 			std::cout << "Warning: no feeds found in the page\n";
