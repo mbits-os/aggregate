@@ -168,27 +168,43 @@ namespace json
 		}
 	};
 
-	template <typename T>
-	struct Json< std::list<T> >: JsonBase
+	template <typename Array> struct JsonArray;
+
+	template <typename T, typename A, template <typename T, typename A> class C>
+	struct JsonArray< C<T, A> >: JsonBase
 	{
-		Json(const std::list<T>& ctx): JsonBase(&ctx) {}
+		using Array = C<T, A>;
+		JsonArray(const Array& ctx) : JsonBase(&ctx) {}
 		bool render(FastCGI::Request& request)
 		{
-			std::list<T>* ctx = (std::list<T>*)m_ctx;
+			Array* ctx = (Array*)m_ctx;
 			if (!ctx)
 				return false;
 			request << "[";
 			bool first = true;
-			auto it = std::find_if(ctx->begin(), ctx->end(), [&first, &request](const T& t) -> bool
+			for (auto&& elem : *ctx)
 			{
 				if (first) first = false;
 				else request << ",";
 
-				return !json::render(request, t);
-			});
+				if (!json::render(request, elem))
+					return false;
+			}
 			request << "]";
-			return it == ctx->end();
+			return true;
 		}
+	};
+
+	template <typename T, typename A>
+	struct Json< std::list<T, A> >: JsonArray< std::list<T, A> >
+	{
+		Json(const std::list<T, A>& ctx) : JsonArray< std::list<T, A> >(ctx) {}
+	};
+
+	template <typename T, typename A>
+	struct Json< std::vector<T, A> >: JsonArray< std::vector<T, A> >
+	{
+		Json(const std::vector<T, A>& ctx) : JsonArray< std::vector<T, A> >(ctx) {}
 	};
 
 	struct ColumnSelectorBase
