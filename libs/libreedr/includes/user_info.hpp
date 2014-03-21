@@ -111,7 +111,7 @@ namespace FastCGI
 			void storeFlags(const db::ConnectionPtr& db);
 
 			long long createFolder(const db::ConnectionPtr& db, const char* name, long long parent = 0);
-			long long subscribe(const db::ConnectionPtr& db, const std::string& url, Discoveries& links, long long folder = 0);
+			long long subscribe(const db::ConnectionPtr& db, const std::string& url, Discoveries& links, bool strict, long long folder = 0);
 		};
 
 		using UserInfoPtr = std::shared_ptr<UserInfo>;

@@ -365,14 +365,14 @@ namespace FastCGI
 			}
 		}
 
-		int getFeed(const std::string& url, feed::Feed& feed, Discoveries& links)
+		int getFeed(const std::string& url, feed::Feed& feed, Discoveries& links, bool strict)
 		{
 			auto xhr = http::XmlHttpRequest::Create();
 			if (!xhr)
 				return SERR_INTERNAL_ERROR;
 
 			int ret = discovery::getFeedSimple(xhr, url, feed);
-			if (ret != SERR_NOT_A_FEED)
+			if (strict || ret != SERR_NOT_A_FEED)
 				return ret;
 
 			return discovery::htmlDiscover(xhr, url, feed, links);
@@ -568,7 +568,7 @@ namespace FastCGI
 			return true;
 		}
 
-		long long UserInfo::subscribe(const db::ConnectionPtr& db, const std::string& url, Discoveries& links, long long folder)
+		long long UserInfo::subscribe(const db::ConnectionPtr& db, const std::string& url, Discoveries& links, bool strict, long long folder)
 		{
 			int unread_count = UNREAD_COUNT;
 			long long feed_id = 0;
@@ -588,7 +588,7 @@ namespace FastCGI
 			if (!c->next())
 			{
 				feed::Feed feed;
-				int result = getFeed(url, feed, links);
+				int result = getFeed(url, feed, links, strict);
 				if (result)
 					return result;
 

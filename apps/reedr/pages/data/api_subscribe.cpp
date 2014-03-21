@@ -110,7 +110,7 @@ namespace FastCGI { namespace app { namespace api
 			else
 			{
 				db::ConnectionPtr db = request.dbConn();
-				answer.feed = user->subscribe(db, url, links.links);
+				answer.feed = user->subscribe(db, url, links.links, false);
 				if (answer.feed < 0)
 				{
 					switch(answer.feed)
