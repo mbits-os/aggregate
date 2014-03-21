@@ -27,6 +27,7 @@
 
 #include <fast_cgi/session.hpp>
 #include <memory>
+#include <vector>
 
 namespace db
 {
@@ -45,8 +46,18 @@ namespace FastCGI
 			SERR_4xx_ANSWER = -4,
 			SERR_5xx_ANSWER = -5,
 			SERR_OTHER_ANSWER = -6,
-			SERR_NOT_A_FEED = -7
+			SERR_NOT_A_FEED = -7,
+			SERR_DISCOVERY_EMPTY = -8,
+			SERR_DISCOVERY_MULTIPLE = -9
 		};
+
+		struct Discovery
+		{
+			std::string href;
+			std::string title;
+			std::string comment;
+		};
+		using Discoveries = std::vector<Discovery>;
 
 		enum ENTRY_STATE
 		{
@@ -100,7 +111,7 @@ namespace FastCGI
 			void storeFlags(const db::ConnectionPtr& db);
 
 			long long createFolder(const db::ConnectionPtr& db, const char* name, long long parent = 0);
-			long long subscribe(const db::ConnectionPtr& db, const char* url, long long folder = 0);
+			long long subscribe(const db::ConnectionPtr& db, const std::string& url, Discoveries& links, long long folder = 0);
 		};
 
 		using UserInfoPtr = std::shared_ptr<UserInfo>;

@@ -102,33 +102,280 @@ namespace FastCGI
 			return SERR_INTERNAL_ERROR;
 		}
 
-		int getFeed(const char* url, feed::Feed& feed)
+		namespace discovery
+		{
+			enum class FEED {
+				SITE_ATOM,
+				ATOM,
+				CLASS,
+				SITE_RSS = CLASS,
+				RSS,
+			};
+
+			struct Link
+			{
+				int fetch_result = 0;
+				std::string attr_title;
+				std::string comment;
+				std::string url;
+				feed::Feed feed;
+				FEED type = FEED::RSS;
+			};
+
+			std::string htmlTitle(const dom::XmlDocumentPtr& doc)
+			{
+				putc('#', stdout); fflush(stdout);
+				std::string title;
+				auto titles = doc->getElementsByTagName("title");
+				if (titles && titles->length())
+				{
+					auto e = titles->element(titles->length() - 1);
+					title = std::trim(e->innerText());
+				}
+
+				return title;
+			}
+
+			int getFeedSimple(const http::XmlHttpRequestPtr& xhr, const std::string& url, feed::Feed& feed)
+			{
+				xhr->open(http::HTTP_GET, url, false);
+				xhr->send();
+
+				int status = xhr->getStatus() / 100;
+				if (status == 4)      return SERR_4xx_ANSWER;
+				else if (status == 5) return SERR_5xx_ANSWER;
+				else if (status != 2) return SERR_OTHER_ANSWER;
+
+				auto doc = xhr->getResponseXml();
+				if (!doc || !feed::parse(doc, feed))
+					return SERR_NOT_A_FEED;
+
+				if (xhr->wasRedirected())
+					feed.m_self = xhr->getFinalLocation();
+				else
+					feed.m_self = url;
+				feed.m_etag = xhr->getResponseHeader("Etag");
+				feed.m_lastModified = xhr->getResponseHeader("Last-Modified");
+				return 0;
+			}
+
+			void makeURI(std::string& uri, const std::string& server, const filesystem::path& base)
+			{
+				if (std::tolower(uri.substr(0, 7)) != "http://" &&
+					std::tolower(uri.substr(0, 8)) != "https://")
+				{
+					auto path = filesystem::canonical(uri, base);
+					if (path.has_root_name())
+						path = path.string().substr(path.root_name().string().length());
+					uri = server + path.string();
+				}
+			}
+
+			bool feedType(const dom::XmlElementPtr& e, FEED& feed)
+			{
+				if (!e) return false;
+				auto rel = e->getAttributeNode("rel");
+				if (!rel) return false;
+
+				bool alternate = false;
+				bool home = false;
+				auto node = std::tolower(rel->nodeValue());
+				if (node == "alternate")
+					alternate = true;
+				else if (node == "alternate home")
+					home = alternate = true;
+
+				if (!alternate)
+					return false;
+
+				std::string type = e->getAttribute("type");
+				std::tolower(type);
+
+				if (type != "text/xml" && type != "application/rss+xml" && type != "application/atom+xml")
+					return false;
+
+				feed = (type == "application/atom+xml") ? (home ? FEED::SITE_ATOM : FEED::ATOM) : (home ? FEED::SITE_RSS : FEED::RSS);
+				return true;
+			}
+
+			std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const std::string& server, const filesystem::path& urn)
+			{
+				std::vector<Link> out;
+				std::string pageTitle = htmlTitle(doc);
+
+				auto links = doc->getElementsByTagName("link");
+				if (!links)
+					return out;
+
+				size_t count = links->length();
+				for (size_t i = 0; i < count; ++i)
+				{
+					auto e = links->element(i);
+					FEED type;
+					if (!feedType(e, type))
+						continue;
+
+					Link link;
+					link.attr_title = e->getAttribute("title");
+					link.url = e->getAttribute("href");
+					link.type = type;
+
+					if (link.attr_title.empty())
+						link.attr_title = pageTitle;
+
+					makeURI(link.url, server, urn);
+					out.push_back(link);
+				}
+
+				std::stable_sort(out.begin(), out.end(), [](const Link& lhs, const Link& rhs){
+					return lhs.type < rhs.type;
+				});
+				return out;
+			}
+
+			void fixTitles(std::vector<Link>& links)
+			{
+				size_t count = links.size();
+				for (size_t i = 0; i < count; ++i)
+				{
+					Link& link = links[i];
+					if (link.feed.m_feed.m_title.empty()) continue;
+
+					bool atLeastOneChanged = false;
+					for (size_t j = i + 1; j < count; ++j)
+					{
+						Link& check = links[j];
+						if (link.feed.m_feed.m_title == check.feed.m_feed.m_title)
+						{
+							atLeastOneChanged = true;
+							if (!check.attr_title.empty())
+								check.comment = check.attr_title;
+						}
+					}
+
+					if (atLeastOneChanged)
+					{
+						if (!link.attr_title.empty())
+							link.comment = link.attr_title;
+					}
+				}
+
+#if 0
+				, lng::Translation& tr
+				for (auto&& link : links)
+				{
+					if (link.feed.empty())
+						link.feed = link.title;
+
+					if (link.feed.empty())
+						link.feed = "(no title)";
+				}
+#endif
+			}
+
+			std::vector<Link> reduce(const std::vector<Link>& list)
+			{
+				std::vector<Link> links;
+
+				for (auto&& link : list)
+				{
+					if (link.fetch_result) continue;
+
+					// if there are two links with the same feed title
+					// and the type is different, prefer SITE_ATOM to SITE_RSS
+					// and ATOM to RSS
+					if (link.feed.m_feed.m_title.empty())
+					{
+						links.push_back(link);
+						continue;
+					}
+
+					bool found = false;
+					for (auto&& check : links)
+					{
+						// this will add an RSS link, even if there is already SITE_ATOM with the same title,
+						// but will not add SITE_RSS in this situation, nor will it add the RSS link if there
+						// already is an ATOM one.
+						if (check.feed.m_feed.m_title == link.feed.m_feed.m_title && // same feed title
+							check.type < link.type && // and the added link has higher type
+							((int)link.type - (int)check.type) == (int)FEED::CLASS) // and the types are exactly class apart
+						{
+							found = true; // don't add this link
+							break;
+						}
+					}
+
+					if (found) continue;
+					links.emplace_back(std::move(link));
+				}
+
+				return links;
+			}
+
+			int htmlDiscover(const http::XmlHttpRequestPtr& xhr, const std::string& url, feed::Feed& feed, Discoveries& links)
+			{
+				auto doc = xhr->getResponseXml();
+				if (!doc)
+					doc = xhr->getResponseHtml();
+				if (!doc)
+					return SERR_NOT_A_FEED;
+
+				std::string server = url;
+				if (xhr->wasRedirected())
+					server = xhr->getFinalLocation();
+
+				auto pos = server.find("://");
+				if (pos == std::string::npos)
+				{
+					server = "http://" + server;
+					pos = server.find("://");
+				}
+				pos = server.find('/', pos + 3);
+				auto urn = pos != std::string::npos ? filesystem::path{ server.substr(pos) }.remove_filename() : "/";
+				server = server.substr(0, pos);
+
+				auto discovered = feedLinks(doc, server, urn);
+				if (discovered.empty())
+					return SERR_DISCOVERY_EMPTY;
+
+				for (auto&& link : discovered)
+					link.fetch_result = getFeedSimple(xhr, link.url, link.feed);
+
+				if (discovered.size() == 1 && discovered.front().fetch_result)
+					return discovered.front().fetch_result;
+
+				discovered = reduce(discovered);
+				fixTitles(discovered);
+
+				if (discovered.empty())
+					return SERR_DISCOVERY_EMPTY;
+
+				if (discovered.size() == 1)
+				{
+					feed = std::move(discovered.front().feed);
+					return 0;
+				}
+
+				links.reserve(discovered.size());
+
+				for (auto&& link : discovered)
+					links.push_back({ link.url, link.feed.m_feed.m_title, link.comment });
+
+				return SERR_DISCOVERY_MULTIPLE;
+			}
+		}
+
+		int getFeed(const std::string& url, feed::Feed& feed, Discoveries& links)
 		{
 			auto xhr = http::XmlHttpRequest::Create();
 			if (!xhr)
 				return SERR_INTERNAL_ERROR;
 
-			xhr->open(http::HTTP_GET, url, false);
-			xhr->send();
+			int ret = discovery::getFeedSimple(xhr, url, feed);
+			if (ret != SERR_NOT_A_FEED)
+				return ret;
 
-			int status = xhr->getStatus() / 100;
-			if (status == 4)      return SERR_4xx_ANSWER;
-			else if (status == 5) return SERR_5xx_ANSWER;
-			else if (status != 2) return SERR_OTHER_ANSWER;
-
-			// TODO: link with @rel='alternate home' or @rel='alternate' and @type='application/rss+xml' or @type='application/atom+xml' discovery
-
-			dom::XmlDocumentPtr doc = xhr->getResponseXml();
-			if (!doc || !feed::parse(doc, feed))
-				return SERR_NOT_A_FEED;
-
-			if (xhr->wasRedirected())
-				feed.m_self = xhr->getFinalLocation();
-			else
-				feed.m_self = url;
-			feed.m_etag = xhr->getResponseHeader("Etag");
-			feed.m_lastModified = xhr->getResponseHeader("Last-Modified");
-			return 0;
+			return discovery::htmlDiscover(xhr, url, feed, links);
 		}
 
 		inline static const char* nullifier(const std::string& s)
@@ -321,12 +568,10 @@ namespace FastCGI
 			return true;
 		}
 
-		long long UserInfo::subscribe(const db::ConnectionPtr& db, const char* url, long long folder)
+		long long UserInfo::subscribe(const db::ConnectionPtr& db, const std::string& url, Discoveries& links, long long folder)
 		{
 			int unread_count = UNREAD_COUNT;
 			long long feed_id = 0;
-			if (!url || !*url)
-				return 0;
 
 			db::Transaction transaction(db);
 			if (!transaction.begin()) { FLOG << db->errorMessage(); return SERR_INTERNAL_ERROR; }
@@ -338,25 +583,39 @@ namespace FastCGI
 			if (!c)
 				return SERR_INTERNAL_ERROR;
 
+			bool already_subscribed = true;
+
 			if (!c->next())
 			{
 				feed::Feed feed;
-				int result = getFeed(url, feed);
+				int result = getFeed(url, feed, links);
 				if (result)
 					return result;
 
 				unread_count = feed.m_entry.size();
+				if (!feed_query->bind(0, feed.m_self))
+					return SERR_INTERNAL_ERROR;
 
-				if (!createFeed(db, feed))
-					return SERR_INTERNAL_ERROR;
 				c = feed_query->query();
-				if (!c || !c->next())
+				if (!c)
 					return SERR_INTERNAL_ERROR;
-				feed_id = c->getLongLong(0);
-				if (!createEntries(db, feed_id, feed.m_entry))
-					return SERR_INTERNAL_ERROR;
+
+				if (!c->next())
+				{
+					already_subscribed = false;
+
+					if (!createFeed(db, feed))
+						return SERR_INTERNAL_ERROR;
+					c = feed_query->query();
+					if (!c || !c->next())
+						return SERR_INTERNAL_ERROR;
+					feed_id = c->getLongLong(0);
+					if (!createEntries(db, feed_id, feed.m_entry))
+						return SERR_INTERNAL_ERROR;
+				}
 			}
-			else
+
+			if (already_subscribed)
 			{
 				feed_id = c->getLongLong(0);
 				//could it be double subcription?

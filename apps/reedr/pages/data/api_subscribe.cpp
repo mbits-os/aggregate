@@ -41,10 +41,14 @@ namespace FastCGI { namespace app { namespace api
 
 	struct SubscribeAnswer
 	{
-		long long feed;
-		long long folder;
-		int position;
-		SubscribeAnswer(): feed(0), folder(0), position(0) {}
+		long long feed = 0;
+		long long folder = 0;
+		int position = 0;
+	};
+
+	struct MultipleAnswers
+	{
+		Discoveries links;
 	};
 }}}
 
@@ -61,6 +65,18 @@ namespace json
 		JSON_ADD(feed);
 		JSON_ADD(folder);
 		JSON_ADD(position);
+	}
+
+	JSON_RULE(FastCGI::app::Discovery)
+	{
+		JSON_ADD(href);
+		JSON_ADD(title);
+		JSON_ADD(comment);
+	}
+
+	JSON_RULE(FastCGI::app::api::MultipleAnswers)
+	{
+		JSON_ADD(links);
 	}
 };
 
@@ -88,26 +104,28 @@ namespace FastCGI { namespace app { namespace api
 
 			SubscribeAnswer answer;
 			JsonError err;
+			MultipleAnswers links;
 			param_t url = request.getVariable("url");
-			if (!url) err.error = tr(lng::LNG_URL_MISSING);
+			if (!url || !*url) err.error = tr(lng::LNG_URL_MISSING);
 			else
 			{
 				db::ConnectionPtr db = request.dbConn();
-				answer.feed = user->subscribe(db, url);
+				answer.feed = user->subscribe(db, url, links.links);
 				if (answer.feed < 0)
 				{
 					switch(answer.feed)
 					{
-					case SERR_INTERNAL_ERROR: request.on500(std::string("Could not subscribe to ") + url);
-					case SERR_4xx_ANSWER:   err.error = tr(lng::LNG_FEED_FAILED); break;
-					case SERR_5xx_ANSWER:   err.error = tr(lng::LNG_FEED_SERVER_FAILED); break;
-					case SERR_OTHER_ANSWER: err.error = tr(lng::LNG_FEED_ERROR); break;
-					case SERR_NOT_A_FEED:   err.error = tr(lng::LNG_NOT_A_FEED); break;
+					case SERR_INTERNAL_ERROR:  request.on500(std::string("Could not subscribe to ") + url);
+					case SERR_4xx_ANSWER:      err.error = tr(lng::LNG_FEED_FAILED); break;
+					case SERR_5xx_ANSWER:      err.error = tr(lng::LNG_FEED_SERVER_FAILED); break;
+					case SERR_OTHER_ANSWER:    err.error = tr(lng::LNG_FEED_ERROR); break;
+					case SERR_NOT_A_FEED:      err.error = tr(lng::LNG_NOT_A_FEED); break;
+					case SERR_DISCOVERY_EMPTY: err.error = tr(lng::LNG_NO_FEEDS_ON_PAGE); break;
 					}
 				}
 			}
 
-			if (err.error.empty())
+			if (err.error.empty() && answer.feed != SERR_DISCOVERY_MULTIPLE)
 			{
 				db::ConnectionPtr db = request.dbConn();
 				auto select = db->prepare("SELECT folder_id, ord FROM subscription WHERE feed_id=? AND folder_id IN (SELECT _id FROM folder WHERE user_id=?)");
@@ -129,6 +147,12 @@ namespace FastCGI { namespace app { namespace api
 				err.url = url;
 				request.setHeader("Status", "400 Bad Request");
 				json::render(request, err);
+				request.die();
+			}
+
+			if (answer.feed == SERR_DISCOVERY_MULTIPLE)
+			{
+				json::render(request, links);
 				request.die();
 			}
 
