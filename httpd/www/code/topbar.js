@@ -63,12 +63,18 @@ function setupCommand(id, fn) {
 }
 
 var dimmer = null;
+var dimmer2 = null;
 
-function Dimmer() {
-    this.catcher = $("#mouse-catcher");
+function Dimmer(id, callbackName) {
+    this.catcher = $("#" + id);
+	this.callbackName = callbackName;
+	if (!this.callbackName)
+		this.callbackName = "cancel";
+
+	var p = this;
     this.catcher.click(function (ev) {
-        dimmer.toggle();
-        dimmer.current = null;
+        p.cancel();
+        p.current = null;
         ev.stopImmediatePropagation();
     });
     this.current = null;
@@ -83,21 +89,82 @@ function Dimmer() {
         if (this.current != null)
             this.current.toggleClass("show-dlg");
     }
+	
+	this.cancel = function () {
+		if (this.current == null)
+		{
+			this.toggle();
+			return;
+		}
+		
+		var $btn = $("input[type=submit][name=" + this.callbackName + "]", this.current);
+		$btn.trigger("click");
+	}
 };
 
 function setupDialog(id, callbacks) {
     var $form = $("form", $("#" + id));
-    try { $("input:submit", $form).bind("click keypress", function () { $form.data("callerid", this.name); }); } catch (e) { alert(e); }
+    try {
+		$("input:submit", $form).bind("click keypress", function () {
+			$form.data("callerid", this.name);
+		});
+	} catch (e) { alert(e); }
 
     $form.submit(callbacks, function (ev) {
         try {
-            var callerId = $(this).data("callerid");
+            var callerId = $form.data("callerid");
             if (callerId && ev.data[callerId])
                 ev.data[callerId]();
             ev.preventDefault();
         } catch (e) { alert(e); }
         return false;
     });
+}
+
+var manyIndex = 0;
+function subscribeToMany(links)
+{
+    var $dlg = $("#subscribe-many");
+	var $container = $("#subscribe-many-container");
+    var $btn = $("input[type='submit']:first", $dlg);
+
+	$container.html("");
+    $btn.attr("disabled", "disabled");
+	$("#subscribe-spinner").remove();
+
+	for (i = 0; i < links.length; ++i)
+	{
+		var inputId = "subscribe-" + manyIndex;
+		manyIndex++;
+
+		var $link = $("<div><input type='checkbox' id='" + inputId + "'></div>");
+		$link.attr("ref", links[i].href);
+		$link.attr("title", links[i].href);
+		var $label = $("<label>");
+		$link.append($label);
+		$label.attr("for", inputId);
+
+		var title = links[i].title;
+		if (!title)
+			title = LNG_VIEW_TITLE_MISSING;
+		$label.text(title);
+
+		if (links[i].comment)
+		{
+			var comment = " " + links[i].comment;
+			var $comment = $("<em style='color: #444'></em>");
+			$comment.text(comment);
+			$label.append($comment);
+		}
+
+		$container.append($link);
+	}
+
+	dimmer2.show($dlg);
+}
+
+function subscribeMany()
+{
 }
 
 var subscribeXHR = null;
@@ -125,6 +192,22 @@ function subscribe() {
         dataType: "json"
     }).done(function (data) {
         $(".subscribe-error", $dlg).text("");
+		
+		if ("links" in data)
+		{
+			if (!(data.links instanceof Array))
+			{
+				$loader.remove();
+				$(".subscribe-error", $dlg).text(LNG_SUBSCRIBE_ERROR);
+				$input.removeAttr("disabled");
+				$input.focus();
+				subscribeXHR = null;
+				return;
+			}
+
+			subscribeToMany(data.links);
+			return;
+		}
 
         var id = "#feed-" + data.folder + "-" + data.feed;
         var $target = $(id);
@@ -153,7 +236,8 @@ function subscribe() {
 }
 
 $(function () {
-    dimmer = new Dimmer();
+    dimmer = new Dimmer("mouse-catcher");
+    dimmer2 = new Dimmer("mouse-catcher-2");
     setupPopup("topbar-menu-user");
     setupCommand("topbar-menu-new", function () {
         var $dlg = $("#subscribe");
@@ -176,6 +260,10 @@ $(function () {
     setupDialog("subscribe", {
         add: subscribe,
         cancel: function () { dimmer.toggle(); }
+    });
+    setupDialog("subscribe-many", {
+        add: subscribeMany,
+        cancel: function () { dimmer2.toggle(); dimmer.toggle(); }
     });
     setupCommand("topbar-menu-refesh", function () {
         updateNavigation();

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Aggregate 1.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-10-22 20:47+0200\n"
-"PO-Revision-Date: 2014-03-21 10:48+0100\n"
+"PO-Revision-Date: 2014-03-21 12:03+0100\n"
 "Last-Translator: Marcin Zdun <mzdun@midnightbits.com>\n"
 "Language-Team: Translators <translate@midnightbits.com>\n"
 "Language: pl\n"
@@ -515,6 +515,14 @@ msgstr "W komunikacji z serwerem wystąpił błąd. Prosimy spróbować późnie
 msgctxt "LNG_SUBSCRIBE_HINT"
 msgid "eg. http://xkcd.com/atom.xml"
 msgstr "np. http://xkcd.com/atom.xml"
+
+msgctxt "LNG_SUBSCRIBE_MANY_HINT"
+msgid "Select the ones you want to subscribe to."
+msgstr "Wybierz, które chcesz zasubyskrybować."
+
+msgctxt "LNG_SUBSCRIBE_MANY_PROMPT"
+msgid "HTML page contains more than one feed:"
+msgstr "Strona HTML zawiera więcej, niż jeden kanał:"
 
 msgctxt "LNG_SUBSCRIBE_PROMPT"
 msgid "Enter feed URL"

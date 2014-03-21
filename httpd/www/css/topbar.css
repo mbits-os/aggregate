@@ -228,7 +228,7 @@
 
 /* subscribe dialog */
 
-#mouse-catcher
+#mouse-catcher, #mouse-catcher-2
 {
     position: fixed;
     left: 0px;
@@ -239,12 +239,12 @@
     z-index: 99999;
 }
 
-#mouse-catcher.show-dlg
+#mouse-catcher.show-dlg, #mouse-catcher-2.show-dlg
 {
     display: block;
 }
 
-#dimmer
+.dimmer
 {
     position: fixed;
     left: 0px;
@@ -254,7 +254,7 @@
     background: rgba(0, 0, 0, 0.2);
 }
 
-#subscribe
+#subscribe, #subscribe-many
 {
     position: fixed;
     right: 10px;
@@ -269,21 +269,26 @@
 	z-index: 100000;
 }
 
-#subscribe.show-dlg
+#subscribe.show-dlg, #subscribe-many.show-dlg
 {
     display: block;
 }
 
-#subscribe label
+#subscribe label, #subscribe-many label
 {
     color: #444;
     margin-bottom: 0.6em;
 }
 
-#subscribe input[type="url"]
+#subscribe input[type="url"], #subscribe-many-container
 {
     margin: 0.6em 0px;
     width: 350px;
+}
+
+#subscribe-many-container
+{
+    width: 360px;
 }
 
 .subscribe-hint 
@@ -298,7 +303,7 @@
     font-size: smaller;
 }
 
-#subscribe .buttons
+#subscribe .buttons, #subscribe-many .buttons
 {
     text-align: right;
 }

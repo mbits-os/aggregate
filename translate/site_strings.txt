@@ -148,3 +148,6 @@ LNG_GENERIC_LIST_LAST = "and"
 LNG_SUBSCRIBE_PROMPT = "Enter feed URL"
 LNG_SUBSCRIBE_HINT = "eg. http://xkcd.com/atom.xml"
 LNG_SUBSCRIBE_ERROR = "There was a communication error with the server. Please try again later."
+
+LNG_SUBSCRIBE_MANY_PROMPT = "HTML page contains more than one feed:"
+LNG_SUBSCRIBE_MANY_HINT = "Select the ones you want to subscribe to."

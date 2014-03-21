@@ -216,10 +216,10 @@ namespace FastCGI { namespace app {
 	{
 		request <<
 			"<!-- UI -->\r\n"
-			"<div id=\"mouse-catcher\"><div id=\"dimmer\"></div></div>"
+			"<div id=\"mouse-catcher\"><div class=\"dimmer\"></div></div>"
 			"<div id=\"subscribe\">"
 				"<form>"
-					"<label for=\"url\">" << tr(lng::LNG_SUBSCRIBE_PROMPT) << "</label><br/>"
+					"<label for=\"subscribe-url\">" << tr(lng::LNG_SUBSCRIBE_PROMPT) << "</label><br/>"
 					"<input type=\"url\" name=\"url\" id=\"subscribe-url\" />"
 					"<div class='subscribe-hint'>" << tr(lng::LNG_SUBSCRIBE_HINT) << "</div>"
 					"<div class='subscribe-error'></div>"
@@ -228,7 +228,20 @@ namespace FastCGI { namespace app {
 					"<input name='cancel' type='submit' value='" << tr(lng::LNG_CMD_CLOSE) << "'/>"
 					"</div>"
 				"</form>"
-			"</div>";
+			"</div>"
+			"<div id=\"mouse-catcher-2\"><div class=\"dimmer\"></div></div>"
+			"<div id=\"subscribe-many\">"
+				"<form>"
+					"<label>" << tr(lng::LNG_SUBSCRIBE_MANY_PROMPT) << "</label><br/>"
+					"<div id=\"subscribe-many-container\"></div>"
+					"<div class='subscribe-hint'>" << tr(lng::LNG_SUBSCRIBE_MANY_HINT) << "</div>"
+					"<div class='buttons'>"
+					"<input name='add' type='submit' value='" << tr(lng::LNG_CMD_ADD) << "'/>"
+					"<input name='cancel' type='submit' value='" << tr(lng::LNG_CMD_CLOSE) << "'/>"
+					"</div>"
+				"</form>"
+			"</div>"
+			"\r\n";
 	}
 
 }} // FastCGI::app
