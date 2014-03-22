@@ -31,6 +31,7 @@
 #include <dom.hpp>
 #include <http.hpp>
 #include <feed_parser.hpp>
+#include <uri.hpp>
 
 #define UNREAD_COUNT 10
 
@@ -198,7 +199,7 @@ namespace FastCGI
 				return true;
 			}
 
-			std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const std::string& server, const filesystem::path& urn)
+			std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const Uri& base)
 			{
 				std::vector<Link> out;
 				std::string pageTitle = htmlTitle(doc);
@@ -217,13 +218,12 @@ namespace FastCGI
 
 					Link link;
 					link.attr_title = e->getAttribute("title");
-					link.url = e->getAttribute("href");
+					link.url = Uri::canonical(e->getAttribute("href"), base).string();
 					link.type = type;
 
 					if (link.attr_title.empty())
 						link.attr_title = pageTitle;
 
-					makeURI(link.url, server, urn);
 					out.push_back(link);
 				}
 
@@ -320,21 +320,11 @@ namespace FastCGI
 				if (!doc)
 					return SERR_NOT_A_FEED;
 
-				std::string server = url;
+				std::string uri = url;
 				if (xhr->wasRedirected())
-					server = xhr->getFinalLocation();
+					uri = xhr->getFinalLocation();
 
-				auto pos = server.find("://");
-				if (pos == std::string::npos)
-				{
-					server = "http://" + server;
-					pos = server.find("://");
-				}
-				pos = server.find('/', pos + 3);
-				auto urn = pos != std::string::npos ? filesystem::path{ server.substr(pos) }.remove_filename() : "/";
-				server = server.substr(0, pos);
-
-				auto discovered = feedLinks(doc, server, urn);
+				auto discovered = feedLinks(doc, Uri::make_base(uri));
 				if (discovered.empty())
 					return SERR_DISCOVERY_EMPTY;
 

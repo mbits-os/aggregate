@@ -38,6 +38,8 @@
 #include <windows.h>
 #endif
 
+#include <uri.hpp>
+
 std::string stripws(const std::string& n)
 {
 	std::string out;
@@ -365,7 +367,7 @@ std::string getFeedTitle(const http::XmlHttpRequestPtr& xhr, const std::string& 
 	return std::move(feed.m_feed.m_title);
 }
 
-std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::XmlDocumentPtr& doc, const std::string& server, const filesystem::path& urn, const std::string& pageTitle)
+std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::XmlDocumentPtr& doc, const Uri& base, const std::string& pageTitle)
 {
 	putc('#', stdout); fflush(stdout);
 	std::vector<Link> out;
@@ -400,7 +402,7 @@ std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::XmlDo
 
 		Link link =
 		{
-			e->getAttribute("href"),
+			Uri::canonical(e->getAttribute("href"), base).string(),
 			e->getAttribute("title"),
 			std::string(),
 			(type == "application/atom+xml") ? (home ? FEED::SITE_ATOM : FEED::ATOM) : (home ? FEED::SITE_RSS : FEED::RSS)
@@ -409,14 +411,6 @@ std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::XmlDo
 		if (link.title.empty())
 			link.title = pageTitle;
 
-		if (std::tolower(link.href.substr(0, 7)) != "http://" &&
-			std::tolower(link.href.substr(0, 8)) != "https://")
-		{
-			auto path = filesystem::canonical(link.href, urn);
-			if (path.has_root_name())
-				path = path.string().substr(path.root_name().string().length());
-			link.href = server + path.string();
-		}
 		link.feed = getFeedTitle(xhr, link.href);
 		out.push_back(link);
 	}
@@ -526,18 +520,9 @@ int discover(int argc, char* argv[], const db::ConnectionPtr&)
 	{
 		std::string title = htmlTitle(doc);
 
-		std::string server = argv[1];
-		auto pos = server.find("://");
-		if (pos == std::string::npos)
-		{
-			server = "http://" + server;
-			pos = server.find("://");
-		}
-		pos = server.find('/', pos + 3);
-		auto urn = pos != std::string::npos ? filesystem::path{ server.substr(pos) }.remove_filename() : "/";
-		server = server.substr(0, pos);
+		auto base = Uri::make_base(argv[1]);
 
-		auto links = feedLinks(xhr, doc, server, urn, title);
+		auto links = feedLinks(xhr, doc, base, title);
 		putc('#', stdout); fflush(stdout);
 		printf("\n");
 
