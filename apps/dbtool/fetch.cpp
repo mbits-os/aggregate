@@ -346,15 +346,12 @@ std::string htmlTitle(const dom::XmlDocumentPtr& doc)
 	return title;
 }
 
-std::string getFeedTitle(const std::string& url)
+std::string getFeedTitle(const http::XmlHttpRequestPtr& xhr, const std::string& url)
 {
 	putc('-', stdout); fflush(stdout);
-	auto xhr = http::XmlHttpRequest::Create();
 	if (!xhr)
 		return std::string();
 
-	Ticker tick;
-	xhr->onreadystatechange(&tick);
 	xhr->open(http::HTTP_GET, url, false);
 	xhr->send();
 	auto xml = xhr->getResponseXml();
@@ -368,7 +365,7 @@ std::string getFeedTitle(const std::string& url)
 	return std::move(feed.m_feed.m_title);
 }
 
-std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const std::string& server, const filesystem::path& urn, const std::string& pageTitle)
+std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::XmlDocumentPtr& doc, const std::string& server, const filesystem::path& urn, const std::string& pageTitle)
 {
 	putc('#', stdout); fflush(stdout);
 	std::vector<Link> out;
@@ -420,7 +417,7 @@ std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const std::string& s
 				path = path.string().substr(path.root_name().string().length());
 			link.href = server + path.string();
 		}
-		link.feed = getFeedTitle(link.href);
+		link.feed = getFeedTitle(xhr, link.href);
 		out.push_back(link);
 	}
 
@@ -540,7 +537,7 @@ int discover(int argc, char* argv[], const db::ConnectionPtr&)
 		auto urn = pos != std::string::npos ? filesystem::path{ server.substr(pos) }.remove_filename() : "/";
 		server = server.substr(0, pos);
 
-		auto links = feedLinks(doc, server, urn, title);
+		auto links = feedLinks(xhr, doc, server, urn, title);
 		putc('#', stdout); fflush(stdout);
 		printf("\n");
 
