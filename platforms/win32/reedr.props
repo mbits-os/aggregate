@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="..\..\libs\libbase\win32\libbase-inc.props" />
     <Import Project="..\..\libs\libweb\win32\libweb-inc.props" />
+    <Import Project="..\..\libs\libpersist\win32\libpersist-inc.props" />
     <Import Project="..\..\libs\libenv\win32\libenv-inc.props" />
     <Import Project="..\..\libs\libremote\win32\libremote-inc.props" />
     <Import Project="..\..\libs\libreedr\win32\libreedr-inc.props" />

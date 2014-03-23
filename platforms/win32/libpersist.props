@@ -3,11 +3,9 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="3rdparty-inc.props" />
     <Import Project="..\..\libs\libbase\win32\libbase-inc.props" />
-    <Import Project="..\..\libs\libpersist\win32\libpersist-inc.props" />
-    <Import Project="..\..\libs\libweb\win32\libweb-inc.props" />
   </ImportGroup>
   <PropertyGroup>
-    <_PropertySheetDisplayName>libenv local settings</_PropertySheetDisplayName>
+    <_PropertySheetDisplayName>libpersist local settings</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

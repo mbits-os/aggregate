@@ -1,6 +1,8 @@
 FILES = \
 	../../apps/dbtool/dbtool.files \
 	../../libs/libbase/libbase.files \
+	../../libs/libweb/libweb.files \
+	../../libs/libpersist/libpersist.files \
 	../../libs/libenv/libenv.files \
 	../../libs/libreedr/libreedr.files \
 	../../libs/libremote/libremote.files \

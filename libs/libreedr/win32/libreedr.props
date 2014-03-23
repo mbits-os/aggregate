@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(MSBuildThisFileDirectory)..\..\libbase\win32\libbase-inc.props" />
     <Import Project="$(MSBuildThisFileDirectory)..\..\libweb\win32\libweb-inc.props" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\libpersist\win32\libpersist-inc.props" />
     <Import Project="$(MSBuildThisFileDirectory)..\..\libenv\win32\libenv-inc.props" />
   </ImportGroup>
   <PropertyGroup>

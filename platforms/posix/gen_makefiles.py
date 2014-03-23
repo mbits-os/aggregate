@@ -13,7 +13,7 @@ predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
 libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++", "htmlcxx"]
-project_libs = ["libbase", "libweb", "libenv", "libreedr", "libremote"]
+project_libs = ["libbase", "libweb", "libpersist", "libenv", "libreedr", "libremote"]
 common_incl = ["%slibs/%s/includes" % (root, lib) for lib in project_libs]
 
 libbase = Project("libbase",
@@ -23,6 +23,10 @@ libbase = Project("libbase",
 libweb = Project("libweb",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
                [], [root+"libs/libweb", root+"libs/libweb/src"] + common_incl, kStaticLibrary, predef)
+
+libpersist = Project("libpersist",
+               ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
+               [], [root+"libs/libpersist", root+"libs/libpersist/src"] + common_incl, kStaticLibrary, predef)
 
 libenv = Project("libenv",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
@@ -46,21 +50,24 @@ reedr = Project("reedr",
 
 libbase.out = "base"
 libweb.out = "web"
+libpersist.out = "persist"
 libenv.out = "env"
 libreedr.out = "reedr"
 libremote.out = "remote"
 
 dbtool.depends_on(libbase)
 dbtool.depends_on(libweb)
+dbtool.depends_on(libpersist)
 dbtool.depends_on(libenv)
 dbtool.depends_on(libreedr)
 reedr.depends_on(libbase)
 reedr.depends_on(libweb)
+reedr.depends_on(libpersist)
 reedr.depends_on(libenv)
 reedr.depends_on(libreedr)
 reedr.depends_on(libremote)
 
-projects = [libbase, libweb, libenv, libreedr, libremote, dbtool, reedr]
+projects = [libbase, libweb, libenv, libpersist, libreedr, libremote, dbtool, reedr]
 
 print "include common.mak"
 print
