@@ -2,10 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets">
     <Import Project="3rdparty-inc.props" />
-    <Import Project="..\..\libs\libbase\win32\libbase-inc.props" />
   </ImportGroup>
   <PropertyGroup>
-    <_PropertySheetDisplayName>libenv local settings</_PropertySheetDisplayName>
+    <_PropertySheetDisplayName>libbase local settings</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
