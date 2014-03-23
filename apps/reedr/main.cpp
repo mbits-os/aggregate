@@ -27,8 +27,8 @@
 #include <dbconn.hpp>
 #include <locale.hpp>
 #include <string.h>
-#include <http.hpp>
-#include <mail.hpp>
+#include <http/http.hpp>
+#include <mail/mail.hpp>
 #include "args.hpp"
 #include "server_config.hpp"
 #include <exception>

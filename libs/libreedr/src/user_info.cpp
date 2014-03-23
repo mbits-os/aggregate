@@ -28,8 +28,8 @@
 #include <fast_cgi/session.hpp>
 #include <dbconn.hpp>
 #include <crypt.hpp>
-#include <dom.hpp>
-#include <http.hpp>
+#include <dom/dom.hpp>
+#include <http/http.hpp>
 #include <feed_parser.hpp>
 #include <uri.hpp>
 

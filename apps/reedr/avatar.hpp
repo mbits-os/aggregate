@@ -30,7 +30,7 @@
 #include <string>
 #include <map>
 #include <handlers.hpp>
-#include <http.hpp>
+#include <http/http.hpp>
 
 namespace gd
 {

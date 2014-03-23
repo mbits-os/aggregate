@@ -28,7 +28,7 @@
 
 #include <dbconn.hpp>
 #include <feed_parser.hpp>
-#include <http.hpp>
+#include <http/http.hpp>
 #include <utils.hpp>
 
 namespace Refresh

@@ -33,9 +33,9 @@
 #include <dbconn.hpp>
 #include <utils.hpp>
 #include "schema.hpp"
-#include <http.hpp>
+#include <http/http.hpp>
 #include <fast_cgi/application.hpp>
-#include <wiki.hpp>
+#include <wiki/wiki.hpp>
 #include "../reedr/server_config.hpp"
 
 #ifdef WIN32

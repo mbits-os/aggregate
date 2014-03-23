@@ -25,7 +25,7 @@
 #ifndef __FEED_PARSER_HPP__
 #define __FEED_PARSER_HPP__
 
-#include <dom.hpp>
+#include <dom/dom.hpp>
 #include <utils.hpp> // for tyme::time_t
 
 #ifndef PARSER_TAG

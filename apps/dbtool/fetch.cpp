@@ -28,7 +28,7 @@
 #include <dbconn.hpp>
 #include <utils.hpp>
 
-#include <http.hpp>
+#include <http/http.hpp>
 #include <feed_parser.hpp>
 #include <opml.hpp>
 
