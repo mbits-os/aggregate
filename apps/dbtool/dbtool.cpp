@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <map>
 
-#include <dbconn.hpp>
+#include <db/conn.hpp>
 #include <utils.hpp>
 #include "schema.hpp"
 #include <http/http.hpp>

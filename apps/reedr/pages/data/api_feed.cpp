@@ -26,7 +26,7 @@
 #include <handlers.hpp>
 #include <utils.hpp>
 #include <http/http.hpp>
-#include <dbconn.hpp>
+#include <db/conn.hpp>
 #include <stdlib.h>
 #include "api_handler.hpp"
 #include "json.hpp"

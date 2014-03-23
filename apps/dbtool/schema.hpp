@@ -25,7 +25,7 @@
 #ifndef __DBCONN_SCHEMA_H__
 #define __DBCONN_SCHEMA_H__
 
-#include <dbconn.hpp>
+#include <db/conn.hpp>
 
 #include <string>
 #include <list>

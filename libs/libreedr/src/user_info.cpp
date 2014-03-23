@@ -26,7 +26,7 @@
 #include <user_info.hpp>
 #include <fast_cgi/application.hpp>
 #include <fast_cgi/session.hpp>
-#include <dbconn.hpp>
+#include <db/conn.hpp>
 #include <crypt.hpp>
 #include <dom/dom.hpp>
 #include <http/http.hpp>

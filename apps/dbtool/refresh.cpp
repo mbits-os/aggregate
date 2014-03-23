@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 
-#include <dbconn.hpp>
+#include <db/conn.hpp>
 #include <feed_parser.hpp>
 #include <http/http.hpp>
 #include <utils.hpp>

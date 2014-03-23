@@ -25,7 +25,7 @@
 #include <iostream>
 #include <map>
 
-#include <dbconn.hpp>
+#include <db/conn.hpp>
 #include <utils.hpp>
 
 #include <http/http.hpp>
