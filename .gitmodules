@@ -10,3 +10,6 @@
 [submodule "libs/libenv"]
 	path = libs/libenv
 	url = https://github.com/mbits-os/libenv.git
+[submodule "libs/libbase"]
+	path = libs/libbase
+	url = https://github.com/mbits-os/libbase.git
