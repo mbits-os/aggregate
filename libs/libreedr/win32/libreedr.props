@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets">
     <Import Project="$(MSBuildThisFileDirectory)..\..\libbase\win32\libbase-inc.props" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\libweb\win32\libweb-inc.props" />
     <Import Project="$(MSBuildThisFileDirectory)..\..\libenv\win32\libenv-inc.props" />
   </ImportGroup>
   <PropertyGroup>
