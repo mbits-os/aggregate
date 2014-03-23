@@ -16,3 +16,6 @@
 [submodule "libs/libweb"]
 	path = libs/libweb
 	url = https://github.com/mbits-os/libweb.git
+[submodule "libs/libpersist"]
+	path = libs/libpersist
+	url = https://github.com/mbits-os/libpersist.git
