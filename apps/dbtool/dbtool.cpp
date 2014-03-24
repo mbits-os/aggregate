@@ -35,8 +35,10 @@
 #include "schema.hpp"
 #include <http/http.hpp>
 #include <dom/parsers/encoding_db.hpp>
+#include <dom/parsers/html.hpp>
 #include <fast_cgi/application.hpp>
 #include <wiki/wiki.hpp>
+#include <sanitize.hpp>
 #include "../reedr/server_config.hpp"
 
 #ifdef WIN32
@@ -103,6 +105,7 @@ int opml_cmd(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int discover(int, char*[], const db::ConnectionPtr&); // in fetch.cpp
 int user(int, char*[], const db::ConnectionPtr&);
 int wiki_cmd(int, char*[], const db::ConnectionPtr&);
+int sanitize_cmd(int, char*[], const db::ConnectionPtr&);
 
 Command commands[] = {
 	Command("status", status),
@@ -117,6 +120,7 @@ Command commands[] = {
 	Command("discover", discover, false),
 	Command("user", user),
 	Command("wiki", wiki_cmd, false),
+	Command("sanitize", sanitize_cmd, false),
 };
 
 bool get_conn_ini(int& argc, char**& argv, filesystem::path& cfg_path)
@@ -490,4 +494,32 @@ int wiki_cmd(int argc, char* argv[], const db::ConnectionPtr&)
 		doc = wiki::compile(path, filesystem::canonical(argv[2]));
 
 	return doc ? 0 : 1;
+}
+
+struct StdError: public dom::parsers::OutStream
+{
+	void putc(char c) override { ::putc((unsigned char)c, stderr); }
+	void puts(const char* s, size_t length) override { fwrite(s, 1, length, stderr); }
+};
+
+int sanitize_cmd(int argc, char* argv[], const db::ConnectionPtr&)
+{
+	if (argc < 2)
+	{
+		fprintf(stderr, "sanitize: not enough params\n");
+		fprintf(stderr, "dbtool sanitize <path>\n");
+		return 1;
+	}
+
+	auto parser = dom::parsers::html::create(std::string());
+	if (!parser)
+		return 1;
+
+	auto doc = dom::parsers::parseFile(parser, argv[1]);
+
+	StdError out;
+	if (!sanitize::sanitize(out, doc))
+		return 1;
+
+	return 0;
 }
