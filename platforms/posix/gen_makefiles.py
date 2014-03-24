@@ -22,7 +22,7 @@ libbase = Project("libbase",
 
 libweb = Project("libweb",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
-               [], [root+"libs/libweb", root+"libs/libweb/src"] + common_incl, kStaticLibrary, predef)
+               [], [root+"libs/libweb"] + common_incl, kStaticLibrary, predef)
 
 libpersist = Project("libpersist",
                ["HAVE_CONFIG_H", "POSIX", "ZLIB", "L_ENDIAN"],
