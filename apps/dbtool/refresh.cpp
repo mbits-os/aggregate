@@ -136,7 +136,7 @@ namespace Refresh
 			}
 
 			feed::Feed newFeed;
-			dom::XmlDocumentPtr doc = xhr->getResponseXml();
+			dom::DocumentPtr doc = xhr->getResponseXml();
 			if (!doc || !feed::parse(doc, newFeed))
 			{
 				printf("Error while parsing the data [%d (%s)]\n", status, xhr->getStatusText().c_str());

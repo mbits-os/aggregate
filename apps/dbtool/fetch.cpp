@@ -281,7 +281,7 @@ int opml_cmd(int argc, char* argv[], const db::ConnectionPtr&)
 
 	printf("PATH: %s\n", argv[1]);
 
-	dom::XmlDocumentPtr doc = dom::XmlDocument::fromFile(argv[1]);
+	dom::DocumentPtr doc = dom::Document::fromFile(argv[1]);
 
 	if (doc.get())
 	{
@@ -334,7 +334,7 @@ struct Link
 	FEED type;
 };
 
-std::string htmlTitle(const dom::XmlDocumentPtr& doc)
+std::string htmlTitle(const dom::DocumentPtr& doc)
 {
 	putc('#', stdout); fflush(stdout);
 	std::string title;
@@ -367,7 +367,7 @@ std::string getFeedTitle(const http::XmlHttpRequestPtr& xhr, const std::string& 
 	return std::move(feed.m_feed.m_title);
 }
 
-std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::XmlDocumentPtr& doc, const Uri& base, const std::string& pageTitle)
+std::vector<Link> feedLinks(const http::XmlHttpRequestPtr& xhr, const dom::DocumentPtr& doc, const Uri& base, const std::string& pageTitle)
 {
 	putc('#', stdout); fflush(stdout);
 	std::vector<Link> out;
