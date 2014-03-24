@@ -123,7 +123,7 @@ namespace FastCGI
 				FEED type = FEED::RSS;
 			};
 
-			std::string htmlTitle(const dom::XmlDocumentPtr& doc)
+			std::string htmlTitle(const dom::DocumentPtr& doc)
 			{
 				putc('#', stdout); fflush(stdout);
 				std::string title;
@@ -172,7 +172,7 @@ namespace FastCGI
 				}
 			}
 
-			bool feedType(const dom::XmlElementPtr& e, FEED& feed)
+			bool feedType(const dom::ElementPtr& e, FEED& feed)
 			{
 				if (!e) return false;
 				auto rel = e->getAttributeNode("rel");
@@ -199,7 +199,7 @@ namespace FastCGI
 				return true;
 			}
 
-			std::vector<Link> feedLinks(const dom::XmlDocumentPtr& doc, const Uri& base)
+			std::vector<Link> feedLinks(const dom::DocumentPtr& doc, const Uri& base)
 			{
 				std::vector<Link> out;
 				std::string pageTitle = htmlTitle(doc);

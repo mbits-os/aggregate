@@ -30,13 +30,7 @@
 namespace dom
 {
 	struct Document;
-	struct Element;
-	struct Attribute;
 	typedef std::shared_ptr<Document> DocumentPtr;
-	typedef DocumentPtr XmlDocumentPtr;
-	typedef Document XmlDocument;
-	typedef Element XmlElement;
-	typedef Attribute XmlAttribute;
 };
 
 namespace feed
@@ -97,7 +91,7 @@ namespace feed
 		std::string m_lastModified;
 	};
 
-	bool parse(const dom::XmlDocumentPtr& document, Feed& feed);
+	bool parse(const dom::DocumentPtr& document, Feed& feed);
 };
 
 #endif //__FEED_PARSER_H__

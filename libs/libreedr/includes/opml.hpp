@@ -29,7 +29,6 @@ namespace dom
 {
 	struct Document;
 	typedef std::shared_ptr<Document> DocumentPtr;
-	typedef DocumentPtr XmlDocumentPtr;
 };
 
 namespace opml
@@ -40,7 +39,7 @@ namespace opml
 		std::list<Outline> m_children;
 	};
 
-	bool parse(const dom::XmlDocumentPtr& document, Outline& outline);
+	bool parse(const dom::DocumentPtr& document, Outline& outline);
 };
 
 #endif //__OPML_H__

@@ -68,13 +68,13 @@
 #define FIND_AUTHOR(xpath, field) find(xpath, &Type::m_author, &Author::field)
 #define FIND_TIME(xpath, dest) findTime(xpath, &Type::dest)
 #define FIND_ROOT \
-	bool parse(const dom::XmlDocumentPtr& document, Feed& feed) \
+	bool parse(const dom::DocumentPtr& document, Feed& feed) \
 	{ \
 		/*printf("%s Root: %s\n", m_name, getRoot().c_str());*/ \
 		Parser<Feed> parser; \
 		parser.setContext(&feed); \
 		dom::Namespaces ns = getNamespaces(); \
-		dom::XmlNodePtr root = document->find(getRoot(), ns); \
+		dom::NodePtr root = document->find(getRoot(), ns); \
 		if (!root) \
 			return false; \
 		return parser.parse(root, ns); \
@@ -88,7 +88,7 @@ namespace feed
 	struct Selector
 	{
 		virtual ~Selector() {}
-		virtual bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns, void* context) = 0;
+		virtual bool parse(const dom::NodePtr& node, dom::Namespaces ns, void* context) = 0;
 		virtual std::string name() const = 0;
 	};
 	typedef std::shared_ptr<Selector> SelectorPtr;
@@ -97,7 +97,7 @@ namespace feed
 	{
 		ParserBase(): m_ctx(nullptr) {}
 		void setContext(void* ctx) { m_ctx = ctx; }
-		virtual bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns) = 0;
+		virtual bool parse(const dom::NodePtr& node, dom::Namespaces ns) = 0;
 	protected:
 		void* m_ctx;
 	};
@@ -105,7 +105,7 @@ namespace feed
 	template <>
 	struct Parser<std::string>: ParserBase
 	{
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns) override
 		{
 			std::string* ctx = (std::string*)m_ctx;
 			if (!ctx)
@@ -124,7 +124,7 @@ namespace feed
 	template <>
 	struct Parser<time_tag>: ParserBase
 	{
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns) override
 		{
 			time_tag* ctx = (time_tag*)m_ctx;
 			if (!ctx)
@@ -145,7 +145,7 @@ namespace feed
 	template <>
 	struct Parser<size_t>: ParserBase
 	{
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns) override
 		{
 			size_t* ctx = (size_t*)m_ctx;
 			if (!ctx)
@@ -160,7 +160,7 @@ namespace feed
 	};
 
 	template <typename Member>
-	bool ValueParser(const dom::XmlNodePtr& node, dom::Namespaces ns, Member& ctx)
+	bool ValueParser(const dom::NodePtr& node, dom::Namespaces ns, Member& ctx)
 	{
 		Parser<Member> subparser;
 		subparser.setContext(&ctx);
@@ -183,9 +183,9 @@ namespace feed
 		{
 		}
 
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns, void* context) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns, void* context) override
 		{
-			dom::XmlNodePtr data = node->find(m_xpath, ns);
+			dom::NodePtr data = node->find(m_xpath, ns);
 			if (!data)
 				return m_optional;
 
@@ -216,9 +216,9 @@ namespace feed
 		{
 		}
 
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns, void* context) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns, void* context) override
 		{
-			dom::XmlNodePtr data = node->find(m_xpath, ns);
+			dom::NodePtr data = node->find(m_xpath, ns);
 			if (!data)
 				return m_optional;
 
@@ -247,9 +247,9 @@ namespace feed
 		{
 		}
 
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns, void* context) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns, void* context) override
 		{
-			dom::XmlNodePtr data = node->find(m_xpath, ns);
+			dom::NodePtr data = node->find(m_xpath, ns);
 			if (!data)
 				return m_optional;
 
@@ -284,9 +284,9 @@ namespace feed
 		{
 		}
 
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns, void* context) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns, void* context) override
 		{
-			dom::XmlNodeListPtr data = node->findall(m_xpath, ns);
+			dom::NodeListPtr data = node->findall(m_xpath, ns);
 			if (!data || !data->length())
 				return m_optional;
 
@@ -303,7 +303,7 @@ namespace feed
 				Item item;
 				subparser.setContext(&item);
 
-				dom::XmlNodePtr child = data->item(i);
+				dom::NodePtr child = data->item(i);
 				if (!child || !subparser.parse(child, ns))
 				{
 					if (m_optional)
@@ -333,9 +333,9 @@ namespace feed
 		{
 		}
 
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns, void* context) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns, void* context) override
 		{
-			dom::XmlNodePtr data = node->find(m_xpath, ns);
+			dom::NodePtr data = node->find(m_xpath, ns);
 			if (!data)
 				return m_optional;
 
@@ -398,7 +398,7 @@ namespace feed
 			m_selectors.push_back(std::make_shared< IndirectMemberSelector<Type, Struct, Member> >(xpath, parent, dest));
 		}
 
-		bool parse(const dom::XmlNodePtr& node, dom::Namespaces ns) override
+		bool parse(const dom::NodePtr& node, dom::Namespaces ns) override
 		{
 			auto cur = m_selectors.begin(), end = m_selectors.end();
 			for (auto&& selector : m_selectors)

@@ -142,7 +142,7 @@ namespace feed
 		};
 
 		// TODO:read sequence and use items referenced there...
-		bool parse(const dom::XmlDocumentPtr& document, feed::Feed& feed)
+		bool parse(const dom::DocumentPtr& document, feed::Feed& feed)
 		{
 			Feed tmp;
 			if (!RDF().parse(document, tmp))

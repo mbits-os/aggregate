@@ -65,8 +65,8 @@ namespace feed
 		return out;
 	}
 
-	void outerXml(const dom::XmlElementPtr& node, std::string& out);
-	void innerXml(const dom::XmlNodePtr& node, std::string& out)
+	void outerXml(const dom::ElementPtr& node, std::string& out);
+	void innerXml(const dom::NodePtr& node, std::string& out)
 	{
 		auto children = node->childNodes();
 		size_t count = children ? children->length() : 0;
@@ -76,10 +76,10 @@ namespace feed
 			switch (child->nodeType())
 			{
 			case dom::DOCUMENT_NODE:
-				outerXml(std::static_pointer_cast<dom::XmlDocument>(child)->documentElement(), out);
+				outerXml(std::static_pointer_cast<dom::Document>(child)->documentElement(), out);
 				break;
 			case dom::ELEMENT_NODE:
-				outerXml(std::static_pointer_cast<dom::XmlElement>(child), out);
+				outerXml(std::static_pointer_cast<dom::Element>(child), out);
 				break;
 			case dom::ATTRIBUTE_NODE:
 				break;
@@ -89,7 +89,7 @@ namespace feed
 			}
 		}
 	}
-	void outerXml(const dom::XmlElementPtr& node, std::string& out)
+	void outerXml(const dom::ElementPtr& node, std::string& out)
 	{
 		out.append("<");
 		out.append(node->nodeName());
@@ -97,7 +97,7 @@ namespace feed
 		size_t count = attrs ? attrs->length() : 0;
 		for (size_t i = 0; i < count; ++i)
 		{
-			auto attr = std::static_pointer_cast<dom::XmlAttribute>(attrs->item(i));
+			auto attr = std::static_pointer_cast<dom::Attribute>(attrs->item(i));
 			if (!attr) continue;
 
 			out.append(" ");
@@ -125,9 +125,9 @@ namespace feed
 		FIND_TIME("atom:updated",           m_dateTime);
 		FIND("atom:category/@term",         m_categories);
 		FIND("atom:summary",                m_description);
-		FIND_PRED("atom:content",           m_content, [](const dom::XmlNodePtr& node, dom::Namespaces ns, std::string& ctx) -> bool
+		FIND_PRED("atom:content",           m_content, [](const dom::NodePtr& node, dom::Namespaces ns, std::string& ctx) -> bool
 		{
-			auto e(std::static_pointer_cast<dom::XmlElement>(node));
+			auto e(std::static_pointer_cast<dom::Element>(node));
 			if (e && e->hasAttribute("type") && e->getAttribute("type") == "xhtml")
 			{
 				innerXml(node, ctx);
@@ -167,7 +167,7 @@ namespace feed
 			FIND_ROOT;
 		};
 
-		bool parse(const dom::XmlDocumentPtr& document, Feed& feed)
+		bool parse(const dom::DocumentPtr& document, Feed& feed)
 		{
 			return Atom10().parse(document, feed);
 		}

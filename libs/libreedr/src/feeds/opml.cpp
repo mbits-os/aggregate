@@ -51,19 +51,19 @@ namespace opml
 		{
 		}
 
-		bool parse(const dom::XmlDocumentPtr& document, Outline& outline)
+		bool parse(const dom::DocumentPtr& document, Outline& outline)
 		{
 			feed::Parser<Outline> parser;
 			parser.setContext(&outline);
 			dom::Namespaces ns = getNamespaces();
-			dom::XmlNodePtr root = document->find(getRoot(), ns);
+			dom::NodePtr root = document->find(getRoot(), ns);
 			if (!root)
 				return false;
 			return parser.parse(root, ns);
 		}
 	};
 
-	bool parse(const dom::XmlDocumentPtr& document, Outline& outline)
+	bool parse(const dom::DocumentPtr& document, Outline& outline)
 	{
 		return Opml().parse(document, outline);
 	}
