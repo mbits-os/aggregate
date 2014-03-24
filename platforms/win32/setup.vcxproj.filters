@@ -1,15 +1,53 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <None Include="..\..\apps\reedr\reedr.files" />
     <None Include="..\solver\win32\create_projects.py" />
-    <None Include="..\..\apps\dbtool\dbtool.files" />
-    <None Include="..\..\libs\libenv\libenv.files" />
-    <None Include="..\..\strings\site_strings.txt" />
-    <None Include="..\..\strings\client.strings" />
-    <None Include="..\..\libs\libremote\libremote.files" />
+    <None Include="..\..\apps\dbtool\dbtool.files">
+      <Filter>apps</Filter>
+    </None>
+    <None Include="..\..\libs\libbase\libbase.files">
+      <Filter>libs\foundation</Filter>
+    </None>
+    <None Include="..\..\libs\libenv\libenv.files">
+      <Filter>libs</Filter>
+    </None>
+    <None Include="..\..\libs\libpersist\libpersist.files">
+      <Filter>libs\foundation</Filter>
+    </None>
+    <None Include="..\..\libs\libreedr\libreedr.files">
+      <Filter>libs</Filter>
+    </None>
+    <None Include="..\..\libs\libremote\libremote.files">
+      <Filter>libs</Filter>
+    </None>
+    <None Include="..\..\libs\libweb\libweb.files">
+      <Filter>libs\foundation</Filter>
+    </None>
+    <None Include="..\..\apps\reedr\reedr.files">
+      <Filter>apps</Filter>
+    </None>
+    <None Include="..\..\strings\client.strings">
+      <Filter>translation</Filter>
+    </None>
+    <None Include="..\..\strings\site_strings.txt">
+      <Filter>translation</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="projects.cmd" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="apps">
+      <UniqueIdentifier>{0d116201-cfb5-4542-a34f-f9b882edbb1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs">
+      <UniqueIdentifier>{a4f7405e-92c4-49d0-abb5-f2dfc907938c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libs\foundation">
+      <UniqueIdentifier>{a40c34e2-15fa-4906-9593-d3bb653cf629}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="translation">
+      <UniqueIdentifier>{a7560cfb-266f-4f36-abbd-ee3a778ea9cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

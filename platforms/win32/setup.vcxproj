@@ -24,6 +24,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
   <ItemGroup>
+    <None Include="..\..\libs\libbase\libbase.files" />
+    <None Include="..\..\libs\libpersist\libpersist.files" />
+    <None Include="..\..\libs\libweb\libweb.files" />
     <None Include="..\..\strings\client.strings" />
     <None Include="..\..\strings\site_strings.txt" />
     <None Include="..\..\apps\dbtool\dbtool.files" />
@@ -37,6 +40,8 @@
       <Command>call "%(FullPath)"</Command>
       <Outputs>%(Directory)\reedr.vcxproj;%(Directory)\reedr.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\libreedr.vcxproj;%(Directory)\libreedr.vcxproj.filters;%(Directory)\libremote.vcxproj;%(Directory)\libremote.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters</Outputs>
       <AdditionalInputs>%(Directory)\..\..\reedr\reedr.files;%(Directory)\..\..\libenv\libenv.files;%(Directory)\..\..\libs\libreedr\libreedr.files;%(Directory)\..\..\libs\libremote\libremote.files;%(Directory)\..\..\dbtool\dbtool.files;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Directory)\reedr.vcxproj;%(Directory)\reedr.vcxproj.filters;%(Directory)\dbtool.vcxproj;%(Directory)\dbtool.vcxproj.filters;%(Directory)\libbase.vcxproj;%(Directory)\libbase.vcxproj.filters;%(Directory)\libweb.vcxproj;%(Directory)\libweb.vcxproj.filters;%(Directory)\libpersist.vcxproj;%(Directory)\libpersit.vcxproj.filters;%(Directory)\libenv.vcxproj;%(Directory)\libenv.vcxproj.filters;%(Directory)\libreedr.vcxproj;%(Directory)\libreedr.vcxproj.filters;%(Directory)\libremote.vcxproj;%(Directory)\libremote.vcxproj.filters</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Directory)\..\..\apps\reedr\reedr.files;%(Directory)\..\..\apps\dbtool\dbtool.files;%(Directory)\..\..\libs\libbase\libbase.files;%(Directory)\..\..\libs\libweb\libweb.files;%(Directory)\..\..\libs\libpersist\libpersist.files;%(Directory)\..\..\libs\libenv\libenv.files;%(Directory)\..\..\libs\libreedr\libreedr.files;%(Directory)\..\..\libs\libremote\libremote.files;%(AdditionalInputs)</AdditionalInputs>
     </CustomBuild>
     <None Include="..\solver\win32\create_projects.py" />
   </ItemGroup>
