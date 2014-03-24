@@ -86,8 +86,8 @@ namespace json
 		JSON_CURSOR_TEXT(author, 3);
 		JSON_CURSOR_TEXT(authorLink, 4);
 		JSON_CURSOR_TIME(date, 5);
-		JSON_CURSOR_TEXT(description, 6);
-		JSON_CURSOR_TEXT(contents, 7);
+		JSON_CURSOR_SANE(description, 6);
+		JSON_CURSOR_SANE(contents, 7);
 		JSON_CURSOR_SUBQUERY(categories, Category, "SELECT cat FROM categories WHERE entry_id=?");
 		JSON_CURSOR_SUBQUERY(enclosures, Enclosure, "SELECT url, mime, length FROM enclosure WHERE entry_id=?");
 	}

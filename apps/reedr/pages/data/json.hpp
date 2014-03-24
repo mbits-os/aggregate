@@ -26,6 +26,7 @@
 #define __JSON_HPP__
 
 #include <fast_cgi/request.hpp>
+#include <sanitize.hpp>
 
 long long asctoll(const char* ptr, char** end);
 
@@ -285,6 +286,28 @@ namespace json
 		std::string name() const { return m_name; }
 	};
 
+	struct SanitizeSelector : ColumnSelectorBase
+	{
+		std::string m_name;
+		int m_column;
+
+		SanitizeSelector(const std::string& name, int column)
+			: m_name(name)
+			, m_column(column)
+		{
+		}
+
+		bool render(FastCGI::Request& request, const db::CursorPtr& c)
+		{
+			std::string new_ctx;
+			if (c->isNull(m_column) || !sanitize::sanitize(new_ctx, c->getText(m_column)))
+				new_ctx.clear();
+
+			return json::render(request, new_ctx);
+		}
+		std::string name() const { return m_name; }
+	};
+
 	template <typename Type>
 	struct CursorJson: JsonBase
 	{
@@ -294,6 +317,11 @@ namespace json
 		void add(const std::string& name, int column)
 		{
 			m_selectors.push_back(std::make_shared< ColumnSelector<Member> >(name, column));
+		}
+
+		void addSane(const std::string& name, int column)
+		{
+			m_selectors.push_back(std::make_shared< SanitizeSelector >(name, column));
 		}
 
 		template <typename SubcursorJson>
@@ -468,6 +496,7 @@ namespace json
 	type::type(const db::CursorPtr& c): CursorJson<type>(c)
 #define JSON_CURSOR_ADD(name, column, type) add<type>(#name, (column))
 #define JSON_CURSOR_TEXT(name, column) add<const char*>(#name, (column))
+#define JSON_CURSOR_SANE(name, column) addSane(#name, (column))
 #define JSON_CURSOR_TIME(name, column) add<db::time_tag>(#name, (column))
 #define JSON_CURSOR_L(name, column) add<long>(#name, (column))
 #define JSON_CURSOR_LL(name, column) add<long long>(#name, (column))
