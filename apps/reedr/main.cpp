@@ -28,6 +28,7 @@
 #include <locale.hpp>
 #include <string.h>
 #include <http/http.hpp>
+#include <dom/parsers/encoding_db.hpp>
 #include <mail/mail.hpp>
 #include "args.hpp"
 #include "server_config.hpp"
@@ -204,7 +205,7 @@ struct Main
 		if (!read_config(true))
 			return;
 
-		http::reload(config.data.charset);
+		dom::parsers::reload(config.data.charset);
 		mail::PostOffice::reload(config.connection.smtp);
 
 		app.setStaticResources(config.server.static_web);
@@ -329,7 +330,7 @@ struct Main
 
 			banner b{};
 
-			http::init(config.data.charset);
+			dom::parsers::init(config.data.charset);
 			mail::PostOffice::init(config.connection.smtp);
 
 			FastCGI::Application app;

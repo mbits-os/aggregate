@@ -34,6 +34,7 @@
 #include <utils.hpp>
 #include "schema.hpp"
 #include <http/http.hpp>
+#include <dom/parsers/encoding_db.hpp>
 #include <fast_cgi/application.hpp>
 #include <wiki/wiki.hpp>
 #include "../reedr/server_config.hpp"
@@ -193,7 +194,7 @@ int main(int argc, char* argv[])
 	if (env.failed)
 		return 1;
 
-	http::init(charset);
+	dom::parsers::init(charset);
 
 	char prog[] = "dbtool";
 	argv[0] = prog;
