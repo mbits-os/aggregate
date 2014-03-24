@@ -27,8 +27,9 @@
 
 namespace dom
 {
-	struct XmlDocument;
-	typedef std::shared_ptr<XmlDocument> XmlDocumentPtr;
+	struct Document;
+	typedef std::shared_ptr<Document> DocumentPtr;
+	typedef DocumentPtr XmlDocumentPtr;
 };
 
 namespace opml

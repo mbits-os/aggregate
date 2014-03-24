@@ -29,8 +29,14 @@
 
 namespace dom
 {
-	struct XmlDocument;
-	typedef std::shared_ptr<XmlDocument> XmlDocumentPtr;
+	struct Document;
+	struct Element;
+	struct Attribute;
+	typedef std::shared_ptr<Document> DocumentPtr;
+	typedef DocumentPtr XmlDocumentPtr;
+	typedef Document XmlDocument;
+	typedef Element XmlElement;
+	typedef Attribute XmlAttribute;
 };
 
 namespace feed
