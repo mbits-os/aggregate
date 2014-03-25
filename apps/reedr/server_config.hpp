@@ -77,6 +77,7 @@ struct ConfigINI
 		, pidfile   (*this, "pid",        APP_PATH "reedr.pid")
 		, user      (*this, "user"        )
 		, group     (*this, "group"       )
+		, sanitize  (*this, "sanitize",   "sanitize.ini")
 		{
 		}
 
@@ -85,6 +86,7 @@ struct ConfigINI
 		config::wrapper::setting<path>        pidfile;
 		config::wrapper::setting<std::string> user;
 		config::wrapper::setting<std::string> group;
+		config::wrapper::setting<path>        sanitize;
 	};
 
 	struct data_wrapper : config::wrapper::section
@@ -152,6 +154,7 @@ struct Config
 		path        pidfile;
 		std::string user;
 		std::string group;
+		path        sanitize;
 	};
 
 	struct Data

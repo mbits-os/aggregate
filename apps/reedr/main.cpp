@@ -38,6 +38,7 @@
 #include <remote/pid.hpp>
 #include <remote/identity.hpp>
 #include <user_info.hpp>
+#include <sanitize.hpp>
 
 namespace fs = filesystem;
 
@@ -148,6 +149,7 @@ struct Main
 			<< "\nconfig.server.user: " << config_ini.server.user
 			<< "\nconfig.server.group: " << config_ini.server.group
 			<< "\nconfig.server.pidfile: " << config_ini.server.pidfile << " -> " << canonical(config_ini.server.pidfile)
+			<< "\nconfig.server.sanitize: " << config_ini.server.sanitize << " -> " << canonical(config_ini.server.sanitize)
 			<< "\nconfig.connection.database: " << config_ini.connection.database << " -> " << canonical(config_ini.connection.database)
 			<< "\nconfig.connection.smtp: " << config_ini.connection.smtp << " -> " << canonical(config_ini.connection.smtp)
 			<< "\nconfig.data.dir: " << config_ini.data.dir << " -> " << canonical(config_ini.data.dir)
@@ -164,6 +166,7 @@ struct Main
 		config.server.pidfile = canonical(config_ini.server.pidfile);
 		config.server.user = config_ini.server.user;
 		config.server.group = config_ini.server.group;
+		config.server.sanitize = canonical(config_ini.server.sanitize);
 
 		config.connection.database = canonical(config_ini.connection.database);
 		config.connection.smtp = canonical(config_ini.connection.smtp);
@@ -206,6 +209,7 @@ struct Main
 			return;
 
 		dom::parsers::reload(config.data.charset);
+		sanitize::reload(config.server.sanitize);
 		mail::PostOffice::reload(config.connection.smtp);
 
 		app.setStaticResources(config.server.static_web);
@@ -331,6 +335,7 @@ struct Main
 			banner b{};
 
 			dom::parsers::init(config.data.charset);
+			sanitize::init(config.server.sanitize);
 			mail::PostOffice::init(config.connection.smtp);
 
 			FastCGI::Application app;

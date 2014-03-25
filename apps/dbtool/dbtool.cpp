@@ -152,7 +152,7 @@ bool get_conn_ini(int& argc, char**& argv, filesystem::path& cfg_path)
 }
 
 namespace fs = filesystem;
-bool open_cfg(int& argc, char**& argv, filesystem::path& charset, filesystem::path& dbConn, filesystem::path& debug)
+bool open_cfg(int& argc, char**& argv, filesystem::path& charset, filesystem::path& dbConn, filesystem::path& debug, filesystem::path& sanitize)
 {
 	filesystem::path cfg;
 	bool cfg_needed = get_conn_ini(argc, argv, cfg);
@@ -180,6 +180,8 @@ bool open_cfg(int& argc, char**& argv, filesystem::path& charset, filesystem::pa
 	auto logs = fs::canonical(fs::path(config.logs.dir), cfg);
 	debug = fs::canonical(fs::path(config.logs.debug), logs);
 
+	sanitize = fs::canonical(fs::path(config.server.sanitize), cfg);
+
 	return true;
 }
 
@@ -187,9 +189,9 @@ int main(int argc, char* argv[])
 {
 	FastCGI::FLogSource log;
 
-	filesystem::path charset, dbConn, debug;
+	filesystem::path charset, dbConn, debug, sanitize;
 
-	if (!open_cfg(argc, argv, charset, dbConn, debug))
+	if (!open_cfg(argc, argv, charset, dbConn, debug, sanitize))
 		return false;
 
 	log.open(debug);
@@ -199,6 +201,7 @@ int main(int argc, char* argv[])
 		return 1;
 
 	dom::parsers::init(charset);
+	sanitize::init(sanitize);
 
 	char prog[] = "dbtool";
 	argv[0] = prog;

@@ -38,10 +38,18 @@ namespace dom
 	typedef std::shared_ptr<Document> DocumentPtr;
 };
 
+namespace filesystem
+{
+	class path;
+}
+
 namespace sanitize
 {
 	bool sanitize(dom::parsers::OutStream& stream, const dom::DocumentPtr& document);
 	bool sanitize(std::string& dst, const std::string& html);
+
+	void init(const filesystem::path& ini);
+	static inline void reload(const filesystem::path& ini) { init(ini); }
 };
 
 #endif //__OPML_H__

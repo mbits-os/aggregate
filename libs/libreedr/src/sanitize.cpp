@@ -29,6 +29,46 @@
 #include <sstream>
 #include <utils.hpp>
 #include <uri.hpp>
+#include <vector>
+#include <config.hpp>
+
+namespace std
+{
+	vector<string> operator / (const string& list, const string& sep)
+	{
+		vector<string> out;
+		std::string::size_type start = 0, pos = 0;
+		do
+		{
+			pos = list.find(sep, start);
+			if (pos == std::string::npos)
+				out.push_back(list.substr(start));
+			else
+				out.push_back(list.substr(start, pos - start));
+
+			start = pos + sep.length();
+		} while (pos != std::string::npos);
+
+		return out;
+	}
+	vector<string> operator / (const string& list, char sep)
+	{
+		vector<string> out;
+		std::string::size_type start = 0, pos = 0;
+		do
+		{
+			pos = list.find(sep, start);
+			if (pos == std::string::npos)
+				out.push_back(list.substr(start));
+			else
+				out.push_back(list.substr(start, pos - start));
+
+			start = pos + 1;
+		} while (pos != std::string::npos);
+
+		return out;
+	}
+}
 
 namespace sanitize
 {
@@ -63,116 +103,185 @@ namespace sanitize
 		SANITIZE_REPLACE
 	};
 
-	const char* blacklisted_elements[] = {
-		"title",
-		"meta",
-		"link",
-		"script",
-		"style",
-		"embed",
-		"object",
-		"iframe"
-	};
-
-	const char* blacklisted_attrs[] = {
-		"class",
-	};
-
-	struct
+	struct item_info
 	{
-		const char* tag;
-		const char* attr;
-		bool optional;
+		std::string element;
+		std::string attr;
 		SANITIZE action;
-	} delicate[] = {
-		{ "a", "href", false, SANITIZE_REPLACE },
-		{ "img", "src", false, SANITIZE_REMOVE },
-		{ "audio", "src", true, SANITIZE_REMOVE },
-		{ "video", "src", true, SANITIZE_REMOVE },
-		{ "source", "src", false, SANITIZE_REMOVE },
-	};
+		bool optional;
 
-	class sanitizer
-	{
-		std::ostringstream o;
-	};
-
-	SANITIZE sanitize(const dom::ElementPtr& e)
-	{
-		auto name = std::tolower(e->tagName());
-		for (auto&& blacklisted : blacklisted_elements)
+		bool matches(const dom::ElementPtr& e) const
 		{
-			if (name == blacklisted)
-				return SANITIZE_REMOVE;
+			if (!element.empty() && element != e->tagName())
+				return false;
+
+			if (!attr.empty())
+				return e->hasAttribute(attr);
+
+			return true;
 		}
 
-		auto atts = e->getAttributes();
-		for (auto att : dom::list_atts(atts))
+		bool matchForHref(const std::string& tagName) const
 		{
-			auto name = std::tolower(att->name());
-			if (name.substr(0, 2) == "on")
-			{
-				e->removeAttribute(att);
-				continue;
-			}
+			if (!element.empty() && element != tagName)
+				return false;
 
-			for (auto&& blacklisted : blacklisted_attrs)
-			{
-				if (name == blacklisted)
-				{
-					e->removeAttribute(att);
-					break;
-				}
-			}
+			return !attr.empty();
 		}
 
-		for (auto&& link : delicate)
+		bool findHref(const dom::ElementPtr& e, std::string& value) const
 		{
-			if (name != link.tag)
-				continue;
-
-			bool found = false;
-
-			std::string attrName = link.attr, attr;
 			auto atts = e->getAttributes();
 
 			for (auto att : dom::list_atts(atts))
 			{
-				if (std::tolower(att->name()) != attrName)
+				if (att->name() != attr)
 					continue;
 
-				found = true;
-				attrName = att->name();
-				attr = att->value();
-				break;
+				value = att->value();
+				return true;
 			}
 
-			if (!found)
-			{
-				if (link.optional)
-					continue;
-
-				return link.action;
-			}
-
-			Uri uri{ attr };
-			if (uri.opaque() || uri.relative())
-				return link.action; // TODO: make absolute hierarchical URIs if possible
+			return false;
 		}
+	};
 
-		if (name == "span")
+	using items = std::vector<item_info>;
+
+	struct SanitizeDB
+	{
+		items blacklisted;
+		items hrefs;
+		items redundant;
+
+		void read(const filesystem::path& ini)
 		{
-			atts = e->getAttributes();
-			if (atts && atts->length() == 0)
-				return SANITIZE_REPLACE;
+			auto cfg = config::base::file_config(ini, false);
+			read(blacklisted, cfg->get_section("blacklisted"));
+			read(hrefs, cfg->get_section("hrefs"));
+			read(redundant, cfg->get_section("redundant"));
 		}
 
-		return SANITIZE_CONTINUE;
+		static void read(items& dst, const config::base::section_ptr& section)
+		{
+			dst.clear();
+			auto list = section->get_keys();
+			for (auto&& name : list)
+				push_back(dst, name, section->get_string(name, std::string()));
+		}
+
+		static void push_back(items& dst, const std::string& name, const std::string& value)
+		{
+			SANITIZE action = SANITIZE_REMOVE;
+			bool optional = false;
+			std::string tag, attr;
+
+			auto match = name / '@';
+			tag = std::tolower(std::trim((const std::string&)match[0]));
+			if (match.size() > 1)
+				attr = std::tolower(std::trim((const std::string&)match[1]));
+
+			auto list = value / ',';
+			for (auto token : list)
+			{
+				token = std::tolower(std::trim((const std::string&)token));
+				if (token == "optional") optional = true;
+				else if (token == "required") optional = false;
+				else if (token == "remove") action = SANITIZE_REMOVE;
+				else if (token == "replace") action = SANITIZE_REPLACE;
+			}
+
+			dst.push_back({ tag, attr, action, optional });
+		}
+
+		SANITIZE cleanBlacklisted(const dom::ElementPtr& e)
+		{
+			for (auto&& info : blacklisted)
+			{
+				if (info.matches(e))
+				{
+					if (info.attr.empty())
+						return info.action;
+
+					e->removeAttribute(info.attr);
+				}
+			}
+
+			return SANITIZE_CONTINUE;
+		}
+
+		SANITIZE cleanHrefs(const dom::ElementPtr& e)
+		{
+			auto tag = e->tagName();
+			for (auto&& info : hrefs)
+			{
+				if (!info.matchForHref(tag))
+					continue;
+
+				std::string href;
+				if (!info.findHref(e, href))
+				{
+					if (info.optional)
+						continue;
+
+					return info.action;
+				}
+
+				Uri uri{ href };
+				if (uri.opaque() || uri.relative())
+					return info.action; // TODO: make absolute hierarchical URIs if possible
+			}
+
+			return SANITIZE_CONTINUE;
+		}
+
+		SANITIZE cleanRedundant(const dom::ElementPtr& e)
+		{
+			for (auto&& info : redundant)
+			{
+				if (!info.matches(e))
+					continue;
+
+				auto atts = e->getAttributes();
+				if (atts && atts->length() == 0)
+					return info.action;
+			}
+
+			return SANITIZE_CONTINUE;
+		}
+
+		SANITIZE sanitize(const dom::ElementPtr& e)
+		{
+			auto ret = cleanBlacklisted(e);
+			if (ret != SANITIZE_CONTINUE)
+				return ret;
+
+			ret = cleanHrefs(e);
+			if (ret != SANITIZE_CONTINUE)
+				return ret;
+
+			return cleanRedundant(e);
+		}
+
+		static SanitizeDB& instance()
+		{
+			static SanitizeDB db;
+			return db;
+		}
+	};
+
+	void init(const filesystem::path& ini)
+	{
+		SanitizeDB::instance().read(ini);
 	}
 
-	bool sanitize(const dom::DocumentPtr& doc)
+	SANITIZE sanitize(const dom::ElementPtr& e)
 	{
-		std::list<dom::ElementPtr> queue;
+		return SanitizeDB::instance().sanitize(e);
+	}
+
+	void startQueue(std::list<dom::ElementPtr>& queue, const dom::DocumentPtr& doc)
+	{
 		auto e = doc->documentElement();
 		if (e)
 			queue.push_back(e);
@@ -185,32 +294,56 @@ namespace sanitize
 				queue.push_back(node);
 			}
 		}
+	}
+
+	void pushChildren(std::list<dom::ElementPtr>& queue, const dom::NodeListPtr& children)
+	{
+		for (auto&& e : dom::list_elements(children))
+		{
+			if (e)
+				queue.push_back(e);
+		}
+	}
+
+	enum CLEAN
+	{
+		CLEAN_ERROR,
+		CLEAN_DEEPER,
+		CLEAN_SKIP
+	};
+
+	CLEAN cleanElement(const dom::ElementPtr& e, const dom::NodeListPtr& replacement)
+	{
+		switch (SanitizeDB::instance().sanitize(e))
+		{
+		case SANITIZE_ERROR:   return CLEAN_ERROR;
+		case SANITIZE_REMOVE:  return e->remove() ? CLEAN_SKIP : CLEAN_ERROR;
+		case SANITIZE_REPLACE: return e->replace(replacement) ? CLEAN_DEEPER : CLEAN_ERROR;
+		default:
+			break;
+		}
+
+		return CLEAN_DEEPER;
+	}
+
+	bool sanitize(const dom::DocumentPtr& doc)
+	{
+		std::list<dom::ElementPtr> queue;
+		startQueue(queue, doc);
 
 		while (!queue.empty())
 		{
 			auto e = queue.front();
 			queue.pop_front();
 
-			auto result = sanitize(e);
-
 			auto children = e->childNodes();
-
-			switch (result)
-			{
-			case SANITIZE_ERROR:
+			auto clean = cleanElement(e, children);
+			if (clean == CLEAN_ERROR)
 				return false;
-			case SANITIZE_REMOVE:
-				if (!e->remove())
-					return false;
+			if (clean == CLEAN_SKIP)
 				continue;
-			case SANITIZE_REPLACE:
-				if (!e->replace(children))
-					return false;
-				break;
-			}
 
-			for (auto&& e : dom::list_elements(children))
-			if (e) queue.push_back(e);
+			pushChildren(queue, children);
 		}
 
 		return true;
