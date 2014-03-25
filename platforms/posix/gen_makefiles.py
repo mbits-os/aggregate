@@ -12,7 +12,7 @@ predef.add_macro("EXTERNAL_EXPAT", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_CURL", "", Location("<command-line>", 0))
 predef.add_macro("EXTERNAL_Z", "", Location("<command-line>", 0))
 
-libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++", "htmlcxx"]
+libs = ["c", "stdc++", "curl", "crypto", "ssl", "pthread", "mysqlclient", "expat", "dl", "z", "m", "rt", "fcgi", "fcgi++", "gumbo"]
 project_libs = ["libbase", "libweb", "libpersist", "libenv", "libreedr", "libremote"]
 common_incl = ["%slibs/%s/includes" % (root, lib) for lib in project_libs]
 

@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>libfcgi_r.lib;ssleay32_r.lib;libeay32_r.lib;libcurl_r.lib;libexpat_r.lib;htmlcxx_r.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libfcgi_r.lib;ssleay32_r.lib;libeay32_r.lib;libcurl_r.lib;libexpat_r.lib;gumbo_r.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <PropertyGroup Label="UserMacros" />
