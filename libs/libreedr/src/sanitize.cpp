@@ -26,6 +26,7 @@
 #include <sanitize.hpp>
 #include <dom/dom.hpp>
 #include <dom/parsers/html.hpp>
+#include <css/parser.hpp>
 #include <sstream>
 #include <utils.hpp>
 #include <uri.hpp>
@@ -235,6 +236,84 @@ namespace sanitize
 			return SANITIZE_CONTINUE;
 		}
 
+		SANITIZE cleanTerm(css::Term& term)
+		{
+			if (term.type != css::TERM_TYPE::FUNCTION)
+				return SANITIZE_CONTINUE;
+
+			if (term.value != "uri")
+				return SANITIZE_CONTINUE;
+
+			if (term.arguments.size() != 1)
+				return SANITIZE_REMOVE;
+
+			auto arg = term.arguments.front();
+			if (arg.type != css::TERM_TYPE::STRING && arg.type != css::TERM_TYPE::URL)
+				return SANITIZE_REMOVE;
+
+			Uri uri{ arg.value };
+			if (uri.opaque() || uri.relative())
+				return SANITIZE_REMOVE; // TODO: make absolute hierarchical URIs if possible
+
+			return SANITIZE_CONTINUE;
+		}
+
+		SANITIZE cleanRule(css::Declaration& decl)
+		{
+			bool touched = false;
+			auto it = decl.expression.begin();
+			auto end = decl.expression.end();
+			for (; it != end; ++it)
+			{
+				auto ret = cleanTerm(*it);
+				if (ret == SANITIZE_CONTINUE) continue;
+				if (ret == SANITIZE_ERROR)    return ret;
+				it = decl.expression.erase(it);
+				end = decl.expression.end();
+				touched = true;
+			}
+
+			if (touched && decl.expression.empty())
+				return SANITIZE_REMOVE;
+
+			return SANITIZE_CONTINUE;
+		}
+
+		SANITIZE cleanStyle(const dom::ElementPtr& e)
+		{
+			auto attr = e->getAttributeNode("style");
+			if (!attr)
+				return SANITIZE_CONTINUE;
+
+			auto ruleset = css::read_style(attr->value());
+
+			bool touched = false;
+			auto it = ruleset.begin();
+			auto end = ruleset.end();
+			for (; it != end; ++it)
+			{
+				auto ret = cleanRule(*it);
+				if (ret == SANITIZE_CONTINUE) continue;
+				if (ret == SANITIZE_ERROR)    return ret;
+				it = ruleset.erase(it);
+				end = ruleset.end();
+				touched = true;
+			}
+
+			if (touched)
+			{
+				e->removeAttribute(attr);
+				if (!ruleset.empty())
+				{
+					StringBuilder stream;
+					css::serialize_style(stream, ruleset, "");
+					e->setAttribute("style", stream.str());
+				}
+			}
+
+			return SANITIZE_CONTINUE;
+		}
+
 		SANITIZE cleanRedundant(const dom::ElementPtr& e)
 		{
 			for (auto&& info : redundant)
@@ -257,6 +336,10 @@ namespace sanitize
 				return ret;
 
 			ret = cleanHrefs(e);
+			if (ret != SANITIZE_CONTINUE)
+				return ret;
+
+			ret = cleanStyle(e);
 			if (ret != SANITIZE_CONTINUE)
 				return ret;
 
@@ -355,6 +438,26 @@ namespace sanitize
 			return false;
 
 		dom::parsers::html::serialize(stream, document);
+		return true;
+	}
+
+	bool sanitize_css(std::string& dst, const std::string& html)
+	{
+		auto ruleset = css::read_style(html);
+		auto it = ruleset.begin();
+		auto end = ruleset.end();
+		for (; it != end; ++it)
+		{
+			auto ret = it->failed ? SANITIZE_REMOVE : SanitizeDB::instance().cleanRule(*it);
+			if (ret == SANITIZE_CONTINUE) continue;
+			if (ret == SANITIZE_ERROR)    return false;
+			it = ruleset.erase(it);
+			end = ruleset.end();
+		}
+
+		StringBuilder stream;
+		css::serialize_style(stream, ruleset, "");
+		dst = std::move(stream.str());
 		return true;
 	}
 

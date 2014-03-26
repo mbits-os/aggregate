@@ -47,6 +47,7 @@ namespace sanitize
 {
 	bool sanitize(dom::parsers::OutStream& stream, const dom::DocumentPtr& document);
 	bool sanitize(std::string& dst, const std::string& html);
+	bool sanitize_css(std::string& dst, const std::string& html);
 
 	void init(const filesystem::path& ini);
 	static inline void reload(const filesystem::path& ini) { init(ini); }
