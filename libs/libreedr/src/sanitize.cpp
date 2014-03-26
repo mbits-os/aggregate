@@ -241,7 +241,7 @@ namespace sanitize
 			if (term.type != css::TERM_TYPE::FUNCTION)
 				return SANITIZE_CONTINUE;
 
-			if (term.value != "uri")
+			if (term.value != "url")
 				return SANITIZE_CONTINUE;
 
 			if (term.arguments.size() != 1)
@@ -263,10 +263,10 @@ namespace sanitize
 			bool touched = false;
 			auto it = decl.expression.begin();
 			auto end = decl.expression.end();
-			for (; it != end; ++it)
+			while (it != end)
 			{
 				auto ret = cleanTerm(*it);
-				if (ret == SANITIZE_CONTINUE) continue;
+				if (ret == SANITIZE_CONTINUE) { ++it; continue; }
 				if (ret == SANITIZE_ERROR)    return ret;
 				it = decl.expression.erase(it);
 				end = decl.expression.end();
@@ -290,10 +290,10 @@ namespace sanitize
 			bool touched = false;
 			auto it = ruleset.begin();
 			auto end = ruleset.end();
-			for (; it != end; ++it)
+			while (it != end)
 			{
-				auto ret = cleanRule(*it);
-				if (ret == SANITIZE_CONTINUE) continue;
+				auto ret = it->failed ? SANITIZE_REMOVE : cleanRule(*it);
+				if (ret == SANITIZE_CONTINUE) { ++it; continue; }
 				if (ret == SANITIZE_ERROR)    return ret;
 				it = ruleset.erase(it);
 				end = ruleset.end();
@@ -446,17 +446,18 @@ namespace sanitize
 		auto ruleset = css::read_style(html);
 		auto it = ruleset.begin();
 		auto end = ruleset.end();
-		for (; it != end; ++it)
+
+		while (it != end)
 		{
 			auto ret = it->failed ? SANITIZE_REMOVE : SanitizeDB::instance().cleanRule(*it);
-			if (ret == SANITIZE_CONTINUE) continue;
+			if (ret == SANITIZE_CONTINUE) { ++it; continue; }
 			if (ret == SANITIZE_ERROR)    return false;
 			it = ruleset.erase(it);
 			end = ruleset.end();
 		}
 
 		StringBuilder stream;
-		css::serialize_style(stream, ruleset, "");
+		css::serialize_style(stream, ruleset, " ");
 		dst = std::move(stream.str());
 		return true;
 	}
