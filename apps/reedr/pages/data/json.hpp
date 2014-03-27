@@ -483,7 +483,7 @@ namespace json
 		typedef type Type; \
 		Json(const Type& ctx); \
 	}; \
-	Json<type>::Json(const Type& ctx): StructJson<type>(ctx)
+	inline Json<type>::Json(const Type& ctx): StructJson<type>(ctx)
 #define JSON_ADD2(name, dest) add(#name, &Type::dest)
 #define JSON_ADD(name) add(#name, &Type::name)
 #define JSON_ADD_CURSOR(name, type) addCursor<type>(#name, &Type::name)
@@ -493,7 +493,7 @@ namespace json
 	{ \
 		type(const db::CursorPtr& c); \
 	}; \
-	type::type(const db::CursorPtr& c): CursorJson<type>(c)
+	inline type::type(const db::CursorPtr& c) : CursorJson<type>(c)
 #define JSON_CURSOR_ADD(name, column, type) add<type>(#name, (column))
 #define JSON_CURSOR_TEXT(name, column) add<const char*>(#name, (column))
 #define JSON_CURSOR_SANE(name, column) addSane(#name, (column))
