@@ -122,6 +122,21 @@ function setupDialog(id, callbacks) {
 }
 
 var manyIndex = 0;
+function subscribeMultiSubmitEnable(){
+	var selectCount = 0;
+	$("input[type=checkbox]", $("#subscribe-many-container")).each(function (index, dom){
+		var val = dom.checked;
+		if (val)
+			selectCount++;
+	});
+
+	var $btn = $("input[type='submit']:first", $("#subscribe-many"));
+	if (selectCount > 0)
+		$btn.removeAttr("disabled");
+	else
+		$btn.attr("disabled", "disabled");
+}
+
 function subscribeToMany(links)
 {
     var $dlg = $("#subscribe-many");
@@ -158,13 +173,94 @@ function subscribeToMany(links)
 		}
 
 		$container.append($link);
+
+		$("#" + inputId).change(subscribeMultiSubmitEnable);
 	}
 
 	dimmer2.show($dlg);
 }
 
+var subscribeManyXHR = null;
 function subscribeMany()
 {
+    var $dlg = $("#subscribe-many");
+	var $container = $("#subscribe-many-container");
+	var $inputs = $("input[type=checkbox]", $container);
+    var $btn = $("input[type='submit']:first", $dlg);
+    var $btns = $btn.parent();
+
+	var links = new Array();
+	$inputs.each(function(index, dom) {
+		if (dom.checked)
+		{
+			links.push($(dom).parent().attr("ref"));
+		}
+	});
+	var json = JSON.stringify(links);
+
+    $inputs.attr("disabled", "disabled");
+    $btn.attr("disabled", "disabled");
+
+	alert(json);
+    if (subscribeManyXHR != null) {
+        subscribeManyXHR.abort();
+        subscribeManyXHR = null;
+    }
+
+    var $loader = $("<span></span>");
+    $loader.addClass("loader");
+    $loader.attr("id", "subscribe-spinner");
+    $btns.prepend($loader);
+
+    subscribeXHR = $.ajax({
+        url: "/data/api?op=subscribe-many",
+        data: { json: json },
+		type: "POST",
+        dataType: "json"
+    }).done(function (data) {
+        $(".subscribe-error", $dlg).text("");
+		
+		var index = 0;
+		var copy = data;
+		var then = function() {
+			if (index >= copy.length)
+			{
+				dimmer2.toggle();
+				dimmer.toggle();
+				return;
+			}
+
+			var data = copy[index];
+			++index;
+			var id = "#feed-" + data.folder + "-" + data.feed;
+			var $target = $(id);
+			if ($target.length != 0) {
+				$("a", $target).trigger("click");
+				dimmer.toggle();
+			} else {
+				updateNavigation(id, function () { then(); });
+			}
+		};
+		
+		then();
+		$loader.remove();
+        subscribeXHR = null;
+    }).error(function (xhr) {
+        // ERROR HANDLER
+        var data = { error: null };
+        try {
+            var data = JSON.parse(subscribeXHR.responseText);
+        } catch (e) { }
+        if (!data.error) {
+            data.error = LNG_SUBSCRIBE_ERROR;
+        }
+        $loader.remove();
+        $(".subscribe-error", $dlg).text(data.error);
+        $inputs.removeAttr("disabled");
+		subscribeMultiSubmitEnable();
+        subscribeXHR = null;
+    });
+
 }
 
 var subscribeXHR = null;
@@ -181,7 +277,12 @@ function subscribe() {
         subscribeXHR = null;
     }
 
-    var $loader = $e("span");
+    if (subscribeManyXHR != null) {
+        subscribeManyXHR.abort();
+        subscribeManyXHR = null;
+    }
+
+    var $loader = $("<span></span>");
     $loader.addClass("loader");
     $loader.attr("id", "subscribe-spinner");
     $btns.prepend($loader);
@@ -206,6 +307,7 @@ function subscribe() {
 			}
 
 			subscribeToMany(data.links);
+			$loader.remove();
 			return;
 		}
 

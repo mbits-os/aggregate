@@ -235,6 +235,7 @@ namespace FastCGI { namespace app {
 					"<label>" << tr(lng::LNG_SUBSCRIBE_MANY_PROMPT) << "</label><br/>"
 					"<div id=\"subscribe-many-container\"></div>"
 					"<div class='subscribe-hint'>" << tr(lng::LNG_SUBSCRIBE_MANY_HINT) << "</div>"
+					"<div class='subscribe-error'></div>"
 					"<div class='buttons'>"
 					"<input name='add' type='submit' value='" << tr(lng::LNG_CMD_ADD) << "'/>"
 					"<input name='cancel' type='submit' value='" << tr(lng::LNG_CMD_CLOSE) << "'/>"
